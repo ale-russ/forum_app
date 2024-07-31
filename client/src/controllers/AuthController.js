@@ -50,15 +50,11 @@ export async function register({ values, navigate }) {
       formData.append("email", email);
       formData.append("password", password);
 
-      const { data } = await axios.post(
-        "http://localhost:4000/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const { data } = await axios.post(registerRoute, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (data.status == false) {
         toast.error(`${data.msg}`, toastOptions);
@@ -85,31 +81,20 @@ export async function login({ values, navigate }) {
       const { email, password } = values;
       console.log("email: , password: ", email, password);
 
-      const { data } = await axios.post(
-        "http://localhost:4000/login",
-        { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const data = await axios.post(loginRoute, { email, password });
 
-      if (data.status === false) {
-        toast.error(`${data.msg}`, toastOptions);
-        return;
+      console.log("Data: ", data);
+
+      if (!data) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("currentUser", JSON.stringify(data));
       } else {
-        // navigate("/success", { state: { data: data.data } });
-        // navigate("/dashboard");
+        return toast.error(`${data.msg}`, toastOptions);
       }
     }
   } catch (error) {
-    console.log("Error: ", error);
-    if (error.response.data.msg) {
-      toast.error(error.response.data.msg, toastOptions);
-    } else {
-      toast.error("Oops! Something went wrong. Please try again", toastOptions);
-    }
+    console.log("ERROR: ", error);
+    return toast.error(error.response.data.msg, toastOptions);
   }
 }
 

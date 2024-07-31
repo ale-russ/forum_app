@@ -113,40 +113,40 @@ router.post("/register", upload.single("profileImage"), async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // check if fields are not empty
   if (!email || !password)
     return res.status(400).json({ msg: "All fields are required" });
 
   try {
-    // check if user exists
     const user = await userCollection.findOne({ email });
 
-    // if user doesn't exist
     if (!user)
       return res.status(401).json({ msg: "Invalid Email or Password" });
 
-    // check if password matches
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch)
       return res.status(401).json({ msg: "Invalid Email or Password" });
 
-    // create and sign a token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
     const userId = user._id;
     const userEmail = user.email;
     const userProfileImage = user.profileImage;
 
-    // send the token in the response
-    return res.status(200).json({
-      msg: "User successfully Logged In",
-      token,
-      userId,
-      userEmail,
-      // userProfileImage,
-    });
+    if (res.statusCode === 200) {
+      return res.status(200).json({
+        msg: "User successfully Logged In",
+        token,
+        userId,
+        userEmail,
+        // userProfileImage,
+      });
+    } else {
+      console.log("RESPONSE: ", res);
+      return res.status(401).json({ msg: "Internal Server Error" });
+    }
   } catch (err) {
+    console.error("Error: ", err);
     return res
       .status(500)
       .json({ msg: "Internal Server Error", error: err.message });
