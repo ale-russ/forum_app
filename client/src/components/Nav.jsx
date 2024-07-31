@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
+import { handleLogout } from "../controllers/AuthController";
+import { useNavigate } from "react-router-dom";
+
+import { UserAuthContext } from "../utils/UserAuthenticationProvider";
 
 const Nav = () => {
-  const signOut = () => {
-    alert("User signed out!");
+  const navigate = useNavigate();
+  const { setUserAuth } = useContext(UserAuthContext);
+  const signOut = async () => {
+    await handleLogout({ navigate });
+    setUserAuth({ newToken: "" });
+    navigate("/");
   };
   return (
     <nav className="navbar">

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import { register } from "../controllers/AuthController";
-import Loader from "./common/Loader";
+import Loader from "../components/common/Loader";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ const Register = () => {
           </p>
         </form>
       )}
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </main>
   );
 };

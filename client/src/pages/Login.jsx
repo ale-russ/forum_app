@@ -1,16 +1,25 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../controllers/AuthController";
-import Loader from "./common/Loader";
+import Loader from "../components/common/Loader";
 import { ToastContainer } from "react-toastify";
+import { UserAuthContext } from "../utils/UserAuthenticationProvider";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { token } = useContext(UserAuthContext);
+  const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (token) {
+      navigate("/home");
+    }
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,13 +27,14 @@ const Login = () => {
     try {
       setLoading(true);
       await login({ values });
+      setUserAuth({ newToken: localStorage.getItem("token") });
+      navigate("/home");
     } finally {
       setValues({
         email: "",
         password: "",
       });
       setLoading(false);
-      navigate("/dashboard");
     }
   };
 
@@ -69,7 +79,6 @@ const Login = () => {
           </form>
         </>
       )}
-      <ToastContainer />
     </main>
   );
 };

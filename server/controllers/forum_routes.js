@@ -6,7 +6,6 @@ const Comment = require("../models/comments_model");
 const { populate } = require("../models/user_models");
 
 const router = express.Router();
-
 // Create Post
 router.post("/post", verifyToken, async (req, res) => {
   try {
@@ -15,6 +14,7 @@ router.post("/post", verifyToken, async (req, res) => {
     await post.save();
     res.status(201).json(post);
   } catch (err) {
+    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -27,6 +27,7 @@ router.get("/posts", async (req, res) => {
       .populate("comments");
     res.status(200).json(posts);
   } catch (err) {
+    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -84,7 +85,7 @@ router.delete("/posts/:id", verifyToken, async (req, res) => {
 });
 
 // Add comment to a post
-router.post("/post/id:/comments", verifyToken, async (req, res) => {
+router.post("/post/:id/comments", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });

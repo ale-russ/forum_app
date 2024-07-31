@@ -74,7 +74,6 @@ export async function register({ values, navigate }) {
   }
 }
 
-// react-logic
 export async function login({ values, navigate }) {
   try {
     if (handleValidation({ values, isRegister: false })) {
@@ -85,30 +84,31 @@ export async function login({ values, navigate }) {
 
       console.log("Data: ", data);
 
-      if (!data) {
-        localStorage.setItem("token", data.token);
+      if (data) {
+        localStorage.setItem("token", data.data.token);
         localStorage.setItem("currentUser", JSON.stringify(data));
       } else {
-        return toast.error(`${data.msg}`, toastOptions);
+        toast.error(`${data.msg}`, toastOptions);
+        return;
       }
     }
   } catch (error) {
-    console.log("ERROR: ", error);
-    return toast.error(error.response.data.msg, toastOptions);
+    console.log("ERROR: ", error.response.data.msg);
+    toast.error(error.response.data.msg, toastOptions);
+    return;
   }
 }
 
-export const handleLogout = async ({ token, navigate, endPoint }) => {
-  var logoutRoute = `${host}/${endPoint}/`;
-  const body = {
-    access_token: token,
-  };
-  try {
-    await axios.post(logoutRoute, body);
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("userType");
+export const handleLogout = async ({ navigate }) => {
+  // var logoutRoute = `${host}/${endPoint}/`;
+  // const body = {
+  //   access_token: token,
+  // };
 
-    navigate("/");
+  try {
+    // await axios.post(logoutRoute, body);
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("token");
   } catch (error) {
     toast.error(error, toastOptions);
   }

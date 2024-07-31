@@ -1,22 +1,39 @@
-import React, { createContext, useEffect, useState } from "react";
+// import React, { createContext, useEffect, useState } from "react";
 
-export const UserAuthContext = createContext(null);
+// export const UserAuthContext = createContext(null);
 
-export const UserAuthProvider = ({ children }) => {
+// export const UserAuthProvider = ({ children }) => {
+//   const [token, setToken] = useState(localStorage.getItem("token") || "");
+
+//   const setUserAuth = ({ newToken }) => {
+//     if (newToken != null) {
+//       setToken(newToken);
+
+//       localStorage.setItem("token", newToken);
+//     }
+//     return;
+//   };
+
+//   return (
+//     <UserAuthContext.Provider value={{ token, setUserAuth }}>
+//       {children}
+//     </UserAuthContext.Provider>
+//   );
+// };
+
+// export default UserAuthContext;
+
+import React, { createContext, useState } from "react";
+
+const UserAuthContext = createContext();
+
+const UserAuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const setUserAuth = ({ newToken }) => {
     setToken(newToken);
-    // localStorage.setItem("user", JSON.stringify(auth));
+    localStorage.setItem("token", newToken);
   };
-
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("token");
-    }
-  }, [token]);
 
   return (
     <UserAuthContext.Provider value={{ token, setUserAuth }}>
@@ -25,4 +42,5 @@ export const UserAuthProvider = ({ children }) => {
   );
 };
 
-export default UserAuthContext;
+// export default UserAuthContext;
+export { UserAuthContext, UserAuthProvider };
