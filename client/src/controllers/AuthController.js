@@ -40,7 +40,6 @@ export function handleValidation({ values, isRegister = false }) {
 }
 
 export async function register({ values, navigate }) {
-  console.log("Values in handleValidation: ", values);
   try {
     if (handleValidation({ values, isRegister: true })) {
       const { username, email, password, confirm_password } = values;
@@ -65,7 +64,6 @@ export async function register({ values, navigate }) {
       }
     }
   } catch (error) {
-    console.log("Error: ", error);
     if (error.response.data.message === "Phone number already exist!") {
       toast.error("User already exist", toastOptions);
     } else {
@@ -78,14 +76,11 @@ export async function login({ values, navigate }) {
   try {
     if (handleValidation({ values, isRegister: false })) {
       const { email, password } = values;
-      console.log("email: , password: ", email, password);
 
-      const data = await axios.post(loginRoute, { email, password });
+      const { data } = await axios.post(loginRoute, { email, password });
 
-      console.log("Data: ", data);
-
-      if (data) {
-        localStorage.setItem("token", data.data.token);
+      if (data.token != null) {
+        localStorage.setItem("token", data.token);
         localStorage.setItem("currentUser", JSON.stringify(data));
       } else {
         toast.error(`${data.msg}`, toastOptions);
@@ -93,7 +88,6 @@ export async function login({ values, navigate }) {
       }
     }
   } catch (error) {
-    console.log("ERROR: ", error.response.data.msg);
     toast.error(error.response.data.msg, toastOptions);
     return;
   }

@@ -31,8 +31,11 @@ const UserAuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const setUserAuth = ({ newToken }) => {
-    setToken(newToken);
-    localStorage.setItem("token", newToken);
+    console.log("newToken: ", newToken);
+    if (newToken != null) {
+      setToken(newToken);
+      localStorage.setItem("token", newToken);
+    }
   };
 
   return (

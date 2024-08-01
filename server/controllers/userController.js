@@ -65,7 +65,6 @@ async function fetchUserData(userCollection, id) {
 // register route
 router.post("/register", upload.single("profileImage"), async (req, res) => {
   const validationResult = userSchema.validate(req.body);
-  console.log("email: ", req.body);
 
   // check for validation
   if (validationResult.error)
@@ -131,7 +130,10 @@ router.post("/login", async (req, res) => {
 
     const userId = user._id;
     const userEmail = user.email;
+    const userName = user.userName;
     const userProfileImage = user.profileImage;
+
+    delete user.password;
 
     if (res.statusCode === 200) {
       return res.status(200).json({
@@ -139,14 +141,13 @@ router.post("/login", async (req, res) => {
         token,
         userId,
         userEmail,
+        userName,
         // userProfileImage,
       });
     } else {
-      console.log("RESPONSE: ", res);
       return res.status(401).json({ msg: "Internal Server Error" });
     }
   } catch (err) {
-    console.error("Error: ", err);
     return res
       .status(500)
       .json({ msg: "Internal Server Error", error: err.message });
