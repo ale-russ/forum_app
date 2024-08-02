@@ -13,26 +13,29 @@ import PrivateRoutes from "./routes/PrivateRoutes";
 import Unauthorized from "./routes/Unauthorized";
 import NoPageFound from "./routes/NoPageFound";
 import { UserAuthContext } from "./utils/UserAuthenticationProvider";
+import { ForumProvider } from "./utils/PostContext";
 
 function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
-    <div>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AuthWrapper />}>
-            <Route path="/" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </Route>
-          <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/:id/replies" element={<Replies />} />
-          </Route>
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/not-found" element={<NoPageFound />} />
-        </Routes>
-      </BrowserRouter>
+    <div className="dark h-[100vh]">
+      <ForumProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AuthWrapper />}>
+              <Route path="/" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
+            <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/:id/replies" element={<Replies />} />
+            </Route>
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/not-found" element={<NoPageFound />} />
+          </Routes>
+        </BrowserRouter>
+      </ForumProvider>
       <ToastContainer />
     </div>
   );

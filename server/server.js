@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const authRoutes = require("./controllers/userController");
-const forumRoute = require("./controllers/forum_routes");
+const forumRoute = require("./controllers/forumController");
 
 dotenv.config();
 const app = express();

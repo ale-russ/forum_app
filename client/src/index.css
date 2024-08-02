@@ -55,12 +55,12 @@ a {
   @apply text-sm text-[#97989D];
 }
 
-.register,
+/* .register,
 .login {
   width: 30%;
   margin: auto;
-}
-
+} */
+/* 
 .register,
 .login,
 .home,
@@ -196,4 +196,4 @@ a {
   margin-left: 15px;
   cursor: pointer;
   border-radius: 3px;
-}
+} */

@@ -42,16 +42,22 @@ const Login = () => {
   };
 
   return (
-    <main className="login">
+    <main className="dark flex flex-col items-center p-16 m-auto">
       {loading ? (
         <Loader />
       ) : (
-        <>
-          <h1 className="loginTitle">Log in to your account</h1>
+        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-96">
+          <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
+            Log in to your account
+          </h1>
 
-          <form className="loginForm" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col items-start justify-center px-4 gap-y-4 "
+            onSubmit={handleSubmit}
+          >
             <label htmlFor="email">Email:</label>
             <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
               type="email"
               id="email"
               name="email"
@@ -62,6 +68,7 @@ const Login = () => {
 
             <label htmlFor="password">Password:</label>
             <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
               type="password"
               id="password"
               name="password"
@@ -70,13 +77,20 @@ const Login = () => {
               required
             />
 
-            <button className="loginBtn">SIGN IN</button>
+            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg">
+              SIGN IN
+            </button>
 
-            <p>
-              Don't have an account ? <Link to="/register">Register</Link>
-            </p>
+            <div className="flex items-center justify-center mx-auto">
+              <p>
+                Don't have an account ?{" "}
+                <Link className="underline" to="/register">
+                  Register
+                </Link>
+              </p>
+            </div>
           </form>
-        </>
+        </div>
       )}
     </main>
   );

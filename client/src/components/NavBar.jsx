@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { MdHomeFilled } from "react-icons/md";
 import { BsCalendar4 } from "react-icons/bs";
 import { IoIosPeople } from "react-icons/io";
@@ -9,9 +10,19 @@ import { TiArrowSortedDown } from "react-icons/ti";
 
 import { ReactComponent as Logo } from "../assets/Logo.svg";
 import { ReactComponent as Profile } from "../assets/ProfileImage.svg";
+import { UserAuthContext } from "../utils/UserAuthenticationProvider";
+import { handleLogout } from "../controllers/AuthController";
 
 const NavBar = () => {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("currentUser"));
+  const { setUserAuth } = useContext(UserAuthContext);
+
+  const signOut = async () => {
+    await handleLogout({ navigate });
+    setUserAuth({ newToken: "" });
+    navigate("/");
+  };
 
   return (
     <div className="flex items-center justify-between px-4 dark-navbar h-16 w-[100%]">
@@ -35,7 +46,7 @@ const NavBar = () => {
           <AiFillMessage className="w-[40px] h-[40px] text-white  px-2 mx-1 md:mx-2 lg:mx-4 xl:mx-4 rounded-lg" />
           <TbBellFilled className="w-[40px] h-[40px] text-white px-2 mx-1 md:mx-2 lg:mx-4 xl:mx-4 rounded-lg" />
         </div>
-        <Profile className="mx-2" />
+        <Profile className="mx-2" onClick={signOut} />
         <p className="hidden sm:hidden md:block lg:block xl:block text-white font-bold text-[16px] text-ellipsis">
           {user.userName}
         </p>

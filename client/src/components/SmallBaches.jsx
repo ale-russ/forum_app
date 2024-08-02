@@ -6,7 +6,7 @@ import { ReactComponent as Popular } from "../assets/PopularBach.svg";
 
 const SmallBaches = () => {
   return (
-    <div className=" dark-navbar h-16 flex md:hidden lg:hidden xl:hidden items-center justify-between flex-row sm:flex-row md:flex-col lg:flex-col xl:flex-col mt-8 p-4">
+    <div className=" dark-navbar h-16 flex md:hidden lg:hidden xl:hidden items-center justify-between flex-row sm:flex-row md:flex-col lg:flex-col xl:flex-col mt-8 p-4 w-full rounded-lg">
       <div className="flex items-center mx-2 ">
         <div className="flex items-center justify-center m-auto rounded-lg dark-search border-1 h-[30px] w-[30px] mr-1">
           <Newest />

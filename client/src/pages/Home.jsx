@@ -11,71 +11,76 @@ import Loader from "../components/common/Loader";
 import { postsRoute } from "../utils/ApiRoutes";
 import NavBar from "../components/NavBar";
 import LeftSideBar from "../components/LeftSideBar";
-import SmallBaches from "../components/SmallBaches";
 import CenterSide from "../components/CenterSide";
+import { useForum } from "../utils/PostContext";
 
 const Home = () => {
-  const [loading, setLoading] = useState(false);
-  const [loadingComment, setLoadingComment] = useState(false);
-  const [threads, setThreads] = useState([]);
-  const [newPost, setNewPost] = useState({ title: "", content: "" });
+  // const [loading, setLoading] = useState(false);
+  // const [loadingComment, setLoadingComment] = useState(false);
+  // const [threads, setThreads] = useState([]);
+  // const [newPost, setNewPost] = useState({ title: "", content: "" });
   const { token } = useContext(UserAuthContext);
+  const { loading, handleFetchPosts } = useForum();
 
   useEffect(() => {
     handleFetchPosts();
-  }, [newPost]);
+  }, []);
 
-  const handleFetchPosts = async () => {
-    await fetchPosts().then((response) => {
-      setThreads(response.data);
-    });
-  };
+  // const handleFetchPosts = async () => {
+  //   await fetchPosts().then((response) => {
+  //     console.log("RESponse: ", response);
+  //     if (response && response.data) {
+  //       setThreads(response.data);
+  //     } else {
+  //       return "No Data found";
+  //     }
+  //   });
+  // };
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await createPost(newPost, token);
-      setThreads([...threads, response.data.data]);
-    } finally {
-      setNewPost({ title: "", content: "" });
-      setLoading(false);
-    }
-  };
+  // const handleCreatePost = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const response = await createPost(newPost, token);
+  //     // console.log("RESPONSE: ", response);
+  //     setThreads([...threads, response.data.data]);
+  //   } finally {
+  //     setNewPost({ title: "", content: "" });
+  //     setLoading(false);
+  //   }
+  // };
 
-  function handleAddComment(post, e, token, setThreads, threads) {
-    e.preventDefault();
-    setLoadingComment(true);
-    try {
-      addComment(post._id, { content: e.target.value }, token).then(
-        (response) => {
-          setThreads(
-            threads.map((p) =>
-              p._id === post._id
-                ? {
-                    ...p,
-                    comment: [...p.comments, response.data],
-                  }
-                : p
-            )
-          );
-        }
-      );
-    } finally {
-      setLoadingComment(false);
-      e.target.value = "";
-    }
-  }
+  // function handleAddComment(post, e, token, setThreads, threads) {
+  //   e.preventDefault();
+  //   setLoadingComment(true);
+  //   try {
+  //     addComment(post._id, { content: e.target.value }, token).then(
+  //       (response) => {
+  //         setThreads(
+  //           threads.map((p) =>
+  //             p._id === post._id
+  //               ? {
+  //                   ...p,
+  //                   comment: [...p.comments, response.data],
+  //                 }
+  //               : p
+  //           )
+  //         );
+  //       }
+  //     );
+  //   } finally {
+  //     setLoadingComment(false);
+  //     e.target.value = "";
+  //   }
+  // }
 
   return (
     <div className="dark">
-      {/* <Nav /> */}
       <NavBar />
       {loading ? (
         <Loader />
       ) : (
-        <main className="flex flex-col sm:fle-row lg:flex-row md:flex-row xl:flex-row px-4">
-          <SmallBaches />
+        <main className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 h-full w-full">
           <LeftSideBar />
           <CenterSide />
           {/* <section className="">

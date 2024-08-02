@@ -37,53 +37,71 @@ const Register = () => {
   };
 
   return (
-    <main className="register">
-      <h1 className="registerTitle">Create an account</h1>
+    <main className="dark flex flex-col items-center p-16 m-auto">
       {loading ? (
         <Loader />
       ) : (
-        <form className="registerForm" onSubmit={handleSubmit}>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            required
-            value={values.username}
-            onChange={(event) => handleChange(event)}
-          />
-          <label htmlFor="email">Email Address</label>
-          <input
-            type="text"
-            name="email"
-            id="email"
-            required
-            value={values.email}
-            onChange={(event) => handleChange(event)}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            required
-            value={values.password}
-            onChange={(event) => handleChange(event)}
-          />
-          <label htmlFor="confirm_password">Confirm Password</label>
-          <input
-            type="password"
-            name="confirm_password"
-            id="confirm_password"
-            required
-            value={values.confirm_password}
-            onChange={(event) => handleChange(event)}
-          />
-          <button className="registerBtn">REGISTER</button>
-          <p>
-            Have an account? <Link to="/">Sign in</Link>
-          </p>
-        </form>
+        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-96">
+          <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
+            Create an account
+          </h1>
+          <form
+            className="flex flex-col items-start justify-center px-4 gap-y-4 "
+            onSubmit={handleSubmit}
+          >
+            <label htmlFor="username">Username</label>
+            <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              type="text"
+              name="username"
+              id="username"
+              required
+              value={values.username}
+              onChange={(event) => handleChange(event)}
+            />
+            <label htmlFor="email">Email Address</label>
+            <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              type="text"
+              name="email"
+              id="email"
+              required
+              value={values.email}
+              onChange={(event) => handleChange(event)}
+            />
+            <label htmlFor="password">Password</label>
+            <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              type="password"
+              name="password"
+              id="password"
+              required
+              value={values.password}
+              onChange={(event) => handleChange(event)}
+            />
+            <label htmlFor="confirm_password">Confirm Password</label>
+            <input
+              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              type="password"
+              name="confirm_password"
+              id="confirm_password"
+              required
+              value={values.confirm_password}
+              onChange={(event) => handleChange(event)}
+            />
+            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg">
+              REGISTER
+            </button>
+            <div className="flex items-center justify-center mx-auto">
+              <p>
+                Have an account?{" "}
+                <Link className="underline" to="/">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       )}
       {/* <ToastContainer /> */}
     </main>
