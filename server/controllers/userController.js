@@ -46,7 +46,7 @@ const upload = multer({ storage });
 const client = new MongoClient(mongoUrl);
 
 const db = client.db("test");
-const userCollection = db.collection("user");
+const userCollection = db.collection("users");
 
 // Check if email exists in the db
 async function checkEmailStatus(userCollection, email) {
@@ -161,7 +161,7 @@ router.get("/user-info", verifyToken, async (req, res) => {
 
     // check if user exist
     if (!user) return res.status(400).json({ msg: "User Not Found" });
-
+    console.log("USER: ", user);
     delete user.password;
     return res.status(200).json({ user });
   } catch (err) {

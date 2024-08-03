@@ -16,7 +16,7 @@ const PostComponent = ({ post }) => {
   const { token } = localStorage.getItem("token");
   const [comments, setComments] = useState([]);
 
-  // console.log("Post: ", post);
+  console.log("Post: ", post);
   return (
     <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4 ">
       <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div>
@@ -46,7 +46,7 @@ const PostComponent = ({ post }) => {
           <div className="flex items-center">
             <ProfileImage className="rounded-full h-auto object-fill mr-4" />
             <div className="flex flex-col items-start">
-              <div className="font-bold text-lg">{post?.author}</div>
+              <div className="font-bold text-lg">{post?.author.userName}</div>
               <div className="text-[10px] text-[#C5D0E6]">3 days ago</div>
             </div>
           </div>
@@ -56,7 +56,8 @@ const PostComponent = ({ post }) => {
             <div
               className="hover:cursor-pointer"
               onClick={() => {
-                setComments(() => [...post?.comments]);
+                if (post?.comments != null)
+                  setComments(() => [...post?.comments]);
                 setShowModal(!showModal);
               }}
             >
@@ -88,7 +89,7 @@ const PostComponent = ({ post }) => {
                       <ProfileImage className="rounded-full object-fill" />
                     </div>
                     <div className="dark-search text-[13px] rounded-2xl shadow-stone-900 shadow-lg  py-1 px-3 ml-8 mr-5 ">
-                      <h1 className="text-sm">user0</h1>
+                      <h1 className="text-sm">{comment?.author.userName}</h1>
                       <p key={comment?._id}>{comment?.content}</p>
                     </div>
                   </div>

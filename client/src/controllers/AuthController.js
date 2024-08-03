@@ -60,7 +60,9 @@ export async function register({ values, navigate }) {
         return;
       } else {
         console.log("SUCCESS");
-        // navigate("/success", { state: { data: data.data } });
+        toast.success(
+          "You have successfully registered. Please login with the new credentials"
+        );
       }
     }
   } catch (error) {

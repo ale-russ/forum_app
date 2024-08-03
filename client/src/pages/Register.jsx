@@ -29,6 +29,7 @@ const Register = () => {
         confirm_password: "",
       });
       setLoading(false);
+      navigate("/");
     }
   };
 

@@ -9,9 +9,19 @@ const router = express.Router();
 router.post("/post", verifyToken, async (req, res) => {
   try {
     const { title, content } = req.body;
-    console.log("req.user.id: ", req.user.id);
-    const post = new Post({ title, content, author: req.user.id });
+
+    if (!req.user || !req.user.id)
+      return res.status(400).json({ message: "User ID is missing" });
+
+    console.log("Creating post with author ID: ", req.user.id);
+    const post = new Post({
+      title,
+      content,
+      author: req.user.id || req.user._id,
+    });
+
     await post.save();
+
     res.status(201).json(post);
   } catch (err) {
     console.log("ERror: ", err);
@@ -28,7 +38,7 @@ router.get("/posts", async (req, res) => {
         path: "comments",
         populate: { path: "author", select: "userName" },
       });
-    // console.log("Fetched posts:", JSON.stringify(posts, null, 2));
+
     res.status(200).json(posts);
   } catch (err) {
     console.log("ERror: ", err);
