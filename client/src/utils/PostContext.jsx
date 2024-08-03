@@ -17,6 +17,7 @@ export const ForumProvider = ({ children }) => {
   const [threads, setThreads] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const { token } = useContext(UserAuthContext);
+  const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const handleFetchPosts = async () => {
     setLoading(true);

@@ -9,6 +9,7 @@ const router = express.Router();
 router.post("/post", verifyToken, async (req, res) => {
   try {
     const { title, content } = req.body;
+    console.log("req.user.id: ", req.user.id);
     const post = new Post({ title, content, author: req.user.id });
     await post.save();
     res.status(201).json(post);
@@ -22,11 +23,12 @@ router.post("/post", verifyToken, async (req, res) => {
 router.get("/posts", async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("author", "username")
+      .populate("author", "userName")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "username" },
+        populate: { path: "author", select: "userName" },
       });
+    // console.log("Fetched posts:", JSON.stringify(posts, null, 2));
     res.status(200).json(posts);
   } catch (err) {
     console.log("ERror: ", err);
@@ -38,10 +40,10 @@ router.get("/posts", async (req, res) => {
 router.get("/posts/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate("author", "username")
+      .populate("author", "userName")
       .populate({
         path: "comments",
-        populate: { path: "author", select: "username" },
+        populate: { path: "author", select: "userName" },
       });
 
     if (!post) return res.status(404).json({ msg: "Post not found" });
