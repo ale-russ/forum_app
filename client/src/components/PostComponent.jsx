@@ -6,17 +6,44 @@ import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
 
 const PostComponent = ({ post }) => {
   const [showModal, setShowModal] = useState(false);
-  const {
-    handleAddComment,
-    loadingComment,
-    setLoadingComment,
-    threads,
-    setThreads,
-  } = useForum();
+  const { handleAddComment, threads, setThreads } = useForum();
   const { token } = localStorage.getItem("token");
   const [comments, setComments] = useState([]);
+  const [newComments, setNewComments] = useState([]);
 
-  console.log("Post: ", post);
+  // const renderComments = ({ post }) => {
+  //   console.log("post: ", post.comments);
+  //   let groupedComments = [];
+  //   let lastAuthor = null;
+
+  //   post.comments?.forEach((comment, index) => {
+  //     if (comment.author._id !== lastAuthor) {
+  //       groupedComments.push({ author: comment.author, comments: [comment] });
+  //       lastAuthor = comment.author._id;
+  //     } else {
+  //       groupedComments[groupedComments.length - 1].comments.push(comment);
+  //     }
+  //     console.log("Grouped Comments: ", groupedComments);
+  //   });
+
+  //   return groupedComments.map((group, index) => {
+  //     console.log("group: ", group);
+  //     return (
+  //       <div key={index} className="my-2">
+  //         <div className="flex flex-row items-start">
+  //           <ProfileImage className="rounded-full object-fill h-8 w-8 mx-2 mt-1" />
+  //           <div className="dark-search text-[13px] rounded-2xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5">
+  //             {group?.comments.map((comment) => (
+  //               <p key={comment?._id}>{comment?.content}</p>
+  //             ))}
+  //           </div>
+  //         </div>
+  //       </div>
+  //     );
+  //   });
+  // };
+
+  // console.log("Post: ", post);
   return (
     <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4 ">
       <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div>
@@ -46,15 +73,15 @@ const PostComponent = ({ post }) => {
           <div className="flex items-center">
             <ProfileImage className="rounded-full h-auto object-fill mr-4" />
             <div className="flex flex-col items-start">
-              <div className="font-bold text-lg">{post?.author.userName}</div>
+              <div className="font-bold text-sm">{post?.author.userName}</div>
               <div className="text-[10px] text-[#C5D0E6]">3 days ago</div>
             </div>
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#C5D0E6] w-[50%]">
-            <div>244,567 View</div>
-            <div>244,567 Likes</div>
+            <div className="flex flex-wrap">244,567 View</div>
+            <div className="flex flex-wrap">244,567 Likes</div>
             <div
-              className="hover:cursor-pointer"
+              className="flex flex-wrap items-center justify-center hover:cursor-pointer"
               onClick={() => {
                 if (post?.comments != null)
                   setComments(() => [...post?.comments]);
@@ -67,9 +94,9 @@ const PostComponent = ({ post }) => {
         </div>
       </div>
       {showModal ? (
-        <div className="flex flex-col overflow-x-hidden overflow-y-auto items-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-700 opacity-[96%] shadow-2xl">
-          <div className="flex flex-col  items-center outline-none focus:outline-none dark shadow-2xl w-[80%] md:w-[70%] lg:w-[35%] h-[70%] m-auto rounded-3xl overflow-hidden">
-            <div className=" w-full flex items-center justify-between px-4 my-3">
+        <div className="flex flex-col items-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-700 opacity-[96%] shadow-2xl">
+          <div className="flex flex-col items-center outline-none focus:outline-none dark shadow-2xl w-[80%] md:w-[70%] lg:w-[35%] h-[70%] m-auto rounded-3xl overflow-hidden">
+            <div className="w-full flex items-center justify-between px-4 my-3">
               <div className="w-full flex justify-center items-center">
                 <h4 className="text-[#FF571A] font-bold">Comments</h4>
               </div>
@@ -81,31 +108,36 @@ const PostComponent = ({ post }) => {
               </div>
             </div>
 
-            <div className="flex flex-col items-start overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar mx-1">
-              <>
-                {comments?.map((comment, index) => (
-                  <div className="flex flex-row items-start my-2 ">
-                    <div className="h-2 w-2 mx-2 mt-1">
-                      <ProfileImage className="rounded-full object-fill" />
-                    </div>
-                    <div className="dark-search text-[13px] rounded-2xl shadow-stone-900 shadow-lg  py-1 px-3 ml-8 mr-5 ">
-                      <h1 className="text-sm">{comment?.author.userName}</h1>
-                      <p key={comment?._id}>{comment?.content}</p>
-                    </div>
+            <div className="flex flex-col items-start overflow-y-auto scrollbar custom-scrollbar mx-1 flex-grow">
+              {comments?.map((comment, index) => (
+                <div
+                  key={comment?._id}
+                  className="flex flex-row items-start my-2 "
+                >
+                  <div className="h-2 w-2 mx-2 mt-1">
+                    <ProfileImage className="rounded-full object-fill" />
                   </div>
-                ))}
-              </>
+                  <div className="dark-search text-[13px] rounded-2xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 ">
+                    <h1 className="text-sm">{comment?.author.userName}</h1>
+                    <p>{comment?.content}</p>
+                  </div>
+                </div>
+              ))}
+
+              {/* {renderComments({ post })} */}
             </div>
-            <div className="flex items-center w-full ">
+
+            <div className="flex items-center w-full p-4 border-t border-gray-700">
               <ProfileImage className="rounded-full object-fill mx-4" />
               <textarea
-                className="flex items-center  dark-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[80%] my-2"
+                className="flex items-center dark-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
                 type="text"
                 placeholder="Add a comment"
                 onKeyDown={(e) => {
-                  console.log("Event: ", e.key);
                   if (e.key === "Enter") {
+                    e.preventDefault();
                     handleAddComment(post, e, token, setThreads, threads);
+                    // handleAddComment(e);
                   }
                 }}
               />
