@@ -9,7 +9,7 @@ const PostComponent = ({ post }) => {
   const [showModal, setShowModal] = useState(false);
   const { handleAddComment, threads, setThreads } = useForum();
   const { token } = localStorage.getItem("token");
-  const [comments, setComments] = useState([]);
+  const [localComments, setLocalComments] = useState([]);
 
   const sortComments = (comments) => {
     return comments.sort((a, b) => {
@@ -20,9 +20,9 @@ const PostComponent = ({ post }) => {
     });
   };
 
-  console.log("token: ", token);
+  console.log("token: ", post);
   return (
-    <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4 ">
+    <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4">
       <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div>
       <div className="flex items-start flex-col justify-between w-full h-full px-2 ">
         <div className="flex flex-col w-full gap-y-3">
@@ -31,11 +31,15 @@ const PostComponent = ({ post }) => {
               {post?.title} : {post?.content}
             </div>
             <div
+              className="hidden md:block lg:block xl:block"
               onClick={async () =>
                 await likePost({ id: post?._id, token: token })
               }
             >
               <CiHeart />
+            </div>
+            <div className="block md:hidden lg:hidden xl:hidden">
+              <ProfileImage className="rounded-full h-auto object-fill " />
             </div>
           </div>
           <div className="flex items-center gap-x-2">
@@ -51,21 +55,23 @@ const PostComponent = ({ post }) => {
           </div>
         </div>
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center">
+          <div className="hidden lg:flex md:flex xl:flex items-center">
             <ProfileImage className="rounded-full h-auto object-fill mr-4" />
             <div className="flex flex-col items-start">
               <div className="font-bold text-sm">{post?.author.userName}</div>
-              <div className="text-[10px] text-[#C5D0E6]">3 days ago</div>
+              <div className="text-[10px] text-[#C5D0E6]">
+                {post?.createdAt}
+              </div>
             </div>
           </div>
-          <div className="flex items-center justify-between text-[10px] text-[#C5D0E6] w-[50%]">
-            <div className="flex flex-wrap">244,567 View</div>
+          <div className="flex items-center justify-between text-[10px] text-[#C5D0E6] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
+            <div className="flex flex-wrap items-center px-2">244,567 View</div>
             <div className="flex flex-wrap">244,567 Likes</div>
             <div
               className="flex flex-wrap items-center justify-center hover:cursor-pointer"
               onClick={() => {
                 if (post?.comments != null)
-                  setComments(() => [...post?.comments]);
+                  setLocalComments(sortComments([...post?.comments]));
                 setShowModal(!showModal);
               }}
             >
@@ -90,32 +96,34 @@ const PostComponent = ({ post }) => {
             </div>
 
             <div className="flex flex-col items-start overflow-y-auto scrollbar custom-scrollbar mx-1 flex-grow w-full">
-              {sortComments(comments)?.map((comment, index, sortedComments) => {
-                const showUsername =
-                  index === 0 ||
-                  comment.author.userName !==
-                    sortedComments[index - 1].author.userName;
-                return (
-                  <div
-                    key={comment?._id}
-                    className="flex flex-row items-start my-2 w-full"
-                  >
-                    <div className="h-2 w-2 mx-2 mt-1">
-                      {showUsername && (
-                        <ProfileImage className="rounded-full object-fill" />
-                      )}
+              {sortComments(localComments)?.map(
+                (comment, index, sortedComments) => {
+                  const showUsername =
+                    index === 0 ||
+                    comment.author.userName !==
+                      sortedComments[index - 1].author.userName;
+                  return (
+                    <div
+                      key={comment?._id}
+                      className="flex flex-row items-start my-2 w-full"
+                    >
+                      <div className="h-2 w-2 mx-2 mt-1">
+                        {showUsername && (
+                          <ProfileImage className="rounded-full object-fill" />
+                        )}
+                      </div>
+                      <div className="dark-search text-[13px] rounded-xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
+                        {showUsername && (
+                          <h1 className="text-sm italic">
+                            {comment?.author.userName}
+                          </h1>
+                        )}
+                        <p className="w-full">{comment?.content}</p>
+                      </div>
                     </div>
-                    <div className="dark-search text-[13px] rounded-xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                      {showUsername && (
-                        <h1 className="text-sm italic">
-                          {comment?.author.userName}
-                        </h1>
-                      )}
-                      <p className="w-full">{comment?.content}</p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
 
             <div className="flex items-center w-full p-4 border-t border-gray-700">
@@ -127,8 +135,9 @@ const PostComponent = ({ post }) => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
+
                     handleAddComment(post, e, token, setThreads, threads);
-                    // handleAddComment(e);
+                    setLocalComments([...localComments, comment]);
                   }
                 }}
               />

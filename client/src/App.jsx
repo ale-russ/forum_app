@@ -19,7 +19,7 @@ function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
-    <div className="dark h-[100vh]">
+    <div className="dark h-full w-full overflow-x-hidden">
       <ForumProvider>
         <BrowserRouter>
           <Routes>
