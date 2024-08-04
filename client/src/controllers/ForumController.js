@@ -2,6 +2,8 @@ import axios from "axios";
 import { postsRoute } from "../utils/ApiRoutes";
 import { toast } from "react-toastify";
 
+import toastOptions from "../utils/constants";
+
 export const fetchPosts = async () => {
   try {
     const response = await axios.get(`${postsRoute}/posts`);
@@ -16,15 +18,13 @@ export const fetchPosts = async () => {
 };
 
 export const createPost = async (post, token) => {
-  console.log("in create post");
   try {
     const res = await axios.post(`${postsRoute}/post`, post, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log("Response: ", res);
     return res;
   } catch (error) {
-    console.log("Error: ", error);
+    // console.log("Error: ", error);
     toast.error(error.response.data.msg);
   }
 };
@@ -54,5 +54,19 @@ export const addComment = async (id, comment, token) => {
   } catch (error) {
     console.log("Error: ", error);
     toast.error(error.response.data.msg);
+  }
+};
+
+export const likePost = async (id, token) => {
+  console.log("Token: ", token);
+  try {
+    const response = await axios.post(`${postsRoute}/post/${id}/like`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Like Response: ", response);
+    return response;
+  } catch (error) {
+    console.log("Error: ", error);
+    toast.error(error.response.data.msg, toastOptions);
   }
 };

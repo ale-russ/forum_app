@@ -118,4 +118,24 @@ router.post("/post/:id/comments", verifyToken, async (req, res) => {
   }
 });
 
+//Like a post
+router.post("/post/:id/like", verifyToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) return res.status(404).json({ msg: "Post not found" });
+
+    if(post.likes.includes(req.user._id)) {
+      post.likes = post.likes.filter(id => id.toString() = req.user._id.toString())
+    } else {
+      post.likes.push(req.user._id)
+    }
+
+    await post.save();
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(400).json({ msg: err.message });
+  }
+});
+
 module.exports = router;
