@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 
 import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
 import { useForum } from "../utils/PostContext";
+import UploadImage from "./common/UploadImage";
 const CreatePost = () => {
   const user = localStorage.getItem("currentUser");
   const { newPost, setNewPost, handleCreatePost } = useForum();
@@ -25,6 +26,7 @@ const CreatePost = () => {
               setNewPost({ ...newPost, content: e.target.value })
             }
           />
+          {/* <UploadImage /> */}
         </div>
         <button
           className="rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg"

@@ -32,21 +32,21 @@ const NavBar = () => {
           KnowledgeChain
         </p>
       </div>
-      <IconsTile />
-      <div className="flex items-center dark-search rounded-lg px-3 w-[180px] sm:w-[180px] md:w-[300px] xl:w-[600px]">
+      {/* <IconsTile /> */}
+      <div className="flex items-center dark-search rounded-lg px-3 w-[250px] md:w-[300px] xl:w-[600px]">
         <input
-          className="hidden sm:block m-auto w-full bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none"
+          className="sm:block m-auto w-full bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none"
           placeholder="Type to search here ..."
         />
         <CiSearch className="text-[#858EAD] w-7 h-7" />
       </div>
 
       <div className="flex items-center">
-        <div className="flex items-center mx-8">
-          <AiFillMessage className="w-[40px] h-[40px] text-white  px-2 mx-1 md:mx-2 lg:mx-4 xl:mx-4 rounded-lg" />
-          <TbBellFilled className="w-[40px] h-[40px] text-white px-2 mx-1 md:mx-2 lg:mx-4 xl:mx-4 rounded-lg" />
+        <div className="flex items-center mx-2">
+          <AiFillMessage className="w-9 h-9 text-white px-2 rounded-lg" />
+          <TbBellFilled className="w-9 h-9 text-white px-2  rounded-lg" />
         </div>
-        <Profile className="mx-2" onClick={signOut} />
+        <Profile className="mr-2" onClick={signOut} />
         <p className="hidden sm:hidden md:block lg:block xl:block text-white font-bold text-[16px] text-ellipsis">
           {user.userName}
         </p>

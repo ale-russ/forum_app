@@ -13,7 +13,7 @@ export const fetchPosts = async () => {
     return null;
   } catch (error) {
     console.log("Error: ", error);
-    toast.error(error.response.data.msg);
+    toast.error(error.response?.data.msg, toastOptions);
   }
 };
 
@@ -25,7 +25,7 @@ export const createPost = async (post, token) => {
     return res;
   } catch (error) {
     // console.log("Error: ", error);
-    toast.error(error.response.data.msg);
+    toast.error(error.response.data.msg, toastOptions);
   }
 };
 
@@ -53,12 +53,11 @@ export const addComment = async (id, comment, token) => {
     return commentResponse.data;
   } catch (error) {
     console.log("Error: ", error);
-    toast.error(error.response.data.msg);
+    toast.error(error.response.data.msg, toastOptions);
   }
 };
 
 export const likePost = async (id, token) => {
-  console.log("Token: ", token);
   try {
     const response = await axios.post(`${postsRoute}/post/${id}/like`, {
       headers: { Authorization: `Bearer ${token}` },

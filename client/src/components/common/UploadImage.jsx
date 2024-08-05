@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
+import Dropzone from "react-dropzone";
 
-const UploadImage = ({ setImage }) => {
+const UploadImage = () => {
+  const [image, setImage] = useState();
   return (
     <Dropzone
       multiple={false}
@@ -11,11 +13,7 @@ const UploadImage = ({ setImage }) => {
       {({ getRootProps, getInputProps, acceptedFiles }) => (
         <div
           {...getRootProps()}
-          className={`${
-            theme === "dark" ? "dark-auth-card" : "light-auth-card"
-          } rounded-sm block border ${
-            theme === "dark" ? "dark-border" : "light-border"
-          } w-full p-2 h-10`}
+          className={` dark-search rounded-lg block w-full p-2 h-10`}
         >
           <input {...getInputProps()} />
           {acceptedFiles && acceptedFiles[0] ? (

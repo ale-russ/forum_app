@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CiHeart } from "react-icons/ci";
+import { formatDistanceToNow } from "date-fns";
 
 import { useForum } from "../utils/PostContext";
 import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
@@ -13,17 +14,30 @@ const PostComponent = ({ post }) => {
 
   const sortComments = (comments) => {
     return comments.sort((a, b) => {
-      if (a.author.userName !== b.author.userName) {
-        return a.author.userName.localeCompare(b.author.userName);
+      if (a?.author?.userName !== b?.author?.userName) {
+        return a?.author?.userName.localeCompare(b?.author?.userName);
       }
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
   };
 
-  console.log("token: ", post);
+  const handleLocalAddComment = async (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const content = e.target.value.trim();
+      if (!content) return;
+
+      const newComment = await handleAddComment(post, content, token);
+      if (newComment) {
+        setLocalComments(sortComments([...localComments, newComment]));
+        e.target.value = "";
+      }
+    }
+  };
+
   return (
     <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4">
-      <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div>
+      {/* <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div> */}
       <div className="flex items-start flex-col justify-between w-full h-full px-2 ">
         <div className="flex flex-col w-full gap-y-3">
           <div className="flex items-center justify-between w-full  ">
@@ -60,7 +74,7 @@ const PostComponent = ({ post }) => {
             <div className="flex flex-col items-start">
               <div className="font-bold text-sm">{post?.author.userName}</div>
               <div className="text-[10px] text-[#C5D0E6]">
-                {post?.createdAt}
+                {/* {formatDistanceToNow(new Date(post?.createdAt))} ago */}
               </div>
             </div>
           </div>
@@ -100,8 +114,8 @@ const PostComponent = ({ post }) => {
                 (comment, index, sortedComments) => {
                   const showUsername =
                     index === 0 ||
-                    comment.author.userName !==
-                      sortedComments[index - 1].author.userName;
+                    comment?.author?.userName !==
+                      sortedComments[index - 1].author?.userName;
                   return (
                     <div
                       key={comment?._id}
@@ -115,7 +129,7 @@ const PostComponent = ({ post }) => {
                       <div className="dark-search text-[13px] rounded-xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
                         {showUsername && (
                           <h1 className="text-sm italic">
-                            {comment?.author.userName}
+                            {comment?.author?.userName}
                           </h1>
                         )}
                         <p className="w-full">{comment?.content}</p>
@@ -132,14 +146,15 @@ const PostComponent = ({ post }) => {
                 className="flex items-center dark-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
                 type="text"
                 placeholder="Add a comment"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
+                onKeyDown={handleLocalAddComment}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter") {
+                //     e.preventDefault();
 
-                    handleAddComment(post, e, token, setThreads, threads);
-                    setLocalComments([...localComments, comment]);
-                  }
-                }}
+                //     handleAddComment(post, e, token, setThreads, threads);
+                //     setLocalComments([...localComments, e.target.value]);
+                //   }
+                // }}
               />
             </div>
           </div>

@@ -39,9 +39,9 @@ export const ForumProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await createPost(newPost, token);
-      console.log("TOKEN: ", token);
+
       console.log("Response: $", response);
-      if (response && response.data) {
+      if (response && response?.data) {
         setThreads([...threads, response.data.data]);
       }
     } finally {
@@ -50,25 +50,25 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  const handleAddComment = async (post, e) => {
-    e.preventDefault();
+  const handleAddComment = async (post, content) => {
     setLoadingComment(true);
     try {
-      const response = await addComment(
-        post._id,
-        { content: e.target.value },
-        token
-      );
-      setThreads(
-        threads.map((p) =>
+      const response = await addComment(post._id, { content }, token);
+      console.log("Comment Response: ", response);
+      const newComment = {
+        ...response?.data,
+        author: { userName: user.userName, _id: user._id },
+      };
+      setThreads((prvThreads) =>
+        prvThreads.map((p) =>
           p._id === post._id
-            ? { ...p, comments: [...p.comments, response.data] }
+            ? { ...p, comments: [...p.comments, newComment] }
             : p
         )
       );
+      return newComment;
     } finally {
       setLoadingComment(false);
-      e.target.value = "";
     }
   };
 

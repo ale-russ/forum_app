@@ -4,3 +4,4 @@ export const registerRoute = `${host}/auth/register`;
 export const loginRoute = `${host}/auth/login`;
 
 export const postsRoute = `${host}/forum`;
+export const chatRoute = `${host}/chat`;
