@@ -27,14 +27,31 @@ const io = socketIo(server, {
 });
 
 io.on("connection", (socket) => {
+  socket.on("create room", (roomName) => {
+    socket.join(roomName);
+  });
+
+  socket.on("private message", async ({ to, message }) => {
+    const newMessage = new Message(to, { author, message });
+    await newMessage.save();
+
+    const populatedMessage = await message.populate("author", "userName");
+
+    socket.to(to).emit("private message", populatedMessage);
+  });
+
   socket.on("chat message", async ({ author, content }) => {
     const message = new Message({ author, content });
     await message.save();
 
     const populatedMessage = await message.populate("author", "userName");
 
-    //Broadcast the message to all connected clients
     io.emit("chat message", populatedMessage);
+  });
+
+  socket.on("join room", (roomName) => {
+    socket.join(roomName);
+    console.log("User joined :", roomName);
   });
 
   socket.on("new comment", async ({ postId, author, content }) => {
@@ -49,6 +66,11 @@ io.on("connection", (socket) => {
       content,
       createdAt: comment.createdAt,
     });
+  });
+
+  socket.on("leave room", (roomName) => {
+    socket.leave(roomName);
+    console.log("User left :", roomName);
   });
 
   socket.on("disconnect", () => {
