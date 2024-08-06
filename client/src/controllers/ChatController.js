@@ -20,14 +20,17 @@ export const postChatMessage = async (setMessages) => {
 };
 
 export const fetchChatMessages = async () => {
+  console.log("in fetch chat messages");
   try {
     const response = await axios.get(`${chatRoute}/messages`);
+    console.log("RESPONSE: ", response);
 
     if (response.status === 200) {
       return response;
     }
     return null;
   } catch (err) {
+    console.log("ERror: ", err);
     toast.error(err.response?.data.msg, toastOptions);
   }
 };

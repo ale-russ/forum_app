@@ -35,7 +35,8 @@ const Chat = () => {
   }, []);
 
   const handleChatMessages = async () => {
-    const { data } = await fetchChatMessages();
+    const data = await fetchChatMessages();
+    console.log("data: ", data);
     setMessages(data);
   };
 

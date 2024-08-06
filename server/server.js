@@ -12,6 +12,7 @@ const chatRoute = require("./controllers/chat_controller");
 
 const User = require("./models/user_models");
 const Message = require("./models/message_model");
+const Room = require("./models/message_model");
 
 dotenv.config();
 
@@ -27,17 +28,16 @@ const io = socketIo(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("create room", (roomName) => {
-    socket.join(roomName);
-  });
-
   socket.on("private message", async ({ to, message }) => {
-    const newMessage = new Message(to, { author, message });
-    await newMessage.save();
+    const recipientSocket = io.socket.sockets.get(to);
+    if (recipientSocket) {
+      const newMessage = new Message(to, { author, message });
+      await newMessage.save();
 
-    const populatedMessage = await message.populate("author", "userName");
+      const populatedMessage = await message.populate("author", "userName");
 
-    socket.to(to).emit("private message", populatedMessage);
+      socket.to(to).emit("private message", populatedMessage);
+    }
   });
 
   socket.on("chat message", async ({ author, content }) => {
@@ -45,13 +45,35 @@ io.on("connection", (socket) => {
     await message.save();
 
     const populatedMessage = await message.populate("author", "userName");
+    console.log("populatedMessage ", populatedMessage);
 
     io.emit("chat message", populatedMessage);
   });
 
-  socket.on("join room", (roomName) => {
+  socket.on("chat room message", async ({ room, message }) => {
+    const newMessage = new Message({
+      content: message.content,
+      author: message.author,
+      room,
+    });
+    await newMessage.save();
+  });
+
+  socket.on("create room", async (roomName) => {
+    const room = new Room({ name: roomName });
+    await room.save();
     socket.join(roomName);
-    console.log("User joined :", roomName);
+    console.log("Room crated :", roomName);
+  });
+
+  socket.on("join room", (roomName) => {
+    const room = Room.findOne({ name: roomName });
+    if (room) {
+      socket.join(roomName);
+      console.log("User joined :", roomName);
+    } else {
+      console.log("Room does not exist :", roomName);
+    }
   });
 
   socket.on("new comment", async ({ postId, author, content }) => {
