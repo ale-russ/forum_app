@@ -48,11 +48,11 @@ const Register = () => {
   };
 
   return (
-    <main className="dark flex flex-col items-center p-16 m-auto">
+    <main className="dark flex flex-col items-center p-16 m-auto h-full">
       {loading ? (
         <Loader />
       ) : (
-        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-96">
+        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-[70%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%]">
           <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
             Create an account
           </h1>
