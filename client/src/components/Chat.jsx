@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { formatDistanceToNow } from "date-fns";
 import { host } from "../utils/ApiRoutes";
-import {
-  fetchChatMessages,
-  postChatMessage,
-} from "../controllers/ChatController";
+import { fetchChatMessages } from "../controllers/ChatController";
 
 const socket = io(host);
 
@@ -54,7 +51,6 @@ const Chat = () => {
     }
   };
 
-  //   console.log("user: ", user.userName);
   return (
     <div className="fixed bottom-5 right-5 z-50 flex items-center">
       <button
@@ -67,30 +63,44 @@ const Chat = () => {
         {isOpen && (
           <div className="w-80 h-96 dark border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col">
             <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex flex-col ${
-                    msg.author === user.userId ? "items-end" : "items-start"
-                  }`}
-                >
+              {messages.map((msg, index) => {
+                return (
                   <div
-                    className={`rounded-lg shadow-xl border-gray-200 dark-navbar flex
-                     ${
-                       msg.author === user.userId ? " text-right" : "text-left"
-                     }`}
+                    key={index}
+                    className={`flex flex-col ${
+                      msg.author._id === user.userId
+                        ? "items-end"
+                        : "items-start"
+                    }`}
                   >
-                    {msg.author !== user.userId && <p>{msg.userName}</p>}
-                    <span
-                      className={`inline-block px-2 py-1 rounded-lg text-[12px] ${
-                        msg.author === user.userId
-                      } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
+                    {msg.author._id !== user.userId && (
+                      <p className="text-xs italic mb-1">
+                        {msg.author.userName}
+                      </p>
+                    )}
+                    <div
+                      className={` rounded-lg shadow-xl border-gray-200 max-w-40 flex
+                     ${
+                       msg.author._id === user.userId
+                         ? "bg-blue-600 text-right"
+                         : "bg-stone-700 text-left"
+                     }`}
                     >
-                      {msg.content}
-                    </span>
+                      <span
+                        className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
+                          msg.author._id === user.userId
+                        } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
+                      >
+                        {msg.content}
+                      </span>
+                    </div>
+                    <p className="text-[10px] italic">
+                      {" "}
+                      {formatDistanceToNow(msg.createdAt)} ago
+                    </p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
             <input
@@ -112,12 +122,3 @@ const Chat = () => {
 };
 
 export default Chat;
-function newFunction(setMessages) {
-  socket.on("chat message", (message) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
-  });
-
-  return () => {
-    socket.off("chat message");
-  };
-}

@@ -58,6 +58,7 @@ export const addComment = async (id, comment, token) => {
 };
 
 export const likePost = async (id, token) => {
+  console.log("token: ", token);
   try {
     const response = await axios.post(`${postsRoute}/post/${id}/like`, {
       headers: { Authorization: `Bearer ${token}` },

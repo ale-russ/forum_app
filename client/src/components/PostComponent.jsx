@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiHeart } from "react-icons/ci";
 import { formatDistanceToNow } from "date-fns";
+import io from "socket.io-client";
 
 import { useForum } from "../utils/PostContext";
 import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
 import { likePost } from "../controllers/ForumController";
+import { host } from "../utils/ApiRoutes";
+
+const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const [showModal, setShowModal] = useState(false);
-  const { handleAddComment, threads, setThreads } = useForum();
-  const { token } = localStorage.getItem("token");
+  const { handleAddComment, threads, setThreads, handleLikePost } = useForum();
+  const token = localStorage.getItem("token");
   const [localComments, setLocalComments] = useState([]);
 
   const sortComments = (comments) => {
@@ -17,6 +21,8 @@ const PostComponent = ({ post }) => {
       if (a?.author?.userName !== b?.author?.userName) {
         return a?.author?.userName.localeCompare(b?.author?.userName);
       }
+      console.log("Date for userA: ", a.createdAt);
+      console.log("Date for userB: ", b.createdAt);
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
   };
@@ -35,6 +41,9 @@ const PostComponent = ({ post }) => {
     }
   };
 
+  // useEffect(() => {});
+
+  // console.log("Post: ", post);
   return (
     <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4">
       {/* <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div> */}
@@ -46,9 +55,8 @@ const PostComponent = ({ post }) => {
             </div>
             <div
               className="hidden md:block lg:block xl:block"
-              onClick={async () =>
-                await likePost({ id: post?._id, token: token })
-              }
+              // onClick={() => likePost(post?._id, token)}
+              onClick={() => handleLikePost(post)}
             >
               <CiHeart />
             </div>
@@ -75,6 +83,7 @@ const PostComponent = ({ post }) => {
               <div className="font-bold text-sm">{post?.author.userName}</div>
               <div className="text-[10px] text-[#C5D0E6]">
                 {/* {formatDistanceToNow(new Date(post?.createdAt))} ago */}
+                {formatDistanceToNow(new Date(post?.createdAt))} ago
               </div>
             </div>
           </div>
@@ -147,14 +156,6 @@ const PostComponent = ({ post }) => {
                 type="text"
                 placeholder="Add a comment"
                 onKeyDown={handleLocalAddComment}
-                // onKeyDown={(e) => {
-                //   if (e.key === "Enter") {
-                //     e.preventDefault();
-
-                //     handleAddComment(post, e, token, setThreads, threads);
-                //     setLocalComments([...localComments, e.target.value]);
-                //   }
-                // }}
               />
             </div>
           </div>

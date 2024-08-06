@@ -8,7 +8,9 @@ const router = express.Router();
 // Fetch all messages
 router.get("/messages", async (req, res) => {
   try {
-    const messages = await Messages.find().sort({ createdAt: 1 });
+    const messages = await Messages.find()
+      .populate("author", "userName")
+      .sort({ createdAt: 1 });
     res.status(200).json(messages);
   } catch (err) {
     res.status(500).json({ message: err.message });

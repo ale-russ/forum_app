@@ -37,7 +37,7 @@ router.get("/posts", async (req, res) => {
       .populate({
         path: "comments",
         populate: { path: "author", select: "userName" },
-      });
+      }).sort({ createdAt: 1 });;
 
     res.status(200).json(posts);
   } catch (err) {

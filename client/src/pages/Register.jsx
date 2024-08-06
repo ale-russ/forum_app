@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 import { register } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
+import toastOptions from "../utils/constants";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -18,6 +19,15 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log({ values });
+    if (
+      values.username === "" ||
+      values.email === "" ||
+      values.password === "" ||
+      values.confirm_password === ""
+    ) {
+      toast.error("All Fields are required", toastOptions);
+      return;
+    }
     try {
       setLoading(true);
       await register({ values });

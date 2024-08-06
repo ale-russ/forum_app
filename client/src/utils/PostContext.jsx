@@ -1,11 +1,14 @@
-import React, { Children, createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
+import { toast } from "react-toastify";
 
 import { UserAuthContext } from "./UserAuthenticationProvider";
 import {
   createPost,
   fetchPosts,
   addComment,
+  likePost,
 } from "../controllers/ForumController";
+import toastOptions from "./constants";
 
 const ForumContext = createContext();
 
@@ -38,6 +41,10 @@ export const ForumProvider = ({ children }) => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (newPost.title === "" || newPost.content === "") {
+        toast.error("Title and Content cannot be empty", toastOptions);
+        return;
+      }
       const response = await createPost(newPost, token);
 
       console.log("Response: $", response);
@@ -72,6 +79,12 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
+  const handleLikePost = async (post) => {
+    console.log("in handleLike");
+    const response = await likePost(post._id, token);
+    console.log("Like Response: ", response);
+  };
+
   return (
     <ForumContext.Provider
       value={{
@@ -83,6 +96,7 @@ export const ForumProvider = ({ children }) => {
         handleFetchPosts,
         handleCreatePost,
         handleAddComment,
+        handleLikePost,
       }}
     >
       {children}
