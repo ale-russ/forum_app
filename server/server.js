@@ -13,6 +13,7 @@ const chatRoute = require("./controllers/chat_controller");
 const User = require("./models/user_models");
 const Message = require("./models/message_model");
 const Room = require("./models/message_model");
+const Comment = require("./models/comments_model");
 
 dotenv.config();
 
@@ -77,17 +78,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("new comment", async ({ postId, author, content }) => {
-    const comment = new Comment({ postId, author, content });
+    console.log("Content: ", content);
+    const comment = new Comment({ post: postId, author, content });
     await comment.save();
 
     const populatedComment = await comment.populate("author", "userName");
 
-    io.emit("new comment", {
-      postId,
-      author,
-      content,
-      createdAt: comment.createdAt,
-    });
+    // io.emit("new comment", {
+    //   postId,
+    //   author,
+    //   content,
+    //   createdAt: comment.createdAt,
+    // });
+    io.emit("new comment", populatedComment);
   });
 
   socket.on("leave room", (roomName) => {

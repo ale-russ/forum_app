@@ -41,7 +41,7 @@ const Chat = () => {
   };
 
   const handleSendMessage = () => {
-    if (input.trim() && input.trim()) {
+    if (input.trim()) {
       const message = {
         author: user.userId,
         content: input,
