@@ -14,6 +14,7 @@ const User = require("./models/user_models");
 const Message = require("./models/message_model");
 const Room = require("./models/message_model");
 const Comment = require("./models/comments_model");
+const Post = require("./models/post_model");
 
 dotenv.config();
 
@@ -41,14 +42,58 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("chat message", async ({ author, content }) => {
-    const message = new Message({ author, content });
-    await message.save();
+  // socket.on("chat message", async ({ author, content }) => {
+  //   const message = new Message({ author, content });
+  //   await message.save();
 
-    const populatedMessage = await message.populate("author", "userName");
-    console.log("populatedMessage ", populatedMessage);
+  //   const populatedMessage = await message.populate("author", "userName");
+  //   console.log("populatedMessage ", populatedMessage);
 
-    io.emit("chat message", populatedMessage);
+  //   io.emit("chat message", populatedMessage);
+  // });
+
+  // socket.on("chat message", async ({ room, message }) => {
+  //   console.log("Received message:", { room, message });
+  //   try {
+  //     const newMessage = new Message({
+  //       content: message.content,
+  //       author: message.author,
+  //       ...(room && { room: room }),
+  //     });
+  //     await newMessage.save();
+  //     if (room) {
+  //       io.to(room).emit("chat message", newMessage);
+  //     } else {
+  //       io.emit("chat message", newMessage);
+  //     }
+  //   } catch (err) {
+  //     console.error("Sending message failed: ", err.message);
+  //   }
+  // });
+  socket.on("chat message", async ({ room, message }) => {
+    console.log("Received message:", { room, message });
+    try {
+      let targetRoom = room;
+      if (!targetRoom) {
+        const generalRoom = await Room.findOne({ name: "General" });
+        targetRoom = generalRoom._id;
+      }
+      console.log("targetRoom: ", targetRoom);
+      const newMessage = new Message({
+        content: message.content,
+        author: message.author,
+        room: targetRoom,
+      });
+      await newMessage.save();
+
+      if (room) {
+        io.to(room).emit("chat message", newMessage);
+      } else {
+        io.emit("chat message", newMessage);
+      }
+    } catch (err) {
+      console.error("Sending message failed: ", err.message);
+    }
   });
 
   socket.on("chat room message", async ({ room, message }) => {
@@ -78,19 +123,26 @@ io.on("connection", (socket) => {
   });
 
   socket.on("new comment", async ({ postId, author, content }) => {
-    console.log("Content: ", content);
-    const comment = new Comment({ post: postId, author, content });
-    await comment.save();
+    console.log("Content: ", { postId, author: author, content });
+    try {
+      const comment = new Comment({ post: postId, author, content });
+      await comment.save();
 
-    const populatedComment = await comment.populate("author", "userName");
+      const populatedComment = await comment.populate("author", "userName");
 
-    // io.emit("new comment", {
-    //   postId,
-    //   author,
-    //   content,
-    //   createdAt: comment.createdAt,
-    // });
-    io.emit("new comment", populatedComment);
+      console.log("PopulatedComment: ", populatedComment);
+
+      await Post.findByIdAndUpdate(
+        postId,
+        { $push: { comments: comment._id } },
+        { new: true }
+      );
+
+      io.emit("new comment", populatedComment);
+    } catch (err) {
+      console.log("Error: ", err);
+      // return res.stats(500).json({ msg: "Internal Server Error" });
+    }
   });
 
   socket.on("leave room", (roomName) => {
@@ -102,6 +154,18 @@ io.on("connection", (socket) => {
     // console.log("A user disconnected");
   });
 });
+
+const createGeneralRoom = async () => {
+  try {
+    const generalRoom = await Room.findOne({ name: "General" });
+    if (!generalRoom) {
+      const newGeneralRoom = new Room({ name: "General" });
+      await newGeneralRoom.save();
+    }
+  } catch (err) {
+    console.log("Error creating General room: ", err);
+  }
+};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -119,6 +183,9 @@ mongoose
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
+
+// call the createGeneralRoom function
+createGeneralRoom();
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });

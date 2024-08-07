@@ -24,7 +24,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="dark">
+    <div className="light">
       <NavBar />
       {loading ? (
         <Loader />

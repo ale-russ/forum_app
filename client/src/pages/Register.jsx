@@ -48,11 +48,11 @@ const Register = () => {
   };
 
   return (
-    <main className="dark flex flex-col items-center p-16 m-auto h-full">
+    <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
       {loading ? (
         <Loader />
       ) : (
-        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-[70%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%]">
+        <div className="m-auto border shadow-xl rounded-lg light-navbar py-8 w-[90%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%]">
           <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
             Create an account
           </h1>
@@ -62,7 +62,7 @@ const Register = () => {
           >
             <label htmlFor="username">Username</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="text"
               name="username"
               id="username"
@@ -72,7 +72,7 @@ const Register = () => {
             />
             <label htmlFor="email">Email Address</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="text"
               name="email"
               id="email"
@@ -82,7 +82,7 @@ const Register = () => {
             />
             <label htmlFor="password">Password</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="password"
               name="password"
               id="password"
@@ -92,7 +92,7 @@ const Register = () => {
             />
             <label htmlFor="confirm_password">Confirm Password</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="password"
               name="confirm_password"
               id="confirm_password"
@@ -100,7 +100,7 @@ const Register = () => {
               value={values.confirm_password}
               onChange={(event) => handleChange(event)}
             />
-            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg">
+            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               REGISTER
             </button>
             <div className="flex items-center justify-center mx-auto">

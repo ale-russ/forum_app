@@ -32,12 +32,17 @@ router.post("/post", verifyToken, async (req, res) => {
 // Get All Posts
 router.get("/posts", async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate("author", "userName")
-      .populate({
-        path: "comments",
-        populate: { path: "author", select: "userName" },
-      }).sort({ createdAt: 1 });;
+    // const posts = await Post.find()
+    //   .populate("author", "userName")
+    //   .populate({
+    //     path: "comments",
+    //     populate: { path: "author", select: "userName" },
+    //   }).sort({ createdAt: 1 });;
+    const posts = await Post.find().populate({
+      path: 'comments',
+      populate: { path: 'author', select: 'userName' } // Populate the author of each comment
+    }).populate('author', 'userName'); 
+
 
     res.status(200).json(posts);
   } catch (err) {

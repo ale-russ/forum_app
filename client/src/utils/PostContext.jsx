@@ -47,9 +47,11 @@ export const ForumProvider = ({ children }) => {
       }
       const response = await createPost(newPost, token);
 
-      console.log("Response: $", response);
+      console.log("REs in Con: ", response);
+
       if (response && response?.data) {
-        setThreads([...threads, response.data.data]);
+        setThreads([...threads, response.data]);
+        console.log("Response in Context: $", threads);
       }
     } finally {
       setNewPost({ title: "", content: "" });

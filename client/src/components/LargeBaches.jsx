@@ -11,25 +11,25 @@ const LargeBaches = () => {
       children={
         <>
           <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center m-auto rounded-lg dark-search border-1 h-[30px] w-[30px] mr-1">
+            <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Newest />
             </div>
             <div>
               <p className="font-bold text-lg">Newest and Recent</p>
-              <p className="dark-caption">Find the latest update</p>
+              <p className="light-caption">Find the latest update</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center m-auto rounded-lg dark-search border-1 h-[30px] w-[30px] mr-1">
+            <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Popular />
             </div>
             <div>
               <p className="font-bold text-lg">Popular of the day</p>
-              <p className="dark-caption">Shots featured tody curators</p>
+              <p className="light-caption">Shots featured tody curators</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center m-auto rounded-lg dark-search border-1 h-[30px] w-[30px] mr-1">
+            <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Following />
             </div>
             <div className="flex items-center justify-between">
@@ -40,7 +40,7 @@ const LargeBaches = () => {
                     <p className="text-bold text-xs">251</p>
                   </div>
                 </div>
-                <p className="dark-caption">Find the latest update</p>
+                <p className="light-caption">Find the latest update</p>
               </div>
             </div>
           </div>

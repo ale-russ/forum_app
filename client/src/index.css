@@ -40,8 +40,12 @@ a {
   @apply bg-white text-[#192351];
 }
 
-.light_search {
-  @apply bg-[#F4F6F8];
+.light-navbar {
+  @apply bg-[#F4F6F8] text-[#3f4354];
+}
+
+.light-search {
+  @apply bg-[#E5E5E5];
 }
 
 .light-icons {

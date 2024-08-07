@@ -25,7 +25,7 @@ const NavBar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between px-4 dark-navbar h-16 w-[100%]">
+    <div className="flex items-center justify-between px-4 light-navbar h-16 w-[100%] shadow-lg">
       <div className="flex items-center px-4">
         <Logo />
         <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">
@@ -33,25 +33,29 @@ const NavBar = () => {
         </p>
       </div>
       {/* <IconsTile /> */}
-      <div className="flex items-center dark-search rounded-lg px-3 w-[250px] md:w-[300px] xl:w-[600px]">
+      <div className="flex items-center light-search rounded-lg px-3 w-[250px] md:w-[300px] xl:w-[600px]">
         <input
-          className="sm:block m-auto w-full bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none"
+          className="sm:block m-auto w-full light-search border-0 h-10 text-[#858EAD] outline-none"
           placeholder="Type to search here ..."
         />
         <CiSearch className="text-[#858EAD] w-7 h-7" />
       </div>
 
       <div className="flex items-center">
-        <div className="flex items-center mx-2">
-          <AiFillMessage className="w-9 h-9 text-white px-2 rounded-lg" />
-          <TbBellFilled className="w-9 h-9 text-white px-2  rounded-lg" />
+        <div className="flex items-center mx-2 text-gray-700">
+          <div className="flex items-center mx-1 rounded-lg light-search">
+            <AiFillMessage className="w-9 h-9  px-2  rounded-lg" />
+          </div>
+          <div className="flex items-center mx-auto rounded-lg light-search">
+            <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
+          </div>
         </div>
         <Profile className="mr-2" onClick={signOut} />
-        <p className="hidden sm:hidden md:block lg:block xl:block text-white font-bold text-[16px] text-ellipsis">
+        <p className="hidden sm:hidden md:block lg:block xl:block  font-bold text-[16px] text-ellipsis">
           {user.userName}
         </p>
         <TiArrowSortedDown
-          className="text-white mx-2 w-4 h-4 "
+          className="mx-2 w-4 h-4 "
           onClick={() => console.log("button clicked")}
         />
       </div>

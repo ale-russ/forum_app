@@ -18,10 +18,12 @@ export const fetchPosts = async () => {
 };
 
 export const createPost = async (post, token) => {
+  console.log("post: ", post);
   try {
     const res = await axios.post(`${postsRoute}/post`, post, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    console.log("RESPONSE: ", res);
     return res;
   } catch (error) {
     // console.log("Error: ", error);
