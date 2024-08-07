@@ -15,35 +15,52 @@ const PostComponent = ({ post }) => {
   const { handleAddComment, threads, setThreads, handleLikePost } = useForum();
   const token = localStorage.getItem("token");
   const [localComments, setLocalComments] = useState([]);
+  const [socketComment, setSocketComment] = useState([]);
+  const [commentInput, setCommentInput] = useState("");
+  const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const sortComments = (comments) => {
     return comments.sort((a, b) => {
       if (a?.author?.userName !== b?.author?.userName) {
         return a?.author?.userName.localeCompare(b?.author?.userName);
       }
-      console.log("Date for userA: ", a.createdAt);
-      console.log("Date for userB: ", b.createdAt);
+
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
   };
 
-  const handleLocalAddComment = async (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const content = e.target.value.trim();
-      if (!content) return;
+  const handleLocalAddComment = async () => {
+    // const content = e.target.value.trim();
+    // if (!content) return;
 
-      const newComment = await handleAddComment(post, content, token);
-      if (newComment) {
-        setLocalComments(sortComments([...localComments, newComment]));
-        e.target.value = "";
-      }
+    // const newComment = await handleAddComment(post, content, token);
+    // if (newComment) {
+    //   setLocalComments(sortComments([...localComments, newComment]));
+    //   e.target.value = "";
+    // }
+    if (commentInput.trim()) {
+      const comment = {
+        postId: post._id,
+        author: user.userId,
+        content: commentInput,
+      };
+      // setLocalComments(sortComments([...localComments, comment]));
+      socket.emit("new comment", comment);
+      setCommentInput("");
     }
   };
 
-  // useEffect(() => {});
+  useEffect(() => {
+    socket.on("new comment", (comment) => {
+      setSocketComment((prevComments) => [...prevComments, comment]);
+    });
 
-  // console.log("Post: ", post);
+    return () => {
+      socket.off("new comment");
+    };
+  }, []);
+
+  // console.log("Comments: ", socketComment);
   return (
     <div className="dark-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3  px-4">
       {/* <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div> */}
@@ -119,34 +136,31 @@ const PostComponent = ({ post }) => {
             </div>
 
             <div className="flex flex-col items-start overflow-y-auto scrollbar custom-scrollbar mx-1 flex-grow w-full">
-              {sortComments(localComments)?.map(
-                (comment, index, sortedComments) => {
-                  const showUsername =
-                    index === 0 ||
-                    comment?.author?.userName !==
-                      sortedComments[index - 1].author?.userName;
-                  return (
-                    <div
-                      key={comment?._id}
-                      className="flex flex-row items-start my-2 w-full"
-                    >
-                      <div className="h-2 w-2 mx-2 mt-1">
-                        {showUsername && (
-                          <ProfileImage className="rounded-full object-fill" />
-                        )}
-                      </div>
-                      <div className="dark-search text-[13px] rounded-xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                        {showUsername && (
-                          <h1 className="text-sm italic">
-                            {comment?.author?.userName}
-                          </h1>
-                        )}
-                        <p className="w-full">{comment?.content}</p>
-                      </div>
+              {socketComment?.map((comment, index, sortedComments) => {
+                const showUsername =
+                  comment?.author?.userName !== user.userName;
+                console.log("showUserName", comment);
+                return (
+                  <div
+                    key={comment?._id}
+                    className="flex flex-row items-start my-2 w-full"
+                  >
+                    {/* <div className="h-2 w-2 mx-2 mt-1">
+                      {comment?.author.userName !== user.userName && (
+                        <ProfileImage className=" h-3 w-3 rounded-full object-fill" />
+                      )}
+                    </div> */}
+                    <div className="dark-search text-[13px] rounded-xl shadow-stone-900 shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
+                      {comment?.author.userName !== user.userName && (
+                        <h1 className="text-sm italic">
+                          {comment?.author?.userName}
+                        </h1>
+                      )}
+                      <p className="w-full">{comment?.content}</p>
                     </div>
-                  );
-                }
-              )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex items-center w-full p-4 border-t border-gray-700">
@@ -155,7 +169,14 @@ const PostComponent = ({ post }) => {
                 className="flex items-center dark-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
                 type="text"
                 placeholder="Add a comment"
-                onKeyDown={handleLocalAddComment}
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleLocalAddComment();
+                  }
+                }}
               />
             </div>
           </div>
