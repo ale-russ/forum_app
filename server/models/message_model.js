@@ -8,11 +8,6 @@ const MessageSchema = new mongoose.Schema({
   updatedAt: { type: Date },
 });
 
-// const RoomSchema = new mongoose.Schema({
-//   name: { type: String, default: "" },
-//   users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-//   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
-// });
 const RoomSchema = new mongoose.Schema({
   name: {
     type: String,

@@ -29,6 +29,22 @@ const io = socketIo(server, {
   },
 });
 
+const createGeneralRoom = async () => {
+  try {
+    let generalRoom = await Room.findOne({ name: "General" });
+    if (!generalRoom) {
+      generalRoom = new Room({ name: "General" });
+      await generalRoom.save();
+      console.log("General room created");
+    }
+    return generalRoom;
+  } catch (err) {
+    console.error("Error creating/finding General room:", err);
+  }
+};
+
+createGeneralRoom();
+
 io.on("connection", (socket) => {
   socket.on("private message", async ({ to, message }) => {
     const recipientSocket = io.socket.sockets.get(to);
@@ -42,51 +58,35 @@ io.on("connection", (socket) => {
     }
   });
 
-  // socket.on("chat message", async ({ author, content }) => {
-  //   const message = new Message({ author, content });
-  //   await message.save();
-
-  //   const populatedMessage = await message.populate("author", "userName");
-  //   console.log("populatedMessage ", populatedMessage);
-
-  //   io.emit("chat message", populatedMessage);
-  // });
-
-  // socket.on("chat message", async ({ room, message }) => {
-  //   console.log("Received message:", { room, message });
-  //   try {
-  //     const newMessage = new Message({
-  //       content: message.content,
-  //       author: message.author,
-  //       ...(room && { room: room }),
-  //     });
-  //     await newMessage.save();
-  //     if (room) {
-  //       io.to(room).emit("chat message", newMessage);
-  //     } else {
-  //       io.emit("chat message", newMessage);
-  //     }
-  //   } catch (err) {
-  //     console.error("Sending message failed: ", err.message);
-  //   }
-  // });
   socket.on("chat message", async ({ room, message }) => {
     console.log("Received message:", { room, message });
     try {
-      let targetRoom = room;
-      if (!targetRoom) {
-        const generalRoom = await Room.findOne({ name: "General" });
-        targetRoom = generalRoom._id;
+      let targetRoom;
+      if (room === "General" || !room) {
+        targetRoom = await Room.findOne({ name: "General" });
+        if (!targetRoom) {
+          targetRoom = await createGeneralRoom();
+        }
+      } else {
+        targetRoom = await Room.findOne({ name: room });
+        if (!targetRoom) {
+          targetRoom = new Room({ name: room });
+          await targetRoom.save();
+        }
       }
       console.log("targetRoom: ", targetRoom);
       const newMessage = new Message({
         content: message.content,
         author: message.author,
-        room: targetRoom,
+        room: targetRoom._id,
       });
       await newMessage.save();
 
-      if (room) {
+      await Room.findByIdAndUpdate(targetRoom._id, {
+        $push: { messages: newMessage._id },
+      });
+
+      if (room && room !== "General") {
         io.to(room).emit("chat message", newMessage);
       } else {
         io.emit("chat message", newMessage);
@@ -155,17 +155,17 @@ io.on("connection", (socket) => {
   });
 });
 
-const createGeneralRoom = async () => {
-  try {
-    const generalRoom = await Room.findOne({ name: "General" });
-    if (!generalRoom) {
-      const newGeneralRoom = new Room({ name: "General" });
-      await newGeneralRoom.save();
-    }
-  } catch (err) {
-    console.log("Error creating General room: ", err);
-  }
-};
+// const createGeneralRoom = async () => {
+//   try {
+//     const generalRoom = await Room.findOne({ name: "General" });
+//     if (!generalRoom) {
+//       const newGeneralRoom = new Room({ name: "General" });
+//       await newGeneralRoom.save();
+//     }
+//   } catch (err) {
+//     console.log("Error creating General room: ", err);
+//   }
+// };
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -183,9 +183,6 @@ mongoose
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
-
-// call the createGeneralRoom function
-createGeneralRoom();
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });

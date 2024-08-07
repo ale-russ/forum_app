@@ -42,19 +42,19 @@ const Chat = () => {
   };
 
   const handleChatMessages = async () => {
-    const data = await fetchChatMessages();
-    // console.log("data: ", data);
-    setMessages(data);
+    try {
+      const data = await fetchChatMessages();
+      console.log("data: ", data);
+      // Ensure data is an array before setting it
+      setMessages(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error fetching chat messages:", error);
+      setMessages([]); // Set to empty array in case of error
+    }
   };
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      // const message = {
-      //   author: user.userId,
-      //   content: input,
-      //   userName: user.userName,
-      // };
-
       const message = {
         author: user.userId,
         content: input,
@@ -75,13 +75,20 @@ const Chat = () => {
   useEffect(() => {
     handleChatMessages();
     socket.on("chat message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      console.log("Message", message);
+      setMessages((prevMessages) => {
+        // Ensure prevMessages is an array
+        const messagesArray = Array.isArray(prevMessages) ? prevMessages : [];
+        return [...messagesArray, message];
+      });
     });
 
     return () => {
       socket.off("chat message");
     };
   }, []);
+
+  // console.log("messages: ", messages);
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex items-center">
