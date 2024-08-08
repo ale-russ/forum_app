@@ -20,10 +20,10 @@ export const postChatMessage = async (setMessages) => {
 };
 
 export const fetchChatMessages = async () => {
-  console.log("in fetch chat messages");
+  // console.log("in fetch chat messages");
   try {
     const response = await axios.get(`${chatRoute}/messages`);
-    console.log("RESPONSE: ", response);
+    // console.log("RESPONSE: ", response);
 
     if (response.status === 200) {
       return response;
@@ -56,6 +56,16 @@ export const deleteChatMessage = async (id, token) => {
     if (response.status === 200) return response;
     return null;
   } catch (err) {
+    toast.error(err.response?.data.msg, toastOptions);
+  }
+};
+
+export const fetchRooms = async (token) => {
+  try {
+    const response = await axios.get(`${chatRoute}/chat-rooms`);
+    return response;
+  } catch (err) {
+    console.log("Error: ", err);
     toast.error(err.response?.data.msg, toastOptions);
   }
 };

@@ -14,6 +14,7 @@ import LeftSideBar from "../components/LeftSideBar";
 import CenterSide from "../components/CenterSide";
 import { useForum } from "../utils/PostContext";
 import Chat from "../components/Chat";
+import Room from "../components/RoomComponent";
 
 const Home = () => {
   const { token } = useContext(UserAuthContext);

@@ -7,6 +7,7 @@ import { useForum } from "../utils/PostContext";
 import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
 import { fetchPosts, likePost } from "../controllers/ForumController";
 import { host } from "../utils/ApiRoutes";
+import CommentsModal from "./CommentsModal";
 
 const socket = io(host);
 
@@ -159,60 +160,16 @@ const PostComponent = ({ post }) => {
           </div>
         </div>
       </div>
-      {showModal ? (
-        <div className="flex flex-col items-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-300 opacity-[96%] shadow-2xl">
-          <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-[80%] md:w-[70%] lg:w-[35%] h-[70%] m-auto rounded-3xl overflow-hidden">
-            <div className="w-full flex items-center justify-between px-4 my-3">
-              <div className="w-full flex justify-center items-center">
-                <h4 className="text-[#FF571A] font-bold">{post?.title}</h4>
-              </div>
-              <div
-                className="flex items-center justify-center m-auto rounded-full border-3 hover:cursor-pointer w-8 h-8 border border-gray-500"
-                onClick={() => setShowModal(false)}
-              >
-                X
-              </div>
-            </div>
-
-            <div className="flex flex-col items-start overflow-y-auto scrollbar custom-scrollbar mx-1 flex-grow w-full">
-              {socketComment?.map((comment, index) => (
-                <div
-                  key={index}
-                  className="flex flex-row items-start my-2 w-full"
-                >
-                  <div className="light-search text-[13px] rounded-lg shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                    {/* {comment.author._id !== user.userId && ( */}
-                    <h1 className="text-sm italic font-bold">
-                      {comment.author?.userName}
-                    </h1>
-                    {/* )} */}
-                    {/* {comment.map((comment, commentIndex) => ( */}
-                    <p className="w-full">{comment?.content}</p>
-                    {/* ))} */}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center w-full p-4 border-t border-gray-700">
-              <ProfileImage className="rounded-full object-fill mx-4" />
-              <textarea
-                className="flex items-center light-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
-                type="text"
-                placeholder="Add a comment"
-                value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleLocalAddComment(e);
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {showModal && (
+        <CommentsModal
+          setShowModal={setShowModal}
+          socketComment={socketComment}
+          setCommentInput={setCommentInput}
+          commentInput={commentInput}
+          handleLocalAddComment={handleLocalAddComment}
+          post
+        />
+      )}
     </div>
   );
 };

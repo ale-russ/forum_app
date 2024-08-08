@@ -2,6 +2,7 @@ const express = require("express");
 const { verifyToken } = require("../middleware/auth");
 
 const Messages = require("../models/message_model.js");
+const Room = require("../models/room_model.js");
 
 const router = express.Router();
 
@@ -46,6 +47,16 @@ router.delete("/message/:id", async (req, res) => {
   } catch (err) {
     console.log("ERROR: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+});
+
+// Fetch all rooms
+router.get("/chat-rooms", async (req, res) => {
+  try {
+    const rooms = await Room.find();
+    res.status(200).json(rooms);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

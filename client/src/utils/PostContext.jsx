@@ -9,6 +9,7 @@ import {
   likePost,
 } from "../controllers/ForumController";
 import toastOptions from "./constants";
+import { fetchRooms } from "../controllers/ChatController";
 
 const ForumContext = createContext();
 
@@ -18,6 +19,7 @@ export const ForumProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
   const [threads, setThreads] = useState([]);
+  const [chatRooms, setChatRooms] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -87,6 +89,13 @@ export const ForumProvider = ({ children }) => {
     console.log("Like Response: ", response);
   };
 
+  const handleFetchRooms = async () => {
+    const { data } = await fetchRooms();
+    setChatRooms(data);
+    // console.log("ROOMS: ", chatRooms);
+    return data;
+  };
+
   return (
     <ForumContext.Provider
       value={{
@@ -94,11 +103,13 @@ export const ForumProvider = ({ children }) => {
         loading,
         loadingComment,
         threads,
+        chatRooms,
         setNewPost,
         handleFetchPosts,
         handleCreatePost,
         handleAddComment,
         handleLikePost,
+        handleFetchRooms,
       }}
     >
       {children}

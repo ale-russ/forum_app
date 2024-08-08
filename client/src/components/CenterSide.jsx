@@ -3,6 +3,7 @@ import CreatePost from "./CreatePost";
 import SmallBaches from "./SmallBaches";
 import PostComponent from "./PostComponent";
 import { useForum } from "../utils/PostContext";
+import Room from "./RoomComponent";
 
 const CenterSide = () => {
   const { threads } = useForum();

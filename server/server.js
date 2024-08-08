@@ -12,7 +12,7 @@ const chatRoute = require("./controllers/chat_controller");
 
 const User = require("./models/user_models");
 const Message = require("./models/message_model");
-const Room = require("./models/message_model");
+const Room = require("./models/room_model");
 const Comment = require("./models/comments_model");
 const Post = require("./models/post_model");
 
@@ -29,6 +29,8 @@ const io = socketIo(server, {
   },
 });
 
+const rooms = {};
+
 const createGeneralRoom = async () => {
   try {
     let generalRoom = await Room.findOne({ name: "General" });
@@ -37,13 +39,12 @@ const createGeneralRoom = async () => {
       await generalRoom.save();
       console.log("General room created");
     }
+
     return generalRoom;
   } catch (err) {
     console.error("Error creating/finding General room:", err);
   }
 };
-
-createGeneralRoom();
 
 io.on("connection", (socket) => {
   socket.on("private message", async ({ to, message }) => {
@@ -59,10 +60,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", async ({ room, message }) => {
-    console.log("Received message:", { room, message });
     try {
       let targetRoom;
-      if (room === "General" || !room) {
+      if (!room || room === null || room === "General") {
         targetRoom = await Room.findOne({ name: "General" });
         if (!targetRoom) {
           targetRoom = await createGeneralRoom();
@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
           await targetRoom.save();
         }
       }
-      console.log("targetRoom: ", targetRoom);
+
       const newMessage = new Message({
         content: message.content,
         author: message.author,
@@ -83,12 +83,14 @@ io.on("connection", (socket) => {
       await newMessage.save();
 
       await Room.findByIdAndUpdate(targetRoom._id, {
-        $push: { messages: newMessage._id },
+        $push: { messages: newMessage._id, users: newMessage.author },
       });
 
       if (room && room !== "General") {
+        console.log("in no room block");
         io.to(room).emit("chat message", newMessage);
       } else {
+        console.log("in room block", newMessage);
         io.emit("chat message", newMessage);
       }
     } catch (err) {
@@ -105,32 +107,79 @@ io.on("connection", (socket) => {
     await newMessage.save();
   });
 
-  socket.on("create room", async (roomName) => {
-    const room = new Room({ name: roomName });
-    await room.save();
-    socket.join(roomName);
-    console.log("Room crated :", roomName);
+  socket.on("create room", async ({ roomName, userId }) => {
+    console.log("socketId: ", userId);
+    try {
+      let room = await Room.findOne({ name: roomName });
+      if (!room) {
+        const user = await User.findOne({ _id: userId });
+        delete user.password;
+        console.log("USER: ", user);
+        if (user) {
+          room = new Room({ name: roomName, users: [user._id] });
+          await room.save();
+
+          console.log(`Room "${roomName}" created`);
+          socket.join(roomName);
+          io.to(roomName).emit("room created", room);
+
+          // Emit the updated list of rooms to all connected clients
+          const rooms = await Room.find({}, { name: 1 });
+          io.emit("rooms update", rooms);
+        } else {
+          socket.emit("error", "User not found");
+        }
+      } else {
+        socket.emit("error", "Room already exists");
+      }
+    } catch (err) {
+      console.error("Error creating room:", err);
+      socket.emit("error", "Failed to create room");
+    }
   });
 
-  socket.on("join room", (roomName) => {
-    const room = Room.findOne({ name: roomName });
-    if (room) {
-      socket.join(roomName);
-      console.log("User joined :", roomName);
+  socket.on("join room", async (roomName) => {
+    try {
+      const room = await Room.findOne({ name: roomName });
+      if (room) {
+        const user = await User.findOne({ socketId: socket.id });
+        room.users.push(user._id);
+        await room.save();
+        socket.join(roomName);
+        io.to(roomName).emit(
+          "user joined",
+          { userId: user._id, roomName },
+          rooms
+        );
+        console.log(`User ${user._id} joined room: ${roomName}`);
+      } else {
+        socket.emit("error", "Room does not exist");
+      }
+    } catch (error) {
+      console.error("Error joining room:", error);
+      socket.emit("Error: ", "Failed to join room");
+    }
+  });
+
+  socket.on("leave room", (roomName) => {
+    if (rooms[roomName]) {
+      rooms[roomName].users = rooms[roomName].users.filter(
+        (userId) => userId !== socket.id
+      );
+      socket.leave(roomName);
+      io.to(roomName).emit("user left", { userId: socket.id, roomName });
+      console.log(`User ${socket.id} left room: ${roomName}`);
     } else {
-      console.log("Room does not exist :", roomName);
+      console.log("Oops! Something went wrong");
     }
   });
 
   socket.on("new comment", async ({ postId, author, content }) => {
-    console.log("Content: ", { postId, author: author, content });
     try {
       const comment = new Comment({ post: postId, author, content });
       await comment.save();
 
       const populatedComment = await comment.populate("author", "userName");
-
-      console.log("PopulatedComment: ", populatedComment);
 
       await Post.findByIdAndUpdate(
         postId,
@@ -141,31 +190,20 @@ io.on("connection", (socket) => {
       io.emit("new comment", populatedComment);
     } catch (err) {
       console.log("Error: ", err);
-      // return res.stats(500).json({ msg: "Internal Server Error" });
     }
-  });
-
-  socket.on("leave room", (roomName) => {
-    socket.leave(roomName);
-    console.log("User left :", roomName);
   });
 
   socket.on("disconnect", () => {
     // console.log("A user disconnected");
+    Object.values(rooms).forEach((room) => {
+      rooms.users = room.users.filter((userId) => userId !== socket.id);
+      io.to(room.name).emit("user left", {
+        userId: socket.id,
+        roomName: room.name,
+      });
+    });
   });
 });
-
-// const createGeneralRoom = async () => {
-//   try {
-//     const generalRoom = await Room.findOne({ name: "General" });
-//     if (!generalRoom) {
-//       const newGeneralRoom = new Room({ name: "General" });
-//       await newGeneralRoom.save();
-//     }
-//   } catch (err) {
-//     console.log("Error creating General room: ", err);
-//   }
-// };
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
