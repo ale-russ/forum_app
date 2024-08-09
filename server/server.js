@@ -108,18 +108,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("create room", async ({ roomName, userId }) => {
-    console.log("socketId: ", userId);
     try {
       let room = await Room.findOne({ name: roomName });
       if (!room) {
         const user = await User.findOne({ _id: userId });
         delete user.password;
-        console.log("USER: ", user);
         if (user) {
           room = new Room({ name: roomName, users: [user._id] });
           await room.save();
 
-          console.log(`Room "${roomName}" created`);
           socket.join(roomName);
           io.to(roomName).emit("room created", room);
 
@@ -138,26 +135,33 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("join room", async (roomName) => {
+  socket.on("join room", async ({ roomId, userId }) => {
     try {
-      const room = await Room.findOne({ name: roomName });
+      const room = await Room.findById(roomId);
+
       if (room) {
-        const user = await User.findOne({ socketId: socket.id });
+        const user = await User.findById(userId);
+        if (!user) {
+          socket.emit("error", "User not found. Please check again");
+        }
+        if (room.users.includes(userId)) {
+          socket.emit("error", "User is already in the room");
+          return;
+        }
         room.users.push(user._id);
         await room.save();
-        socket.join(roomName);
-        io.to(roomName).emit(
+        socket.join(roomId);
+        const roomName = room.name;
+        io.to(roomId).emit(
           "user joined",
           { userId: user._id, roomName },
           rooms
         );
-        console.log(`User ${user._id} joined room: ${roomName}`);
       } else {
         socket.emit("error", "Room does not exist");
       }
     } catch (error) {
-      console.error("Error joining room:", error);
-      socket.emit("Error: ", "Failed to join room");
+      socket.emit("error", "Failed to join room");
     }
   });
 

@@ -1,9 +1,9 @@
 import React from "react";
-import CreatePost from "./CreatePost";
+import CreatePost from "./post/CreatePost";
 import SmallBaches from "./SmallBaches";
-import PostComponent from "./PostComponent";
+
 import { useForum } from "../utils/PostContext";
-import Room from "./RoomComponent";
+import PostComponent from "./post/PostComponent";
 
 const CenterSide = () => {
   const { threads } = useForum();

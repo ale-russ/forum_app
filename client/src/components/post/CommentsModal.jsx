@@ -3,11 +3,9 @@ import { CiHeart } from "react-icons/ci";
 import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
 
-import { useForum } from "../utils/PostContext";
-import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
-import { fetchPosts, likePost } from "../controllers/ForumController";
-import { host } from "../utils/ApiRoutes";
-import ModalWrapper from "./common/ModalWrapper";
+import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
+import { host } from "../../utils/ApiRoutes";
+import ModalWrapper from "../common/ModalWrapper";
 
 const socket = io(host);
 
@@ -21,7 +19,7 @@ const CommentsModal = ({
 }) => {
   return (
     <ModalWrapper
-      post
+      post={post}
       setShowModal={setShowModal}
       children={
         <>

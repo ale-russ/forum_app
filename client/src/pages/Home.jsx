@@ -13,8 +13,8 @@ import NavBar from "../components/NavBar";
 import LeftSideBar from "../components/LeftSideBar";
 import CenterSide from "../components/CenterSide";
 import { useForum } from "../utils/PostContext";
-import Chat from "../components/Chat";
-import Room from "../components/RoomComponent";
+import Chat from "../components/chat/Chat";
+import Room from "../components/chat/RoomComponent";
 
 const Home = () => {
   const { token } = useContext(UserAuthContext);

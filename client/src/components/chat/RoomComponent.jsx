@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
 
-import { host } from "../utils/ApiRoutes";
-import ModalWrapper from "./common/ModalWrapper";
-import toastOptions from "../utils/constants";
+import { host } from "../../utils/ApiRoutes";
+import ModalWrapper from "../common/ModalWrapper";
+import toastOptions from "../../utils/constants";
 
 const socket = io(host);
-const Room = ({ setJoinModalOpen }) => {
+const Room = ({ setCrateModalOpen }) => {
   const [roomName, setRoomName] = useState("");
   const [currentRoom, setCurrentRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -86,7 +86,7 @@ const Room = ({ setJoinModalOpen }) => {
   //   console.log("Rooms: ", rooms);
   return (
     <ModalWrapper
-      setShowModal={setJoinModalOpen}
+      setShowModal={setCrateModalOpen}
       children={
         <div className="light-navbar h-full w-full">
           <div className="flex flex-col items-center gap-x-4  w-full px-4">

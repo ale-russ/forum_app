@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 
-import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
-import { useForum } from "../utils/PostContext";
-import UploadImage from "./common/UploadImage";
+import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
+import { useForum } from "../../utils/PostContext";
+import UploadImages from "../common/UploadImage";
 const CreatePost = () => {
   const user = localStorage.getItem("currentUser");
   const { newPost, setNewPost, handleCreatePost } = useForum();

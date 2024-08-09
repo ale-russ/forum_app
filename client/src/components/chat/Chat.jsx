@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import ChatTile from "./ChatTile";
+import JoinRoom from "./JoinRoom";
 import Room from "./RoomComponent";
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   const handleToggle = () => {
@@ -15,6 +17,10 @@ const Chat = () => {
     setJoinModalOpen(true);
     setIsOpen(false);
   };
+  const handleOpenCreateModal = () => {
+    setCreateModalOpen(true);
+    setIsOpen(false);
+  };
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex items-center">
@@ -23,7 +29,7 @@ const Chat = () => {
           className={`${
             isOpen ? "visible" : "hidden"
           } bg-blue-600 text-white h-14 w-14 rounded-full shadow-lg  transition-colors z-50 ease-in-out duration-300`}
-          onClick={handleOpenJoinModal}
+          onClick={handleOpenCreateModal}
         >
           Create
         </button>
@@ -31,6 +37,7 @@ const Chat = () => {
           className={`${
             isOpen ? "visible" : "hidden"
           } bg-zinc-800 text-white h-14 w-14 rounded-full shadow-lg transition-colors z-50 ease-in-out duration-300`}
+          onClick={handleOpenJoinModal}
         >
           Join
         </button>
@@ -43,7 +50,8 @@ const Chat = () => {
       </div>
       <div className="fixed bottom-16 right-20 z-50">
         {isOpen && <ChatTile />}
-        {joinModalOpen && <Room setJoinModalOpen={setJoinModalOpen} />}
+        {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
+        {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
       </div>
     </div>
   );

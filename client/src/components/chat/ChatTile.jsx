@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { formatDistanceToNow } from "date-fns";
-import { host } from "../utils/ApiRoutes";
-import { fetchChatMessages } from "../controllers/ChatController";
+
+import { host } from "../../utils/ApiRoutes";
+import { fetchChatMessages } from "../../controllers/ChatController";
 
 const socket = io(host);
 
@@ -55,8 +56,9 @@ const ChatTile = () => {
     handleChatMessages();
     socket.on("chat message", (message) => {
       setMessages((prevMessages) => {
-        const messagesArray = Array.isArray(prevMessages) ? prevMessages : [];
-        return [...messagesArray, message];
+        // const messagesArray = Array.isArray(prevMessages) ? prevMessages : [];
+        // return [...messagesArray, message];
+        return [...prevMessages, message];
       });
       setTimeout(() => scrollToBottom(), 0);
     });

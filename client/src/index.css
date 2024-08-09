@@ -84,9 +84,9 @@ a {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply rounded-lg bg-[#2C353D];
+  @apply rounded-lg bg-[#d3d1d1];
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #2c353d;
+  background: #8e8e8f;
 }

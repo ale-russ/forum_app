@@ -14,6 +14,7 @@ import Unauthorized from "./routes/Unauthorized";
 import NoPageFound from "./routes/NoPageFound";
 import { UserAuthContext } from "./utils/UserAuthenticationProvider";
 import { ForumProvider } from "./utils/PostContext";
+import ChatRoom from "./pages/ChatRoom";
 
 function App() {
   const { token } = useContext(UserAuthContext);
@@ -29,6 +30,7 @@ function App() {
             </Route>
             <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
               <Route path="/home" element={<Home />} />
+              <Route path="/rooms/:roomId" element={<ChatRoom />} />
               <Route path="/:id/replies" element={<Replies />} />
             </Route>
             <Route path="/unauthorized" element={<Unauthorized />} />

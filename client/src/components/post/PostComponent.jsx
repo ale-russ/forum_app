@@ -3,10 +3,9 @@ import { CiHeart } from "react-icons/ci";
 import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
 
-import { useForum } from "../utils/PostContext";
-import { ReactComponent as ProfileImage } from "../assets/ProfileImage.svg";
-import { fetchPosts, likePost } from "../controllers/ForumController";
-import { host } from "../utils/ApiRoutes";
+import { useForum } from "../../utils/PostContext";
+import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
+import { host } from "../../utils/ApiRoutes";
 import CommentsModal from "./CommentsModal";
 
 const socket = io(host);
@@ -167,7 +166,7 @@ const PostComponent = ({ post }) => {
           setCommentInput={setCommentInput}
           commentInput={commentInput}
           handleLocalAddComment={handleLocalAddComment}
-          post
+          post={post}
         />
       )}
     </div>
