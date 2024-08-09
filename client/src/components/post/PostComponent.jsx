@@ -98,11 +98,8 @@ const PostComponent = ({ post }) => {
     return groupedComments;
   };
 
-  // console.log("Threads: ", socketComment);
   const sortedGroupedComments = groupedComments(sortComments(socketComment));
 
-  // console.log("PostComponent Date: ", post?.createdAt);
-  // console.log("Post: ", post);
   return (
     <div className="light-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3 px-4">
       {/* <div className="rounded-lg bg-green-500 w-52 h-full ">Image</div> */}
@@ -147,7 +144,7 @@ const PostComponent = ({ post }) => {
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#48494e] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
             <div className="flex flex-wrap items-center px-2">244,567 View</div>
-            <div className="flex flex-wrap">244,567 Likes</div>
+            <div className="flex flex-wrap">{post?.likes?.length} Likes</div>
             <div
               className="flex flex-wrap items-center justify-center hover:cursor-pointer"
               onClick={() => {

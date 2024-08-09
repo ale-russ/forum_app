@@ -38,11 +38,12 @@ router.get("/posts", async (req, res) => {
     //     path: "comments",
     //     populate: { path: "author", select: "userName" },
     //   }).sort({ createdAt: 1 });;
-    const posts = await Post.find().populate({
-      path: 'comments',
-      populate: { path: 'author', select: 'userName' } // Populate the author of each comment
-    }).populate('author', 'userName'); 
-
+    const posts = await Post.find()
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "userName" }, // Populate the author of each comment
+      })
+      .populate("author", "userName");
 
     res.status(200).json(posts);
   } catch (err) {
@@ -126,14 +127,16 @@ router.post("/post/:id/comments", verifyToken, async (req, res) => {
 //Like a post
 router.post("/post/:id/like", verifyToken, async (req, res) => {
   try {
+    console.log("USER: ", req.user.id);
     const post = await Post.findById(req.params.id);
 
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
-    if(post.likes.includes(req.user._id)) {
-      post.likes = post.likes.filter(id => id.toString() = req.user._id.toString())
+    if (post.likes.includes(req.user._id)) {
+      post.likes = post.likes.filter((id) => (id = req.user.id));
+      // return post.likes;
     } else {
-      post.likes.push(req.user._id)
+      post.likes.push(req.user.id);
     }
 
     await post.save();
@@ -144,4 +147,3 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
 });
 
 module.exports = router;
-

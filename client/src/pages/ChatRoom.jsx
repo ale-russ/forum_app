@@ -11,11 +11,19 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [users, setUsers] = useState([]);
+  const [currentRoom, setCurrentRoom] = useState(null);
+
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
   useEffect(() => {
-    socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+    socket.on("chat room message", (message) => {
+      console.log("Emitted Message: ", message);
+      setMessages((prevMessages) => {
+        if (message.room === currentRoom) {
+          [...prevMessages, message];
+        }
+        return prevMessages;
+      });
     });
 
     socket.on("user join", (user) => {
@@ -36,19 +44,28 @@ const ChatRoom = () => {
   const handleSendMessage = () => {
     if (input) {
       console.log("in send");
-      socket.emit("sendMessage", {
+      const message = {
         content: input,
         author: user.userId,
+      };
+      socket.emit("chat room message", {
         room: roomId,
+        message,
       });
       setInput("");
     }
   };
 
-  useEffect(() => {
-    socket.emit("joinRoom", { room: roomId });
-    return () => socket.emit("leaveRoom", { room: roomId });
-  }, [roomId]);
+  const handleJoinRoom = () => {
+    socket.emit("joinRoom", { room: roomId, userId: user.userId });
+    setCurrentRoom(roomId);
+  };
+
+  // useEffect(() => {
+  //   socket.emit("joinRoom", { room: roomId });
+  //   return () => socket.emit("leaveRoom", { room: roomId });
+  // }, [roomId]);
+  console.log("Messages: ", messages);
   return (
     <div className="flex h-full w-full">
       <div className="light-navbar w-full md:w-[30%] p-4 border-r">

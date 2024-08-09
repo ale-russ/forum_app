@@ -60,6 +60,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", async ({ room, message }) => {
+    console.log("GENERAL: ", message);
     try {
       let targetRoom;
       if (!room || room === null || room === "General") {
@@ -83,7 +84,8 @@ io.on("connection", (socket) => {
       await newMessage.save();
 
       await Room.findByIdAndUpdate(targetRoom._id, {
-        $push: { messages: newMessage._id, users: newMessage.author },
+        $push: { messages: newMessage._id },
+        $addToSet: { users: newMessage.author },
       });
 
       if (room && room !== "General") {
@@ -95,16 +97,39 @@ io.on("connection", (socket) => {
       }
     } catch (err) {
       console.error("Sending message failed: ", err.message);
+      io.emit("error", "Sending Message Failed");
     }
   });
 
   socket.on("chat room message", async ({ room, message }) => {
-    const newMessage = new Message({
-      content: message.content,
-      author: message.author,
-      room,
-    });
-    await newMessage.save();
+    console.log("ROOM: ", { room, message });
+    try {
+      let targetRoom;
+      targetRoom = await Room.findById({ _id: room });
+      if (!targetRoom) {
+        io.emit("error", "No Room Found");
+        return;
+      }
+      if (!targetRoom.users.includes(message.author)) {
+        targetRoom.users.push(message.author);
+      }
+      console.log("Chat Room message", targetRoom);
+      const newMessage = new Message({
+        content: message.content,
+        author: message.author,
+        room: targetRoom._id,
+      });
+      await newMessage.save();
+      await Room.findByIdAndUpdate(targetRoom._id, {
+        $push: { messages: newMessage._id },
+        $addToSet: { users: newMessage.author },
+      });
+      console.log("newMessage: ", newMessage);
+      io.to(room).emit("chat room message", newMessage);
+    } catch (err) {
+      console.error("Sending message failed: ", err.message);
+      io.to(room).emit("error", "Error Sending message");
+    }
   });
 
   socket.on("create room", async ({ roomName, userId }) => {

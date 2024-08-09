@@ -84,8 +84,9 @@ export const ForumProvider = ({ children }) => {
   };
 
   const handleLikePost = async (post) => {
-    console.log("in handleLike");
-    const response = await likePost(post._id, token);
+    console.log("in handleLike", post._id);
+    const id = post._id;
+    const response = await likePost({ id, token });
     console.log("Like Response: ", response);
   };
 
