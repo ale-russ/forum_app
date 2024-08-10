@@ -23,7 +23,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex items-center">
+    <div className="fixed bottom-24 right-5 z-50 flex items-center">
       <div className="flex flex-col gap-y-4">
         <button
           className={`${
@@ -48,8 +48,10 @@ const Chat = () => {
           Chat
         </button>
       </div>
-      <div className="fixed bottom-16 right-20 z-50">
-        {isOpen && <ChatTile />}
+      <div className="fixed bottom-24 right-20 z-50">
+        {isOpen && (
+          <ChatTile handleToggle={handleToggle} setIsOpen={setIsOpen} />
+        )}
         {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
         {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
       </div>

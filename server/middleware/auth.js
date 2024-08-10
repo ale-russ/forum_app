@@ -3,7 +3,7 @@ const User = require("../models/user_models");
 
 const verifyToken = (req, res, next) => {
   // const token = req.header("x-auth-token");
-
+  // const token = req.header("Authorization").replace("Bearer ", "")
   const token = req.header("Authorization");
   try {
     if (!token) return res.status(401).json({ msg: "Access Denied" });

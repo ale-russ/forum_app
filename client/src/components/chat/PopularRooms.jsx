@@ -16,14 +16,13 @@ const PopularRooms = () => {
   };
 
   const handleRoomClick = (roomId) => {
-    console.log("button clicked", roomId);
     navigate(`/rooms/${roomId}`);
   };
 
   useEffect(() => {
     getRooms();
   }, [chatRooms]);
-  // console.log("ChatRooms: ", chatRooms);
+
   return (
     <LeftSideWrapper
       children={

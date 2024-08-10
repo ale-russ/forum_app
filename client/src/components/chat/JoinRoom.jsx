@@ -23,13 +23,14 @@ const JoinRoom = ({ setJoinModalOpen }) => {
         toast.error("Please Select Room", toastOptions);
         return;
       }
-      console.log("SelecteD Room: ", selectedRoom);
+
       if (selectedRoom !== "" || selectedRoom === "Join Room") {
-        socket.emit("join room", { roomId: selectedRoom, userId: user.userId });
-        console.log("Joining Room: ", selectedRoom);
+        socket.emit("join chat room", {
+          roomId: selectedRoom,
+          userId: user.userId,
+        });
       }
     } catch (err) {
-      console.log("error: ", err);
       toast.error(err, toastOptions);
     } finally {
       setLoading(false);
@@ -38,8 +39,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
 
   useEffect(() => {
     handleFetchRooms();
-    socket.on("join room", (message) => {
-      console.log("message is : ", message);
+    socket.on("join chat room", (message) => {
       toast.success("User has been added to group", toastOptions);
     });
 
@@ -48,7 +48,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
     });
 
     return () => {
-      socket.off("join room");
+      socket.off("join chat room");
       socket.off("error");
     };
   }, []);

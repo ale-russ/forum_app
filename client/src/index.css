@@ -90,3 +90,32 @@ a {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #8e8e8f;
 }
+
+@keyframes slideIn {
+  from {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
+}
+
+.open-animation {
+  animation: slideIn 0.5s ease forwards;
+}
+
+.close-animation {
+  animation: slideOut 0.5s ease backwards;
+}

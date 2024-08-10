@@ -21,7 +21,6 @@ const Room = ({ setCrateModalOpen }) => {
       return toast.error("Please Give Room Name", toastOptions);
 
     if (roomName.trim()) {
-      //   console.log("Room name: ", roomName);
       socket.emit("create room", { roomName, userId });
       setCurrentRoom(roomName);
       setRoomName("");
@@ -83,7 +82,6 @@ const Room = ({ setCrateModalOpen }) => {
     };
   }, []);
 
-  //   console.log("Rooms: ", rooms);
   return (
     <ModalWrapper
       setShowModal={setCrateModalOpen}

@@ -21,6 +21,8 @@ export const ForumProvider = ({ children }) => {
   const [threads, setThreads] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
+  const [postComments, setPostComments] = useState([]);
+
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -49,11 +51,8 @@ export const ForumProvider = ({ children }) => {
       }
       const response = await createPost(newPost, token);
 
-      console.log("REs in Con: ", response);
-
       if (response && response?.data) {
         setThreads([...threads, response.data]);
-        console.log("Response in Context: $", threads);
       }
     } finally {
       setNewPost({ title: "", content: "" });
@@ -62,39 +61,36 @@ export const ForumProvider = ({ children }) => {
   };
 
   const handleAddComment = async (post, content) => {
-    setLoadingComment(true);
     try {
       const response = await addComment(post._id, { content }, token);
-      console.log("Comment Response: ", response);
+
       const newComment = {
         ...response?.data,
         author: { userName: user.userName, _id: user._id },
       };
-      setThreads((prvThreads) =>
-        prvThreads.map((p) =>
+      setThreads((prevThreads) =>
+        prevThreads.map((p) =>
           p._id === post._id
             ? { ...p, comments: [...p.comments, newComment] }
             : p
         )
       );
       return newComment;
-    } finally {
-      setLoadingComment(false);
+    } catch (err) {
+      toast.error("Failed to add comment", toastOptions);
     }
   };
 
   const handleLikePost = async (post) => {
-    console.log("in handleLike", post._id);
     const id = post._id;
     const response = await likePost({ id, token });
-    console.log("Like Response: ", response);
   };
 
   const handleFetchRooms = async () => {
-    const { data } = await fetchRooms();
-    setChatRooms(data);
-    // console.log("ROOMS: ", chatRooms);
-    return data;
+    const response = await fetchRooms();
+
+    setChatRooms(response.data);
+    return response.data;
   };
 
   return (
@@ -105,12 +101,16 @@ export const ForumProvider = ({ children }) => {
         loadingComment,
         threads,
         chatRooms,
+        postComments,
+        user,
+        token,
         setNewPost,
         handleFetchPosts,
         handleCreatePost,
         handleAddComment,
         handleLikePost,
         handleFetchRooms,
+        setPostComments,
       }}
     >
       {children}

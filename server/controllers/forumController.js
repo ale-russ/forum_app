@@ -13,7 +13,6 @@ router.post("/post", verifyToken, async (req, res) => {
     if (!req.user || !req.user.id)
       return res.status(400).json({ message: "User ID is missing" });
 
-    console.log("Creating post with author ID: ", req.user.id);
     const post = new Post({
       title,
       content,
@@ -24,7 +23,6 @@ router.post("/post", verifyToken, async (req, res) => {
 
     res.status(201).json(post);
   } catch (err) {
-    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -47,7 +45,6 @@ router.get("/posts", async (req, res) => {
 
     res.status(200).json(posts);
   } catch (err) {
-    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -127,14 +124,12 @@ router.post("/post/:id/comments", verifyToken, async (req, res) => {
 //Like a post
 router.post("/post/:id/like", verifyToken, async (req, res) => {
   try {
-    console.log("USER: ", req.user.id);
     const post = await Post.findById(req.params.id);
 
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
     if (post.likes.includes(req.user._id)) {
-      post.likes = post.likes.filter((id) => (id = req.user.id));
-      // return post.likes;
+      post.likes.filter((id) => (id = req.user.id));
     } else {
       post.likes.push(req.user.id);
     }

@@ -59,7 +59,6 @@ export async function register({ values, navigate }) {
         toast.error(`${data.msg}`, toastOptions);
         return;
       } else {
-        console.log("SUCCESS");
         toast.success(
           "You have successfully registered. Please login with the new credentials",
           toastOptions

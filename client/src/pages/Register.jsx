@@ -18,7 +18,6 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ values });
     if (
       values.username === "" ||
       values.email === "" ||
