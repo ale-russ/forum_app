@@ -89,8 +89,8 @@ export const ForumProvider = ({ children }) => {
   const handleFetchRooms = async () => {
     const response = await fetchRooms();
 
-    setChatRooms(response.data);
-    return response.data;
+    setChatRooms(response?.data);
+    return response?.data;
   };
 
   return (

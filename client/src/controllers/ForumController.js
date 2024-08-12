@@ -35,6 +35,22 @@ export const updatePost = async (id, post, token) => {
   });
 };
 
+export const handleSearch = async (searchQuery, token) => {
+  console.log("Token: ", token);
+  try {
+    const { data } = await axios.get(
+      `${postsRoute}/search?query=${searchQuery}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log("Search Result: ", data);
+
+    return data;
+  } catch (error) {
+    console.log("Error: ", error);
+    toast.error("Oops!. Something went wrong", toastOptions);
+  }
+};
+
 export const deletePost = async (id, token) =>
   await axios.delete(`${postsRoute}/posts/${id}`, {
     headers: { Authorization: `Bearer ${token}` },

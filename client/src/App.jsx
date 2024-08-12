@@ -15,6 +15,7 @@ import NoPageFound from "./routes/NoPageFound";
 import { UserAuthContext } from "./utils/UserAuthenticationProvider";
 import { ForumProvider } from "./utils/PostContext";
 import ChatRoom from "./pages/ChatRoom";
+import PostPage from "./pages/PostPage";
 
 function App() {
   const { token } = useContext(UserAuthContext);
@@ -32,6 +33,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/rooms/:roomId" element={<ChatRoom />} />
               <Route path="/:id/replies" element={<Replies />} />
+              <Route path="/post/:id" element={<PostPage />} />
             </Route>
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/not-found" element={<NoPageFound />} />

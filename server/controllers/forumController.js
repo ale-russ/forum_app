@@ -67,6 +67,27 @@ router.get("/posts/:id", async (req, res) => {
   }
 });
 
+router.get("/search", verifyToken, async (req, res) => {
+  console.log("in search backend");
+  const { query } = req.query;
+  try {
+    if (!query)
+      return res.status(400).json({ msg: "Search Query is required" });
+
+    const posts = await Post.find({
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } },
+      ],
+    }).populate("author", "userName");
+
+    res.status(200).json(posts);
+  } catch (err) {
+    console.log("Err: ", err);
+    res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+});
+
 // Update a post
 router.put("/post/:id", verifyToken, async (req, res) => {
   try {
