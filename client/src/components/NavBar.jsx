@@ -70,16 +70,16 @@ const NavBar = () => {
   // console.log("ShowSearchModal: ", showSearchModal);
 
   return (
-    <div className="flex items-center justify-between px-4 light-navbar h-16 w-[100%] shadow-lg">
-      <div className="flex items-center px-4">
+    <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg">
+      <div className="flex items-center px-1 md:px-4">
         <Logo />
         <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">
           KnowledgeChain
         </p>
       </div>
       {/* <IconsTile /> */}
-      <div className="flex flex-col relative">
-        <div className="flex items-center light-search rounded-lg px-3 w-[250px] md:w-[300px] xl:w-[600px]">
+      <div className="flex flex-col relative w-full md:w-[300px] xl:w-[600px]">
+        <div className="flex items-center light-search rounded-lg px-3 w-full ">
           <input
             className="sm:block m-auto w-full light-search border-0 h-10 text-[#858EAD] outline-none"
             placeholder="Type to search here ..."
@@ -143,7 +143,7 @@ const IconsTile = () => {
 const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
   const navigate = useNavigate();
   return (
-    <div className="light absolute inset-x-0 top-12 mt-2 w-full z-50 border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300">
+    <div className="light absolute inset-x-0 top-12 mt-2 mx-auto w-[80vw] md:w-full z-50 border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300">
       <div className="flex items-center justify-end p-2 w-full">
         <div
           className="flex items-center justify-center rounded-full border-3 hover:cursor-pointer w-8 h-8 border border-gray-500"
@@ -156,7 +156,7 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
         {searchResults?.map((post) => (
           <div
             key={post._id}
-            className="line-clamp-2 font-bold p-3 rounded-lg shadow-xl my-3 mx-2 light-navbar"
+            className="line-clamp-2 font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar"
             onClick={() => navigate(`/post/${post._id}`, { state: { post } })}
           >
             {post?.title} : {post?.content}

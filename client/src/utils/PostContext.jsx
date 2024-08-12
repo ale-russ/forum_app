@@ -81,9 +81,14 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  const handleLikePost = async (post) => {
-    const id = post._id;
-    const response = await likePost({ id, token });
+  const handleLikePost = async (id) => {
+    const response = await likePost(id, token);
+    setThreads((prevThreads) =>
+      prevThreads.map((pst) =>
+        pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
+      )
+    );
+    return response?.data;
   };
 
   const handleFetchRooms = async () => {

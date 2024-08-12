@@ -74,9 +74,11 @@ export const addComment = async (id, comment, token) => {
 
 export const likePost = async (id, token) => {
   try {
-    const response = await axios.post(`${postsRoute}/post/${id}/like`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.post(
+      `${postsRoute}/post/${id}/like`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
     return response;
   } catch (error) {

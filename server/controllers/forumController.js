@@ -149,8 +149,10 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
 
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
-    if (post.likes.includes(req.user._id)) {
-      post.likes.filter((id) => (id = req.user.id));
+    const userIndex = post.likes.indexOf(req.user.id);
+
+    if (userIndex !== -1) {
+      post.likes.splice(userIndex, 1);
     } else {
       post.likes.push(req.user.id);
     }
@@ -158,6 +160,7 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
     await post.save();
     res.status(200).json(post);
   } catch (err) {
+    console.log("ERROR: ", err);
     res.status(400).json({ msg: err.message });
   }
 });

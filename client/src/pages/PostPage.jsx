@@ -64,7 +64,7 @@ const PostPage = () => {
           {post?.comments &&
             post?.comments?.map((comment) => (
               <div className="rounded shadow-lg light-search my-3 px-3">
-                <div className="italic">{comment.author.userName}</div>
+                <div className="italic">{comment?.author?.userName}</div>
                 {comment.content}
               </div>
             ))}
