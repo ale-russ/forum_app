@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CiHeart } from "react-icons/ci";
 import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 import { useForum } from "../../utils/PostContext";
 import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
@@ -11,6 +12,7 @@ import { host } from "../../utils/ApiRoutes";
 const socket = io(host);
 
 const PostComponent = ({ post }) => {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const { handleLikePost } = useForum();
   const [localCommentCount, setLocalCommentCount] = useState(
@@ -80,6 +82,14 @@ const PostComponent = ({ post }) => {
               }}
             >
               {localCommentCount} Comments
+            </div>
+            <div
+              className="primary text-white rounded-lg p-2 text-[13px] cursor-pointer"
+              onClick={() =>
+                navigate(`/post/:${post._id}`, { state: { post } })
+              }
+            >
+              Read Post
             </div>
           </div>
         </div>

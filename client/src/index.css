@@ -35,6 +35,11 @@ a {
 @tailwind components;
 @tailwind utilities;
 
+/* Primary Color */
+.primary {
+  @apply bg-[#FF571A];
+}
+
 /* Light Theme */
 .light {
   @apply bg-white text-[#192351];
