@@ -9,6 +9,7 @@ const http = require("http");
 const authRoutes = require("./controllers/userController");
 const forumRoute = require("./controllers/forumController");
 const chatRoute = require("./controllers/chat_controller");
+const upload = require("./controllers/utils");
 
 const socketControllers = require("./controllers/socketController");
 
@@ -44,6 +45,7 @@ mongoose
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
+app.use("/upload", upload);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CiHeart } from "react-icons/ci";
+import { FaHeart } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +46,7 @@ const PostComponent = ({ post }) => {
       socket.off("new comment", handleNewComment);
     };
   }, [post._id]);
-
+  // console.log("Like Count: ", likeCount);
   return (
     <div className="light-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3 px-4">
       <div className="flex items-start flex-col justify-between w-full h-full px-2 ">
@@ -58,9 +59,13 @@ const PostComponent = ({ post }) => {
               className="hidden md:block lg:block xl:block"
               onClick={handleLike}
             >
-              <CiHeart
-                className={`cursor-pointer ${isLiked ? "text-red-500" : ""}`}
-              />
+              {isLiked ? (
+                <FaHeart
+                  className={`cursor-pointer ${isLiked ? "text-red-500" : ""}`}
+                />
+              ) : (
+                <CiHeart className={`cursor-pointer `} />
+              )}
             </div>
             <div className="block md:hidden lg:hidden xl:hidden">
               <ProfileImage className="rounded-full h-auto object-fill " />
@@ -90,7 +95,9 @@ const PostComponent = ({ post }) => {
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#48494e] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
             <div className="flex flex-wrap items-center px-2">244,567 View</div>
-            <div className="flex flex-wrap">{likeCount?.length} Likes</div>
+            <div className="flex flex-wrap cursor-pointer" onClick={handleLike}>
+              {likeCount} Likes
+            </div>
             <div
               className="flex flex-wrap items-center justify-center hover:cursor-pointer"
               onClick={() => {

@@ -27,7 +27,6 @@ const CommentsModal = ({
 
   // useEffect(() => scrollToBottom, [localCommentCount]);
   useEffect(() => {
-    // Use a setTimeout to ensure this runs after the DOM has updated
     const timer = setTimeout(() => {
       scrollToBottom();
     }, 0);

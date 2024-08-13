@@ -17,19 +17,12 @@ import { handleSearch } from "../controllers/ForumController";
 import { useForum } from "../utils/PostContext";
 
 const NavBar = () => {
-  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("currentUser"));
-  const { setUserAuth } = useContext(UserAuthContext);
   const { token } = useForum();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
-
-  const signOut = async () => {
-    await handleLogout({ navigate });
-    setUserAuth({ newToken: "" });
-    navigate("/");
-  };
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
@@ -111,14 +104,15 @@ const NavBar = () => {
             <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
           </div>
         </div>
-        <Profile className="mr-2" onClick={signOut} />
+        <Profile className="mr-2" />
         <p className="hidden sm:hidden md:block lg:block xl:block  font-bold text-[16px] text-ellipsis">
           {user.userName}
         </p>
         <TiArrowSortedDown
-          className="mx-2 w-4 h-4 "
-          onClick={() => console.log("button clicked")}
+          className="relative mx-2 w-4 h-4 cursor-pointer"
+          onClick={() => setShowDropdown(!showDropdown)}
         />
+        {showDropdown ? <UserMenus /> : null}
       </div>
     </div>
   );
@@ -156,12 +150,43 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
         {searchResults?.map((post) => (
           <div
             key={post._id}
-            className="line-clamp-2 font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar"
+            className="line-clamp-1 font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar overflow-x-hidden text-ellipsis"
             onClick={() => navigate(`/post/${post._id}`, { state: { post } })}
           >
             {post?.title} : {post?.content}
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const UserMenus = () => {
+  const { user } = useForum();
+  const navigate = useNavigate();
+  const { setUserAuth } = useContext(UserAuthContext);
+
+  const signOut = async () => {
+    await handleLogout({ navigate });
+    setUserAuth({ newToken: "" });
+    navigate("/");
+  };
+  return (
+    <div className="flex flex-col items-center justify-start fixed right-4 top-16 z-50 h-40 w-36 light-navbar rounded shadow-xl border border-gray-300">
+      <div className="p-2">
+        <strong>{user.userName}</strong>
+      </div>
+      <div className="w-full border border-gray-300 m-3" />
+      <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
+        <p className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 ">
+          Profile
+        </p>
+        <button
+          className="bg-red-600 text-white rounded-lg px-1 text-sm"
+          onClick={signOut}
+        >
+          Sign out
+        </button>
       </div>
     </div>
   );

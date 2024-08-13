@@ -15,8 +15,8 @@ const SmallBaches = () => {
           <Following />
         </div>
         <p>Following</p>
-        <div className="bg-[#FF571A] h-7 w-7 rounded-lg flex items-center justify-center mx-1">
-          <p className="text-bold text-xs text-white">251</p>
+        <div className="primary h-7 w-7 rounded-lg flex items-center justify-center mx-1">
+          <p className="text-bold text-xs text-white">0</p>
         </div>
       </div>
     </div>
