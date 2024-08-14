@@ -3,6 +3,7 @@ import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { IoMdSend } from "react-icons/io";
+import { BsEmojiSmile } from "react-icons/bs";
 import Picker from "emoji-picker-react";
 
 import { host } from "../utils/ApiRoutes";
@@ -16,24 +17,23 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [users, setUsers] = useState([]);
-  const [currentRoom, setCurrentRoom] = useState(null);
+  const [currentRoom, setCurrentRoom] = useState(roomId);
   const [chatRoom, setChatRoom] = useState();
   const { chatRooms, user, handleFetchRooms } = useForum();
   const messagesEndRef = useRef(null);
 
-  const [inputStr, setInputStr] = useState("");
   const [showPicker, setShowPicker] = useState(false);
 
-  const onEmojiClick = (event, emojiObject) => {
-    setInputStr((prevInput) => prevInput + emojiObject.emoji);
-    setShowPicker(false);
+  const addEmoji = (e) => {
+    const emoji = e.emoji;
+    setInput((prevInput) => prevInput + emoji);
   };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // useEffect(() => scrollToBottom, [messages]);
+  useEffect(() => scrollToBottom, [messages]);
 
   useEffect(() => {
     if (roomId) {
@@ -51,10 +51,13 @@ const ChatRoom = () => {
     socket.on("chat room message", (message) => {
       setMessages((prevMessages) => {
         if (message.room === currentRoom) {
-          [...prevMessages, message];
+          return [...prevMessages, message];
         }
-        return prevMessages;
+        // else {
+        //   return null;
+        // }
       });
+      setTimeout(() => scrollToBottom(), 0);
     });
 
     socket.on("user join", (user) => {
@@ -77,6 +80,7 @@ const ChatRoom = () => {
       const matchedRoom = chatRooms.find((room) => room._id === roomId);
       if (matchedRoom) {
         setChatRoom(matchedRoom);
+        setMessages([...matchedRoom?.messages]);
       } else {
       }
     };
@@ -103,6 +107,7 @@ const ChatRoom = () => {
         message,
       });
       setInput("");
+      setShowPicker(false);
     }
   };
 
@@ -121,8 +126,8 @@ const ChatRoom = () => {
           </ul>
         </div>
         <div className="w-full md:w-[70%] p-4 flex flex-col light-navbar">
-          <div className="flex-1 overflow-y-auto mb-4">
-            {chatRoom?.messages.map((msg, index) => {
+          <div className="flex-1 overflow-y-auto overflow-x-hidden mb-4">
+            {messages.map((msg, index) => {
               return (
                 <div
                   key={index}
@@ -150,27 +155,28 @@ const ChatRoom = () => {
                     </span>
                   </div>
                   <p className="text-[10px] italic">
-                    {" "}
                     {formatDistanceToNow(msg.createdAt)} ago
                   </p>
                 </div>
               );
             })}
           </div>
-          <div className="flex w-[90%]">
-            <img
-              className="emoji-icon"
-              src="https://icons.getbootstrap.com/assets/icons/emoji-smile.svg"
+          <div className="relative flex w-[90%]">
+            <span
+              className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
               onClick={() => setShowPicker((val) => !val)}
-            />
+            >
+              <BsEmojiSmile />
+            </span>
             {showPicker && (
-              <Picker
-                className={`w-20 h-16 light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300 ${
-                  showPicker ? "open-animation" : "close-animation"
-                }`}
-                // pickerStyle={{ width: "100%" }}
-                onEmojiClick={onEmojiClick}
-              />
+              <div className="absolute bottom-full left-0 mb-2">
+                <Picker
+                  onEmojiClick={addEmoji}
+                  className={` transition ease-in-out duration-300 ${
+                    showPicker ? "open-animation" : "close-animation"
+                  }`}
+                />
+              </div>
             )}
 
             <input

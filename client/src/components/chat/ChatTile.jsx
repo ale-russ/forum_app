@@ -3,6 +3,8 @@ import io from "socket.io-client";
 import { formatDistanceToNow } from "date-fns";
 import { IoMdSend } from "react-icons/io";
 import EmojiPicker from "emoji-picker-react";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmile } from "react-icons/bs";
 
 import { host } from "../../utils/ApiRoutes";
 import { fetchChatMessages } from "../../controllers/ChatController";
@@ -14,6 +16,12 @@ const ChatTile = ({ handleToggle, setIsOpen }) => {
   const [input, setInput] = useState("");
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const messagesEndRef = useRef(null);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const addEmoji = (e) => {
+    const emoji = e.emoji;
+    setInput((prevInput) => prevInput + emoji);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,6 +53,7 @@ const ChatTile = ({ handleToggle, setIsOpen }) => {
         message,
       });
       setInput("");
+      setShowPicker(false);
     }
   };
 
@@ -54,7 +63,6 @@ const ChatTile = ({ handleToggle, setIsOpen }) => {
     handleChatMessages();
     socket.on("chat message", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
-      console.log("Chats: ", message);
       setTimeout(() => scrollToBottom(), 0);
     });
 
@@ -116,8 +124,23 @@ const ChatTile = ({ handleToggle, setIsOpen }) => {
         })}
         <div ref={messagesEndRef} />
       </div>
-      <div className="flex items-center light-search  h-12 pl-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg m-4">
-        {/* <EmojiPicker /> */}
+      <div className=" relative flex items-center light-search  h-12 pl-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg m-4">
+        <span
+          className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
+          onClick={() => setShowPicker((val) => !val)}
+        >
+          <BsEmojiSmile />
+        </span>
+        {showPicker && (
+          <div className="absolute bottom-full left-0 mb-2">
+            <Picker
+              onEmojiClick={addEmoji}
+              className={` transition ease-in-out duration-300 ${
+                showPicker ? "open-animation" : "close-animation"
+              }`}
+            />
+          </div>
+        )}
         <input
           type="text"
           className="w-full light-search h-full focus:outline-none focus:shadow-outline outline-none border-0 mr-1"

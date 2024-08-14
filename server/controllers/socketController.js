@@ -59,9 +59,17 @@ const socketControllers = (io) => {
           }
         }
 
+        const author = await User.findById(message.author).select(
+          "_id userName"
+        );
+        if (!author) {
+          io.emit("error", "User not found");
+          return;
+        }
+
         const newMessage = new Message({
           content: message.content,
-          author: message.author,
+          author: author,
           room: targetRoom._id,
         });
         await newMessage.save();
@@ -79,6 +87,7 @@ const socketControllers = (io) => {
     });
 
     socket.on("chat room message", async ({ room, message }) => {
+      console.log("MESSAGE: ", { room, message });
       try {
         let targetRoom;
         targetRoom = await Room.findById({ _id: room });
@@ -86,13 +95,22 @@ const socketControllers = (io) => {
           io.emit("error", "No Room Found");
           return;
         }
-        if (!targetRoom.users.includes(message.author)) {
-          targetRoom.users.push(message.author);
+
+        const author = await User.findById(message.author).select(
+          "_id userName"
+        );
+        if (!author) {
+          io.emit("error", "User not found");
+          return;
+        }
+
+        if (!targetRoom.users.includes(author._id)) {
+          targetRoom.users.push(author._id);
         }
 
         const newMessage = new Message({
           content: message.content,
-          author: message.author,
+          author: author,
           room: targetRoom._id,
         });
         await newMessage.save();
@@ -100,6 +118,8 @@ const socketControllers = (io) => {
           $push: { messages: newMessage._id },
           $addToSet: { users: newMessage.author },
         });
+
+        console.log("New Message: ", newMessage);
 
         io.to(room).emit("chat room message", newMessage);
       } catch (err) {
@@ -165,19 +185,6 @@ const socketControllers = (io) => {
         socket.emit("error", "Failed to join room");
       }
     });
-
-    // socket.on("leave room", (roomName) => {
-    //   if (rooms[roomName]) {
-    //     rooms[roomName].users = rooms[roomName].users.filter(
-    //       (userId) => userId !== socket.id
-    //     );
-    //     socket.leave(roomName);
-    //     io.to(roomName).emit("user left", { userId: socket.id, roomName });
-    //     console.log(`User ${socket.id} left room: ${roomName}`);
-    //   } else {
-    //     console.log("Oops! Something went wrong");
-    //   }
-    // });
 
     socket.on("new comment", async ({ postId, author, content }) => {
       try {

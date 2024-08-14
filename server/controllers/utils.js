@@ -2,13 +2,15 @@ const express = require("express");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const { Client, Storage, ID } = require("node-appwrite");
+const { InputFile } = require("node-appwrite/file");
 const { Readable } = require("stream");
 const dotenv = require("dotenv");
-const InputFile = require("File");
 
 const Image = require("../models/image_model");
 
 dotenv.config();
+const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 const client = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT)
@@ -19,13 +21,16 @@ const storage = new Storage(client);
 
 async function uploadImage(fileBuffer, fileName) {
   console.log("FileName: ", fileName);
+  const readableStream = new Readable();
+  readableStream.push(fileBuffer);
+  readableStream.push(null);
   try {
     if (!fileBuffer) throw new Error("Invalid file buffer");
 
     const response = await storage.createFile(
       process.env.APPWRITE_BUCKET_ID,
       ID.unique(),
-      fileName
+      InputFile.fromBuffer(readableStream, fileName)
     );
 
     return response.$id;
@@ -34,9 +39,6 @@ async function uploadImage(fileBuffer, fileName) {
     throw new Error("Failed to upload image");
   }
 }
-
-const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/image", upload.single("image"), async (req, res) => {
   try {
@@ -52,23 +54,35 @@ router.post("/image", upload.single("image"), async (req, res) => {
     });
 
     await image.save();
+
     res.json({ msg: "Image uploaded successfully", fileId });
   } catch (err) {
     console.error("ROUTE ERROR: ", err.message);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
-
 router.get("/image/:id", async (req, res) => {
   try {
-    const image = await Image.findById(req.params.id);
+    const imageId = req.params.id;
+    console.log("imageId: ", imageId);
+
+    if (!mongoose.Types.ObjectId.isValid(imageId))
+      return res.status(400).json({ msg: "Invalid Image ID" });
+
+    const image = await Image.findById(imageId);
+
     if (!image) return res.status(404).json({ msg: "Image not found" });
 
     const fileId = image.appwriteFileId;
-    const fileView = await storage.getFileView("66bb787c001fba52767d", fileId);
-    res.redirect(fileView.href); // Redirect to the Appwrite file view URL
+
+    // GENERATE A URL
+    const fileView = await storage.getFileView(
+      process.env.APPWRITE_BUCKET_ID,
+      fileId
+    );
+    res.redirect(fileView.href);
   } catch (err) {
-    console.error(err.message);
+    console.error("ERROR: ", err.message);
     res.status(500).json({ msg: "Failed to retrieve image" });
   }
 });
