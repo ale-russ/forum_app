@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
 import { IoMdSend } from "react-icons/io";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmile } from "react-icons/bs";
 
 import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
 import { host } from "../../utils/ApiRoutes";
@@ -18,11 +20,17 @@ const CommentsModal = ({
 }) => {
   const [commentInput, setCommentInput] = useState("");
   const { postComments, setPostComments, user } = useForum();
-
+  const [showPicker, setShowPicker] = useState(false);
+  const [localPostComments, setLocalPostComments] = useState([]);
   const commentEndRef = useRef(null);
 
   const scrollToBottom = () => {
     commentEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const addEmoji = (e) => {
+    const emoji = e.emoji;
+    setCommentInput((prevInput) => prevInput + emoji);
   };
 
   // useEffect(() => scrollToBottom, [localCommentCount]);
@@ -143,8 +151,24 @@ const CommentsModal = ({
             ))}
             <div ref={commentEndRef} />
           </div>
-          <div className="flex items-center w-full p-4 border-t border-gray-700">
+          <div className=" relative flex items-center w-full p-4 border-t border-gray-700">
             <ProfileImage className="rounded-full object-fill mx-4" />
+            <span
+              className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
+              onClick={() => setShowPicker((val) => !val)}
+            >
+              <BsEmojiSmile />
+            </span>
+            {showPicker && (
+              <div className="absolute bottom-full left-0 mb-2">
+                <Picker
+                  onEmojiClick={addEmoji}
+                  className={` transition ease-in-out duration-300 ${
+                    showPicker ? "open-animation" : "close-animation"
+                  }`}
+                />
+              </div>
+            )}
             <textarea
               className="flex items-center light-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
               type="text"

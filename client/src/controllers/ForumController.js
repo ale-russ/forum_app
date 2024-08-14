@@ -16,6 +16,20 @@ export const fetchPosts = async () => {
   }
 };
 
+export const getSinglePost = async (id, token) => {
+  try {
+    const response = await axios.get(
+      `${postsRoute}/posts/${id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.status === 200) return response;
+    return null;
+  } catch {
+    toast.error("Oops! Something went wrong", toastOptions);
+  }
+};
+
 export const createPost = async (post, token) => {
   try {
     const res = await axios.post(`${postsRoute}/post`, post, {

@@ -145,6 +145,7 @@ import {
   fetchPosts,
   addComment,
   likePost,
+  getSinglePost,
 } from "../controllers/ForumController";
 import toastOptions from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
@@ -164,6 +165,7 @@ export const ForumProvider = ({ children }) => {
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const [postComments, setPostComments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPost, setCurrentPost] = useState({});
 
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -179,6 +181,11 @@ export const ForumProvider = ({ children }) => {
     } catch (err) {
       toast.error("Failed to fetch posts", toastOptions);
     }
+  };
+
+  const handleSinglePost = async (id) => {
+    const response = await getSinglePost(id, token);
+    setCurrentPost(response?.data);
   };
 
   const handleCreatePost = async (e) => {
@@ -270,6 +277,7 @@ export const ForumProvider = ({ children }) => {
         user,
         token,
         postComments,
+        currentPost,
         setPostComments,
         setNewPost,
         setLikeCounts,
@@ -278,6 +286,7 @@ export const ForumProvider = ({ children }) => {
         handleAddComment,
         handleLikePost,
         handleFetchRooms,
+        handleSinglePost,
       }}
     >
       {loading ? <Loader /> : <>{children}</>}

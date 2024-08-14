@@ -87,7 +87,6 @@ const socketControllers = (io) => {
     });
 
     socket.on("chat room message", async ({ room, message }) => {
-      console.log("MESSAGE: ", { room, message });
       try {
         let targetRoom;
         targetRoom = await Room.findById({ _id: room });
@@ -118,8 +117,6 @@ const socketControllers = (io) => {
           $push: { messages: newMessage._id },
           $addToSet: { users: newMessage.author },
         });
-
-        console.log("New Message: ", newMessage);
 
         io.to(room).emit("chat room message", newMessage);
       } catch (err) {

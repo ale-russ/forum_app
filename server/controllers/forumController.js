@@ -39,9 +39,10 @@ router.get("/posts", async (req, res) => {
     const posts = await Post.find()
       .populate({
         path: "comments",
-        populate: { path: "author", select: "userName" }, // Populate the author of each comment
+        populate: { path: "author", select: "userName" },
       })
-      .populate("author", "userName");
+      .populate("author", "userName")
+      .sort({ createdAt: 1 });
 
     res.status(200).json(posts);
   } catch (err) {
@@ -50,7 +51,7 @@ router.get("/posts", async (req, res) => {
 });
 
 // Get a single post
-router.get("/posts/:id", async (req, res) => {
+router.get("/posts/:id", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate("author", "userName")
