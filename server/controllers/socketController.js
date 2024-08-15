@@ -6,6 +6,8 @@ const Comment = require("../models/comments_model");
 const Post = require("../models/post_model");
 
 const rooms = {};
+const users = {};
+const connectedUsers = new Map();
 
 const createGeneralRoom = async () => {
   try {
@@ -31,15 +33,38 @@ const socketControllers = (io) => {
       }
     });
 
-    socket.on("private message", async ({ to, message }) => {
-      const recipientSocket = io.socket.sockets.get(to);
-      if (recipientSocket) {
-        const newMessage = new Message(to, { author, message });
-        await newMessage.save();
+    socket.on("user connected", async (userId) => {
+      try {
+        const user = await User.findById(userId).select("userName email _id");
+        if (user) {
+          users[userId] = { socketId: socket.id, user };
+          console.log("USERS: ", users);
+          io.emit("update user list", Object.values(users));
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        io.emit("error", "Unable to fetch User");
+      }
+    });
 
-        const populatedMessage = await message.populate("author", "userName");
+    socket.on("private message", ({ message }) => {
+      console.log("Message: ", message);
+      console.log("users: ", users);
 
-        socket.to(to).emit("private message", populatedMessage);
+      const recipientSocket = users[message.to];
+      console.log("RecipientSocket: ", recipientSocket);
+
+      if (recipientSocket && recipientSocket.socketId) {
+        io.to(recipientSocket.socketId).emit("private message", {
+          senderId: message.from,
+          message: {
+            ...message,
+            sender: message.from,
+          },
+        });
+      } else {
+        console.log("Recipient not connected");
+        io.emit("error", "Recipient not connected");
       }
     });
 
@@ -205,6 +230,16 @@ const socketControllers = (io) => {
       }
     });
 
+    const emitOnlineUsers = () => {
+      const onlineUsers = Array.from(connectedUsers.values());
+      io.emit("user list", onlineUsers);
+    };
+
+    socket.on("set userName", (userName) => {
+      socket.userName = userName;
+      emitOnlineUsers();
+    });
+
     socket.on("leave room", (id) => {
       try {
         socket.leave(id);
@@ -221,6 +256,7 @@ const socketControllers = (io) => {
           roomName: room.name,
         });
       });
+      emitOnlineUsers();
     });
   });
 };

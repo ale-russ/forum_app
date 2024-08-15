@@ -29,6 +29,7 @@ export const ForumProvider = ({ children }) => {
   const [postComments, setPostComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -113,6 +114,12 @@ export const ForumProvider = ({ children }) => {
   useEffect(() => {
     const socket = io(host);
 
+    socket.emit("user connected", user?.userId);
+
+    socket.on("update user list", (users) => {
+      setOnlineUsers(users);
+    });
+
     const handleNewComment = ({ id }) => {
       setCommentCounts((prev) => ({
         ...prev,
@@ -146,6 +153,7 @@ export const ForumProvider = ({ children }) => {
         token,
         postComments,
         currentPost,
+        onlineUsers,
         setPostComments,
         setNewPost,
         setLikeCounts,

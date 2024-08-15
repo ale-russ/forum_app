@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import io from "socket.io-client";
 
 import Nav from "../components/Nav";
 import {
@@ -8,7 +9,7 @@ import {
 } from "../controllers/ForumController";
 import { UserAuthContext } from "../utils/UserAuthenticationProvider";
 import Loader from "../components/common/Loader";
-import { postsRoute } from "../utils/ApiRoutes";
+import { host, postsRoute } from "../utils/ApiRoutes";
 import NavBar from "../components/NavBar";
 import LeftSideBar from "../components/LeftSideBar";
 import CenterSide from "../components/CenterSide";
@@ -17,8 +18,9 @@ import Chat from "../components/chat/Chat";
 import Room from "../components/chat/RoomComponent";
 import HomeWrapper from "../components/common/HomeWrapper";
 
+const socket = io(host);
+
 const Home = () => {
-  const { token } = useContext(UserAuthContext);
   const { loading, handleFetchPosts } = useForum();
 
   useEffect(() => {
@@ -33,7 +35,6 @@ const Home = () => {
             <Loader />
           ) : (
             <>
-              {/* <LeftSideBar /> */}
               <CenterSide />
               <Chat />
             </>
@@ -41,18 +42,6 @@ const Home = () => {
         </>
       }
     />
-    /*  <div className="light">
-      <NavBar />
-      {loading ? (
-        <Loader />
-      ) : (
-        <main className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 h-full w-full">
-          <LeftSideBar />
-          <CenterSide />
-          <Chat />
-        </main>
-      )}
-    </div> */
   );
 };
 

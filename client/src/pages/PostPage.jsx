@@ -97,9 +97,8 @@ const PostPage = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex p-2 outline-none focus:outline-none opacity-[96%] shadow-2xl h-full w-full">
-          <LeftSide />
-          <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full max-h-[70%] m-x-auto rounded-3xl overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar mx-3 px-4">
+        <div className="flex py-2 h-full w-full">
+          <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full lg:w-[80%] xl:w-[50%] max-h-[70%] m-x-auto rounded-3xl overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar px-4 m-auto">
             <div className="flex items-center justify-center w-full h-10">
               {post?.title}
             </div>
@@ -175,7 +174,10 @@ const PostPage = () => {
             <div className="w-full my-2 flex-col gap-y-2">
               {postComments &&
                 postComments?.map((comment) => (
-                  <div className="rounded shadow-lg light-search my-3 px-3">
+                  <div
+                    key={comment._id}
+                    className="rounded shadow-lg light-search my-3 px-3"
+                  >
                     <div className="italic">{comment?.author?.userName}</div>
                     {comment.content}
                   </div>

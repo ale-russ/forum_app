@@ -8,7 +8,7 @@ import PostComponent from "./post/PostComponent";
 const CenterSide = () => {
   const { threads } = useForum();
   return (
-    <form className="w-full h-full md:w-[70%] lg:w-[70%] xl:w-[70%] flex flex-col items-start gap-4 space-x-1  m-3 rounded-lg  py-2 pr-4">
+    <form className="w-full h-full flex flex-col items-start gap-4 space-x-1  m-3 rounded-lg  py-2 pr-4">
       <SmallBaches />
       <CreatePost />
       {threads ? (

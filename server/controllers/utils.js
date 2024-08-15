@@ -80,7 +80,9 @@ router.get("/image/:id", async (req, res) => {
       process.env.APPWRITE_BUCKET_ID,
       fileId
     );
-    res.redirect(fileView.href);
+    console.log("fileView: ", fileView.href);
+
+    res.send(fileView.href);
   } catch (err) {
     console.error("ERROR: ", err.message);
     res.status(500).json({ msg: "Failed to retrieve image" });

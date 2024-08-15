@@ -11,6 +11,7 @@ import Chat from "../components/chat/Chat";
 import { useForum } from "../utils/PostContext";
 import LeftSideBar from "../components/LeftSideBar";
 import HomeWrapper from "../components/common/HomeWrapper";
+import { InputComponent } from "../components/common/InputComponent";
 
 const socket = io(host);
 
@@ -165,43 +166,13 @@ const ChatRoom = () => {
                 );
               })}
             </div>
-            <div className="relative flex w-[90%]">
-              <span
-                className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
-                onClick={() => setShowPicker((val) => !val)}
-              >
-                <BsEmojiSmile />
-              </span>
-              {showPicker && (
-                <div className="absolute bottom-full left-0 mb-2">
-                  <Picker
-                    onEmojiClick={addEmoji}
-                    className={` transition ease-in-out duration-300 ${
-                      showPicker ? "open-animation" : "close-animation"
-                    }`}
-                  />
-                </div>
-              )}
-
-              <input
-                type="text"
-                className="flex-1 light-search p-2 border rounded-l-lg focus:outline-none"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSendMessage();
-                  }
-                }}
-              />
-              <div ref={messagesEndRef} />
-              <button
-                className="bg-[#FF571A] text-white p-2 rounded-r-lg"
-                onClick={handleSendMessage}
-              >
-                <IoMdSend />
-              </button>
-            </div>
+            <InputComponent
+              input={input}
+              showPicker={showPicker}
+              setInput={setInput}
+              setShowPicker={setShowPicker}
+              handleSendMessage={handleSendMessage}
+            />
             <Chat />
           </div>
         </div>
