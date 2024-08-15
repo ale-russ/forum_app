@@ -23,6 +23,7 @@ const NavBar = () => {
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
 
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
@@ -64,7 +65,10 @@ const NavBar = () => {
 
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg">
-      <div className="flex items-center px-1 md:px-4">
+      <div
+        className="flex items-center px-1 md:px-4"
+        // onClick={navigate("/home")}
+      >
         <Logo />
         <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">
           KnowledgeChain
@@ -137,7 +141,7 @@ const IconsTile = () => {
 const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
   const navigate = useNavigate();
   return (
-    <div className="light absolute inset-x-0 top-12 mt-2 mx-auto w-[80vw] md:w-full z-50 border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300">
+    <div className="light absolute inset-x-0 top-12 mt-2 mx-auto w-[80vw] md:w-full min-h-40 z-50 border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300">
       <div className="flex items-center justify-end p-2 w-full">
         <div
           className="flex items-center justify-center rounded-full border-3 hover:cursor-pointer w-8 h-8 border border-gray-500"
@@ -147,15 +151,21 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
         </div>
       </div>
       <div className="light overflow-y-auto scrollbar custom-scrollbar max-h-60">
-        {searchResults?.map((post) => (
-          <div
-            key={post._id}
-            className="line-clamp-1 font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar overflow-x-hidden text-ellipsis"
-            onClick={() => navigate(`/post/${post._id}`, { state: { post } })}
-          >
-            {post?.title} : {post?.content}
+        {searchResults.length > 0 ? (
+          searchResults?.map((post) => (
+            <div
+              key={post._id}
+              className="font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar overflow-x-hidden cursor-pointer truncate text-clip whitespace-nowrap"
+              onClick={() => navigate(`/post/${post._id}`, { state: { post } })}
+            >
+              {post?.title} : {post?.content}
+            </div>
+          ))
+        ) : (
+          <div className="h-40 w-full flex items-center justify-center">
+            Nothing Found
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

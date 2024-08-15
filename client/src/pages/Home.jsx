@@ -15,6 +15,7 @@ import CenterSide from "../components/CenterSide";
 import { useForum } from "../utils/PostContext";
 import Chat from "../components/chat/Chat";
 import Room from "../components/chat/RoomComponent";
+import HomeWrapper from "../components/common/HomeWrapper";
 
 const Home = () => {
   const { token } = useContext(UserAuthContext);
@@ -25,7 +26,22 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="light">
+    <HomeWrapper
+      children={
+        <>
+          {loading ? (
+            <Loader />
+          ) : (
+            <>
+              {/* <LeftSideBar /> */}
+              <CenterSide />
+              <Chat />
+            </>
+          )}
+        </>
+      }
+    />
+    /*  <div className="light">
       <NavBar />
       {loading ? (
         <Loader />
@@ -36,7 +52,7 @@ const Home = () => {
           <Chat />
         </main>
       )}
-    </div>
+    </div> */
   );
 };
 

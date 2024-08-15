@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { formatDistanceToNow } from "date-fns";
 import { IoMdSend } from "react-icons/io";
-import EmojiPicker from "emoji-picker-react";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
 

@@ -19,7 +19,7 @@ const CommentsModal = ({
   setLocalCommentCount,
 }) => {
   const [commentInput, setCommentInput] = useState("");
-  const { postComments, setPostComments, user } = useForum();
+  const { postComments, setPostComments, user, handleSinglePost } = useForum();
   const [showPicker, setShowPicker] = useState(false);
   const [localPostComments, setLocalPostComments] = useState([]);
   const commentEndRef = useRef(null);
@@ -87,43 +87,12 @@ const CommentsModal = ({
       });
     });
 
+    // handleSinglePost(post._id);
+
     return () => {
       socket.off("new comment");
     };
   }, [post._id]);
-
-  const sortComments = (comments) => {
-    return comments.sort(
-      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-    );
-  };
-
-  const groupedComments = (comments) => {
-    let groupedComments = [];
-    let currentGroup = [];
-
-    comments.forEach((comment, index) => {
-      if (
-        index === 0 ||
-        comment.author._id !== comments[index - 1].author._id
-      ) {
-        if (currentGroup > 0) {
-          groupedComments.push(currentGroup);
-        }
-        currentGroup = [comment];
-      } else {
-        currentGroup.push(comment);
-      }
-    });
-
-    if (currentGroup.length > 0) {
-      groupedComments.push(currentGroup);
-    }
-
-    return groupedComments;
-  };
-
-  // const sortedGroupedComments = groupedComments(sortComments(postComments));
 
   return (
     <ModalWrapper

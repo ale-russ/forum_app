@@ -9,6 +9,8 @@ import Picker from "emoji-picker-react";
 import { host } from "../utils/ApiRoutes";
 import Chat from "../components/chat/Chat";
 import { useForum } from "../utils/PostContext";
+import LeftSideBar from "../components/LeftSideBar";
+import HomeWrapper from "../components/common/HomeWrapper";
 
 const socket = io(host);
 
@@ -33,7 +35,7 @@ const ChatRoom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => scrollToBottom, [messages]);
+  // useEffect(() => scrollToBottom, [messages]);
 
   useEffect(() => {
     if (roomId) {
@@ -53,9 +55,6 @@ const ChatRoom = () => {
         if (message.room === currentRoom) {
           return [...prevMessages, message];
         }
-        // else {
-        //   return null;
-        // }
       });
       setTimeout(() => scrollToBottom(), 0);
     });
@@ -112,96 +111,102 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="h-full w-full flex items-center justify-center">
-      <div className="flex h-[80%] w-[60%] shadow-xl border rounded-lg ">
-        <div className="light-search w-full md:w-[30%] p-4 border-r">
-          <h2 className="text-lg font-bold mb-4">Users</h2>
-          <ul>
-            {chatRoom?.users &&
-              chatRoom?.users.map((user) => (
-                <li key={user._id} className="mb-2">
-                  {user.userName}
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div className="w-full md:w-[70%] p-4 flex flex-col light-navbar">
-          <div className="flex-1 overflow-y-auto overflow-x-hidden mb-4">
-            {messages.map((msg, index) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col ${
-                    msg.author._id === user.userId ? "items-end" : "items-start"
-                  }`}
-                >
-                  {msg.author._id !== user.userId && (
-                    <p className="text-xs italic mb-1">{msg.author.userName}</p>
-                  )}
+    <HomeWrapper
+      children={
+        <div className="flex h-[80%] w-full lg:w-[60%] xl:w-[60%] shadow-xl border rounded-lg m-auto">
+          <div className="light-search w-full md:w-[30%] p-4 border-r">
+            <h2 className="text-lg font-bold mb-4">Users</h2>
+            <ul>
+              {chatRoom?.users &&
+                chatRoom?.users.map((user) => (
+                  <li key={user._id} className="mb-2">
+                    {user.userName}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="w-full md:w-[70%] p-4 flex flex-col light-navbar">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden mb-4">
+              {messages.map((msg, index) => {
+                return (
                   <div
-                    className={` rounded-lg shadow-xl border-gray-200 max-w-40 flex
+                    key={index}
+                    className={`flex flex-col ${
+                      msg.author._id === user.userId
+                        ? "items-end"
+                        : "items-start"
+                    }`}
+                  >
+                    {msg.author._id !== user.userId && (
+                      <p className="text-xs italic mb-1">
+                        {msg.author.userName}
+                      </p>
+                    )}
+                    <div
+                      className={` rounded-lg shadow-xl border-gray-200 max-w-40 flex
              ${
                msg.author._id === user.userId
                  ? "bg-blue-600 text-right"
                  : "bg-zinc-600 text-left"
              }`}
-                  >
-                    <span
-                      className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                        msg.author._id === user.userId
-                      } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
                     >
-                      {msg.content}
-                    </span>
+                      <span
+                        className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
+                          msg.author._id === user.userId
+                        } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
+                      >
+                        {msg.content}
+                      </span>
+                    </div>
+                    <p className="text-[10px] italic">
+                      {formatDistanceToNow(msg.createdAt)} ago
+                    </p>
                   </div>
-                  <p className="text-[10px] italic">
-                    {formatDistanceToNow(msg.createdAt)} ago
-                  </p>
+                );
+              })}
+            </div>
+            <div className="relative flex w-[90%]">
+              <span
+                className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
+                onClick={() => setShowPicker((val) => !val)}
+              >
+                <BsEmojiSmile />
+              </span>
+              {showPicker && (
+                <div className="absolute bottom-full left-0 mb-2">
+                  <Picker
+                    onEmojiClick={addEmoji}
+                    className={` transition ease-in-out duration-300 ${
+                      showPicker ? "open-animation" : "close-animation"
+                    }`}
+                  />
                 </div>
-              );
-            })}
-          </div>
-          <div className="relative flex w-[90%]">
-            <span
-              className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
-              onClick={() => setShowPicker((val) => !val)}
-            >
-              <BsEmojiSmile />
-            </span>
-            {showPicker && (
-              <div className="absolute bottom-full left-0 mb-2">
-                <Picker
-                  onEmojiClick={addEmoji}
-                  className={` transition ease-in-out duration-300 ${
-                    showPicker ? "open-animation" : "close-animation"
-                  }`}
-                />
-              </div>
-            )}
+              )}
 
-            <input
-              type="text"
-              className="flex-1 light-search p-2 border rounded-l-lg focus:outline-none"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSendMessage();
-                }
-              }}
-            />
-            <div ref={messagesEndRef} />
-            <button
-              className="bg-[#FF571A] text-white p-2 rounded-r-lg"
-              onClick={handleSendMessage}
-            >
-              <IoMdSend />
-            </button>
+              <input
+                type="text"
+                className="flex-1 light-search p-2 border rounded-l-lg focus:outline-none"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSendMessage();
+                  }
+                }}
+              />
+              <div ref={messagesEndRef} />
+              <button
+                className="bg-[#FF571A] text-white p-2 rounded-r-lg"
+                onClick={handleSendMessage}
+              >
+                <IoMdSend />
+              </button>
+            </div>
+            <Chat />
           </div>
-          <Chat />
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 };
 
