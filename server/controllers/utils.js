@@ -62,6 +62,7 @@ router.post("/image", upload.single("image"), async (req, res) => {
   }
 });
 router.get("/image/:id", async (req, res) => {
+  console.log("in get image");
   try {
     const imageId = req.params.id;
     console.log("imageId: ", imageId);
@@ -71,18 +72,28 @@ router.get("/image/:id", async (req, res) => {
 
     const image = await Image.findById(imageId);
 
+    console.log("Image: ", image);
+
     if (!image) return res.status(404).json({ msg: "Image not found" });
 
     const fileId = image.appwriteFileId;
+
+    console.log("fileId ", fileId);
 
     // GENERATE A URL
     const fileView = await storage.getFileView(
       process.env.APPWRITE_BUCKET_ID,
       fileId
     );
-    console.log("fileView: ", fileView.href);
+    console.log("fileView: ", fileView);
+    const baseUrl = process.env.APPWRITE_ENDPOINT;
+    const bucketId = process.env.APPWRITE_BUCKET_ID;
+    const projectId = process.env.APPWRITE_PROJECT_ID;
+    const url = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
 
-    res.send(fileView.href);
+    console.log(url);
+
+    // res.send(fileView.href);
   } catch (err) {
     console.error("ERROR: ", err.message);
     res.status(500).json({ msg: "Failed to retrieve image" });
