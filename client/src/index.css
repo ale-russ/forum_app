@@ -35,13 +35,26 @@ a {
 @tailwind components;
 @tailwind utilities;
 
+/* Primary Color */
+.primary {
+  @apply bg-[#FF571A];
+}
+
+.primary-border {
+  @apply border-[#FF571A];
+}
+
 /* Light Theme */
 .light {
   @apply bg-white text-[#192351];
 }
 
-.light_search {
-  @apply bg-[#F4F6F8];
+.light-navbar {
+  @apply bg-[#F4F6F8] text-[#3f4354];
+}
+
+.light-search {
+  @apply bg-[#E5E5E5];
 }
 
 .light-icons {
@@ -80,9 +93,38 @@ a {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply rounded-lg bg-[#2C353D];
+  @apply rounded-lg bg-[#d3d1d1];
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #2c353d;
+  background: #8e8e8f;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
+}
+
+.open-animation {
+  animation: slideIn 0.5s ease forwards;
+}
+
+.close-animation {
+  animation: slideOut 0.5s ease backwards;
 }

@@ -22,7 +22,6 @@ export const postChatMessage = async (setMessages) => {
 export const fetchChatMessages = async () => {
   try {
     const response = await axios.get(`${chatRoute}/messages`);
-
     if (response.status === 200) {
       return response;
     }
@@ -52,6 +51,15 @@ export const deleteChatMessage = async (id, token) => {
 
     if (response.status === 200) return response;
     return null;
+  } catch (err) {
+    toast.error(err.response?.data.msg, toastOptions);
+  }
+};
+
+export const fetchRooms = async (token) => {
+  try {
+    const response = await axios.get(`${chatRoute}/chat-rooms`);
+    return response;
   } catch (err) {
     toast.error(err.response?.data.msg, toastOptions);
   }

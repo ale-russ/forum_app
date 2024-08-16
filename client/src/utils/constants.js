@@ -10,7 +10,7 @@ const toastOptions = {
   autoClose: 4000,
   pauseOnHover: true,
   draggable: true,
-  theme: "dark",
+  theme: "light",
 
   // theme: "light",
   // theme: getTheme() === "dark" ? "dark" : "light",

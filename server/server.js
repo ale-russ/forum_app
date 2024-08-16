@@ -9,9 +9,9 @@ const http = require("http");
 const authRoutes = require("./controllers/userController");
 const forumRoute = require("./controllers/forumController");
 const chatRoute = require("./controllers/chat_controller");
+const upload = require("./controllers/upload");
 
-const User = require("./models/user_models");
-const Message = require("./models/message_model");
+const socketControllers = require("./controllers/socketController");
 
 dotenv.config();
 
@@ -26,35 +26,8 @@ const io = socketIo(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  socket.on("chat message", async ({ author, content }) => {
-    const message = new Message({ author, content });
-    await message.save();
-
-    const populatedMessage = await message.populate("author", "userName");
-
-    //Broadcast the message to all connected clients
-    io.emit("chat message", populatedMessage);
-  });
-
-  socket.on("new comment", async ({ postId, author, content }) => {
-    const comment = new Comment({ postId, author, content });
-    await comment.save();
-
-    const populatedComment = await comment.populate("author", "userName");
-
-    io.emit("new comment", {
-      postId,
-      author,
-      content,
-      createdAt: comment.createdAt,
-    });
-  });
-
-  socket.on("disconnect", () => {
-    // console.log("A user disconnected");
-  });
-});
+// Socket.io setup
+socketControllers(io);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -72,6 +45,7 @@ mongoose
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
+app.use("/image", upload);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });

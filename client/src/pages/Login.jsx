@@ -42,11 +42,11 @@ const Login = () => {
   };
 
   return (
-    <main className="flex flex-col items-center p-16 m-auto h-full ">
+    <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
       {loading ? (
         <Loader />
       ) : (
-        <div className="m-auto shadow-xl rounded-lg dark-navbar py-8 w-64 sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%] h-[55%]">
+        <div className="m-auto border shadow-xl rounded-lg light-navbar py-8 w-[90%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%]">
           <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
             Log in to your account
           </h1>
@@ -57,7 +57,7 @@ const Login = () => {
           >
             <label htmlFor="email">Email:</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="email"
               id="email"
               name="email"
@@ -68,7 +68,7 @@ const Login = () => {
 
             <label htmlFor="password">Password:</label>
             <input
-              className="bg-[#2C353D] border-0 h-10 text-[#858EAD] outline-none w-full"
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="password"
               id="password"
               name="password"
@@ -77,7 +77,7 @@ const Login = () => {
               required
             />
 
-            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg">
+            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               SIGN IN
             </button>
 

@@ -13,7 +13,6 @@ router.post("/post", verifyToken, async (req, res) => {
     if (!req.user || !req.user.id)
       return res.status(400).json({ message: "User ID is missing" });
 
-    console.log("Creating post with author ID: ", req.user.id);
     const post = new Post({
       title,
       content,
@@ -24,7 +23,6 @@ router.post("/post", verifyToken, async (req, res) => {
 
     res.status(201).json(post);
   } catch (err) {
-    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -32,22 +30,28 @@ router.post("/post", verifyToken, async (req, res) => {
 // Get All Posts
 router.get("/posts", async (req, res) => {
   try {
+    // const posts = await Post.find()
+    //   .populate("author", "userName")
+    //   .populate({
+    //     path: "comments",
+    //     populate: { path: "author", select: "userName" },
+    //   }).sort({ createdAt: 1 });;
     const posts = await Post.find()
-      .populate("author", "userName")
       .populate({
         path: "comments",
         populate: { path: "author", select: "userName" },
-      }).sort({ createdAt: 1 });;
+      })
+      .populate("author", "userName")
+      .sort({ createdAt: 1 });
 
     res.status(200).json(posts);
   } catch (err) {
-    console.log("ERror: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
 
 // Get a single post
-router.get("/posts/:id", async (req, res) => {
+router.get("/posts/:id", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate("author", "userName")
@@ -61,6 +65,27 @@ router.get("/posts/:id", async (req, res) => {
     res.status(200).json(post);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
+  }
+});
+
+router.get("/search", verifyToken, async (req, res) => {
+  console.log("in search backend");
+  const { query } = req.query;
+  try {
+    if (!query)
+      return res.status(400).json({ msg: "Search Query is required" });
+
+    const posts = await Post.find({
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } },
+      ],
+    }).populate("author", "userName");
+
+    res.status(200).json(posts);
+  } catch (err) {
+    console.log("Err: ", err);
+    res.status(500).json({ msg: "Internal Server Error", error: err.message });
   }
 });
 
@@ -125,18 +150,20 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
 
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
-    if(post.likes.includes(req.user._id)) {
-      post.likes = post.likes.filter(id => id.toString() = req.user._id.toString())
+    const userIndex = post.likes.indexOf(req.user.id);
+
+    if (userIndex !== -1) {
+      post.likes.splice(userIndex, 1);
     } else {
-      post.likes.push(req.user._id)
+      post.likes.push(req.user.id);
     }
 
     await post.save();
     res.status(200).json(post);
   } catch (err) {
+    console.log("ERROR: ", err);
     res.status(400).json({ msg: err.message });
   }
 });
 
 module.exports = router;
-

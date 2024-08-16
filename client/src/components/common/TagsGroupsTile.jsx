@@ -1,8 +1,11 @@
 import React from "react";
 
-const TagsGroupsTile = ({ image, label, caption, color }) => {
+const TagsGroupsTile = ({ image, label, caption, color, onRoomClicked }) => {
   return (
-    <section className="flex items-center">
+    <section
+      className="flex items-center cursor-pointer"
+      onClick={onRoomClicked}
+    >
       <div
         className={`${color} flex items-center justify-center h-8 w-8 rounded-lg mr-2`}
       >

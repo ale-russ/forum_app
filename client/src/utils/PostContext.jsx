@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import io from "socket.io-client";
 
 import { UserAuthContext } from "./UserAuthenticationProvider";
 import {
@@ -7,33 +8,52 @@ import {
   fetchPosts,
   addComment,
   likePost,
+  getSinglePost,
 } from "../controllers/ForumController";
 import toastOptions from "./constants";
+import { fetchRooms } from "../controllers/ChatController";
+import { host } from "../utils/ApiRoutes";
+import Loader from "../components/common/Loader";
 
 const ForumContext = createContext();
 
 export const useForum = () => useContext(ForumContext);
 
 export const ForumProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false);
-  const [loadingComment, setLoadingComment] = useState(false);
   const [threads, setThreads] = useState([]);
+  const [likeCounts, setLikeCounts] = useState({});
+  const [isLiked, setIsLiked] = useState({});
+  const [commentCounts, setCommentCounts] = useState([]);
+  const [chatRooms, setChatRooms] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
+  const [postComments, setPostComments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPost, setCurrentPost] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const handleFetchPosts = async () => {
-    setLoading(true);
     try {
       const response = await fetchPosts();
-
       if (response && response.data) {
         setThreads(response.data);
       } else {
         return "No Data found";
       }
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      toast.error("Failed to fetch posts", toastOptions);
+    }
+  };
+
+  const handleSinglePost = async (id) => {
+    const response = await getSinglePost(id, token);
+    setCurrentPost(response?.data);
+    if (response?.data) {
+      return response?.data;
+    } else {
+      toast.error("No Data Found");
     }
   };
 
@@ -46,11 +66,11 @@ export const ForumProvider = ({ children }) => {
         return;
       }
       const response = await createPost(newPost, token);
-
-      console.log("Response: $", response);
       if (response && response?.data) {
-        setThreads([...threads, response.data.data]);
+        setThreads([...threads, response.data]);
       }
+    } catch (err) {
+      toast.error("Failed to create post", toastOptions);
     } finally {
       setNewPost({ title: "", content: "" });
       setLoading(false);
@@ -58,48 +78,94 @@ export const ForumProvider = ({ children }) => {
   };
 
   const handleAddComment = async (post, content) => {
-    setLoadingComment(true);
     try {
       const response = await addComment(post._id, { content }, token);
-      console.log("Comment Response: ", response);
       const newComment = {
         ...response?.data,
         author: { userName: user.userName, _id: user._id },
       };
-      setThreads((prvThreads) =>
-        prvThreads.map((p) =>
+      setThreads((prevThreads) =>
+        prevThreads.map((p) =>
           p._id === post._id
             ? { ...p, comments: [...p.comments, newComment] }
             : p
         )
       );
+      setCommentCounts((prev) => ({
+        ...prev,
+        [post._id]: (prev[post._id] || post.comments?.length || 0) + 1,
+      }));
       return newComment;
-    } finally {
-      setLoadingComment(false);
+    } catch (err) {
+      toast.error("Failed to add comment", toastOptions);
     }
   };
 
-  const handleLikePost = async (post) => {
-    console.log("in handleLike");
-    const response = await likePost(post._id, token);
-    console.log("Like Response: ", response);
+  const handleLikePost = async (id) => {
+    const response = await likePost(id, token);
+    setThreads((prevThreads) =>
+      prevThreads.map((pst) =>
+        pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
+      )
+    );
+    return response?.data;
+  };
+
+  useEffect(() => {
+    const socket = io(host);
+
+    socket.emit("user connected", user?.userId);
+
+    socket.on("update user list", (users) => {
+      setOnlineUsers(users);
+    });
+
+    const handleNewComment = ({ id }) => {
+      setCommentCounts((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + 1,
+      }));
+    };
+
+    socket.on("new comment", handleNewComment);
+
+    return () => {
+      socket.off("new comment", handleNewComment);
+    };
+  }, []);
+
+  const handleFetchRooms = async () => {
+    const response = await fetchRooms();
+    setChatRooms(response?.data);
+    return response?.data;
   };
 
   return (
     <ForumContext.Provider
       value={{
         newPost,
-        loading,
-        loadingComment,
         threads,
+        likeCounts,
+        isLiked,
+        commentCounts,
+        chatRooms,
+        user,
+        token,
+        postComments,
+        currentPost,
+        onlineUsers,
+        setPostComments,
         setNewPost,
+        setLikeCounts,
         handleFetchPosts,
         handleCreatePost,
         handleAddComment,
         handleLikePost,
+        handleFetchRooms,
+        handleSinglePost,
       }}
     >
-      {children}
+      {loading ? <Loader /> : <>{children}</>}
     </ForumContext.Provider>
   );
 };

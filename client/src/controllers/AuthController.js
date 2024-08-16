@@ -39,15 +39,17 @@ export function handleValidation({ values, isRegister = false }) {
   }
 }
 
-export async function register({ values, navigate }) {
+export async function register({ values, navigate, image }) {
   try {
     if (handleValidation({ values, isRegister: true })) {
       const { username, email, password, confirm_password } = values;
+      console.log("image: " + { image });
 
       const formData = new FormData();
       formData.append("userName", username);
       formData.append("email", email);
       formData.append("password", password);
+      formData.append("image", image);
 
       const { data } = await axios.post(registerRoute, formData, {
         headers: {
@@ -59,7 +61,6 @@ export async function register({ values, navigate }) {
         toast.error(`${data.msg}`, toastOptions);
         return;
       } else {
-        console.log("SUCCESS");
         toast.success(
           "You have successfully registered. Please login with the new credentials",
           toastOptions
@@ -67,11 +68,8 @@ export async function register({ values, navigate }) {
       }
     }
   } catch (error) {
-    if (error.response.data.message === "Phone number already exist!") {
-      toast.error("User already exist", toastOptions);
-    } else {
-      toast.error("Oops! Something went wrong. Please try again", toastOptions);
-    }
+    console.log("Error: ", error);
+    throw error;
   }
 }
 
