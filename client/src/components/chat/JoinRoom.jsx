@@ -27,7 +27,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
       if (selectedRoom !== "" || selectedRoom === "Join Room") {
         socket.emit("join chat room", {
           roomId: selectedRoom,
-          userId: user.userId,
+          userId: user._id,
         });
       }
     } catch (err) {

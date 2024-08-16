@@ -24,7 +24,7 @@ const PostPage = () => {
     post.comments?.length || 0
   );
   const [likeCount, setLikeCount] = useState(post?.likes?.length);
-  const [isLiked, setIsLiked] = useState(post.likes.includes(user.userId));
+  const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
 
   const addEmoji = (e) => {
     const emoji = e.emoji;
@@ -34,7 +34,7 @@ const PostPage = () => {
   const handleLike = async () => {
     try {
       const updatedPost = await handleLikePost(post._id);
-      setIsLiked(updatedPost?.likes.includes(user.userId));
+      setIsLiked(updatedPost?.likes.includes(user._id));
       setLikeCount(updatedPost?.likes?.length);
     } catch (err) {
       console.error("Error updating like:", err);
@@ -49,7 +49,7 @@ const PostPage = () => {
     if (commentInput.trim()) {
       const newComment = {
         postId: post._id,
-        author: user.userId,
+        author: user._id,
         content: commentInput,
       };
 

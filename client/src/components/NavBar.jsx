@@ -87,7 +87,7 @@ const NavBar = () => {
         {/* <Profile className="mr-2" /> */}
 
         <img
-          src={user.userProfileImage}
+          src={user.profileImage}
           className=" hidden sm:hidden md:block lg:block xl:block mr-2 h-8 w-8 rounded-full border primary-border object-fill"
           alt="User Profile"
         />

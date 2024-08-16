@@ -99,7 +99,7 @@ const ChatRoom = () => {
     if (input) {
       const message = {
         content: input,
-        author: user.userId,
+        author: user._id,
         userName: user.userName,
       };
       socket.emit("chat room message", {
@@ -133,12 +133,10 @@ const ChatRoom = () => {
                   <div
                     key={index}
                     className={`flex flex-col ${
-                      msg.author._id === user.userId
-                        ? "items-end"
-                        : "items-start"
+                      msg.author._id === user._id ? "items-end" : "items-start"
                     }`}
                   >
-                    {msg.author._id !== user.userId && (
+                    {msg.author._id !== user._id && (
                       <p className="text-xs italic mb-1">
                         {msg.author.userName}
                       </p>
@@ -146,14 +144,14 @@ const ChatRoom = () => {
                     <div
                       className={` rounded-lg shadow-xl border-gray-200 max-w-40 flex
              ${
-               msg.author._id === user.userId
+               msg.author._id === user._id
                  ? "bg-blue-600 text-right"
                  : "bg-zinc-600 text-left"
              }`}
                     >
                       <span
                         className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                          msg.author._id === user.userId
+                          msg.author._id === user._id
                         } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
                       >
                         {msg.content}

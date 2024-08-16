@@ -17,7 +17,7 @@ const PostComponent = ({ post }) => {
   const [showModal, setShowModal] = useState(false);
   const { handleLikePost, user } = useForum();
   const [likeCount, setLikeCount] = useState(post?.likes?.length);
-  const [isLiked, setIsLiked] = useState(post.likes.includes(user.userId));
+  const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
 
   const [localCommentCount, setLocalCommentCount] = useState(
     post.comments?.length || 0
@@ -26,7 +26,7 @@ const PostComponent = ({ post }) => {
   const handleLike = async () => {
     try {
       const updatedPost = await handleLikePost(post._id);
-      setIsLiked(updatedPost?.likes.includes(user.userId));
+      setIsLiked(updatedPost?.likes.includes(user._id));
       setLikeCount(updatedPost?.likes?.length);
     } catch (err) {
       console.error("Error updating like:", err);
@@ -69,7 +69,7 @@ const PostComponent = ({ post }) => {
             </div>
             <div className="block md:hidden lg:hidden xl:hidden">
               <img
-                src={user.userProfileImage}
+                src={user.profileImage}
                 className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
                 alt="User Profile"
               />

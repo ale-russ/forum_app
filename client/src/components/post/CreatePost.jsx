@@ -11,7 +11,7 @@ const CreatePost = () => {
     <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg">
       {/* <ProfileImage className="rounded-full h-auto object-fill mr-4" /> */}
       <img
-        src={user.userProfileImage}
+        src={user.profileImage}
         className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
         alt="User Profile"
       />

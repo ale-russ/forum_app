@@ -19,7 +19,7 @@ const Chat = () => {
 
   const openChatModal = (recipient) => {
     // console.log("REcipient: ", recipient);
-    console.log("recipient ", recipient);
+    console.log("recipient in chat", recipient);
     const isAlreadyOpen = openModals.some(
       (modal) => modal.recipient === recipient
     );

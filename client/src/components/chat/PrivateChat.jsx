@@ -14,8 +14,8 @@ const PrivateChat = ({ recipient, onClose }) => {
   const { user } = useForum();
 
   useEffect(() => {
-    socket.on("private message", ({ senderId, message }) => {
-      console.log("Received message:", message);
+    socket.on("private message", ({ message, senderId }) => {
+      console.log("Received message:", message, senderId);
       console.log("Sender ID:", senderId);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
@@ -34,10 +34,11 @@ const PrivateChat = ({ recipient, onClose }) => {
     if (input.trim()) {
       const message = {
         content: input,
-        from: user.userId,
+        from: user._id,
         to: recipient._id,
         timestamp: new Date(),
       };
+      console.log("Sending Private message:", message);
       socket.emit("private message", { message });
       setMessages((prevMessages) => [...prevMessages, message]);
       setInput("");
@@ -62,7 +63,7 @@ const PrivateChat = ({ recipient, onClose }) => {
           return (
             <div
               key={index}
-              className={msg.from === user.userId ? "sent" : "received"}
+              className={msg.from === user._id ? "sent" : "received"}
             >
               {msg.content}
             </div>

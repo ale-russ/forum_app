@@ -114,9 +114,10 @@ export const ForumProvider = ({ children }) => {
   useEffect(() => {
     const socket = io(host);
 
-    socket.emit("user connected", user?.userId);
+    socket.emit("user connected", user?._id);
 
     socket.on("update user list", (users) => {
+      console.log("Updated Users");
       setOnlineUsers(users);
     });
 

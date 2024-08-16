@@ -48,7 +48,7 @@ const CommentsModal = ({
     if (commentInput.trim()) {
       const newComment = {
         postId: post._id,
-        author: user.userId,
+        author: user._id,
         content: commentInput,
       };
       if (newComment) {
@@ -107,7 +107,7 @@ const CommentsModal = ({
                 className="flex flex-row items-start my-2 w-full"
               >
                 <div className="light-search text-[13px] rounded-lg shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                  {/* {comment.author._id !== user.userId && ( */}
+                  {/* {comment.author._id !== user._id && ( */}
                   <h1 className="text-sm italic font-bold">
                     {comment.author?.userName}
                   </h1>

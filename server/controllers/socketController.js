@@ -34,6 +34,7 @@ const socketControllers = (io) => {
     });
 
     socket.on("user connected", async (userId) => {
+      console.log("user connected: ", userId);
       try {
         const user = await User.findById(userId).select("userName email _id");
         if (user) {
@@ -51,21 +52,26 @@ const socketControllers = (io) => {
       console.log("Message: ", message);
       console.log("users: ", users);
 
-      const recipientSocket = users[message.to];
-      console.log("RecipientSocket: ", recipientSocket);
+      try {
+        const recipientSocket = users[message.to];
+        console.log("RecipientSocket: ", recipientSocket);
 
-      if (recipientSocket && recipientSocket.socketId) {
-        io.to(recipientSocket.socketId).emit("private message", {
-          senderId: message.from,
-          message: message,
-        });
-      } else {
-        console.log("Recipient not connected");
-        io.emit("error", "Recipient not connected");
+        if (recipientSocket && recipientSocket.socketId) {
+          io.to(recipientSocket.socketId).emit("private message", {
+            senderId: message.from,
+            message: message,
+          });
+        } else {
+          console.log("Recipient not connected");
+          io.emit("error", "Recipient not connected");
+        }
+      } catch (error) {
+        console.log("ERROR: ", error);
       }
     });
 
     socket.on("chat message", async ({ room, message }) => {
+      console.log("message: ", message);
       try {
         let targetRoom;
         if (!room || room === null || room === "General") {

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
 import toastOptions from "../../utils/constants";
+import { useForum } from "../../utils/PostContext";
 
 const socket = io(host);
 const Room = ({ setCrateModalOpen }) => {
@@ -13,8 +14,9 @@ const Room = ({ setCrateModalOpen }) => {
   const [rooms, setRooms] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState([]);
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const userId = user.userId;
+  const { user } = useForum();
+  // const user = JSON.parse(localStorage.getItem("currentUser"));
+  const userId = user._id;
 
   const handleCreateRoom = () => {
     if (roomName === "")

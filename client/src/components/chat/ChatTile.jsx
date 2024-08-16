@@ -34,15 +34,18 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
   };
 
   const handleSendMessage = () => {
+    console.log("In handleSendMessage");
     if (input.trim()) {
       const message = {
         author: {
-          _id: user.userId,
+          _id: user._id,
           userName: user.userName,
         },
         content: input,
         createdAt: new Date(),
       };
+
+      console.log("Message sent: ", message);
 
       socket.emit("chat message", {
         room: "General",
@@ -103,29 +106,27 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">
         {messages?.map((msg, index) => {
-          const isCurrentUser = msg.author._id === user.userId;
+          const isCurrentUser = msg.author._id === user._id;
           return (
             <div
               key={index}
               className={`flex flex-col ${
-                msg.author._id === user.userId ? "items-end" : "items-start"
+                msg.author._id === user._id ? "items-end" : "items-start"
               }`}
             >
-              {msg.author._id !== user.userId && (
+              {msg.author._id !== user._id && (
                 <p className="text-xs italic mb-1">{msg.author.userName}</p>
               )}
               <div
-                className={`rounded-lg shadow-xl border-gray-200 max-w-40 flex ${
-                  msg.author._id === user.userId
+                className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
+                  msg.author._id === user._id
                     ? "bg-blue-600 text-right"
                     : "bg-zinc-600 text-left"
                 }`}
               >
                 <span
                   className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                    msg.author._id === user.userId
-                      ? "text-white"
-                      : "text-gray-200"
+                    msg.author._id === user._id ? "text-white" : "text-gray-200"
                   }`}
                 >
                   {msg.content}
