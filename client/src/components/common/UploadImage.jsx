@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 
-const UploadImage = () => {
-  const [image, setImage] = useState();
+const UploadImage = ({ setImage }) => {
   return (
     <div className="w-full">
       Upload Image

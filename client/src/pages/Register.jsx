@@ -16,6 +16,7 @@ const Register = () => {
     password: "",
     confirm_password: "",
   });
+  const [image, setImage] = useState();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +31,8 @@ const Register = () => {
     }
     try {
       setLoading(true);
-      await register({ values });
+
+      await register({ values, image });
     } finally {
       setValues({
         username: "",
@@ -46,6 +48,8 @@ const Register = () => {
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
   };
+
+  console.log("Image: ", image);
 
   return (
     <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
@@ -100,7 +104,7 @@ const Register = () => {
               value={values.confirm_password}
               onChange={(event) => handleChange(event)}
             />
-            <UploadImage />
+            <UploadImage setImage={setImage} />
             <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               REGISTER
             </button>

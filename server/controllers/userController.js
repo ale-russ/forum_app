@@ -11,6 +11,7 @@ const path = require("path");
 
 const User = require("../models/user_models");
 const { verifyToken } = require("../middleware/auth");
+const { uploadImage } = require("./utils");
 
 dotenv.config();
 
@@ -24,24 +25,24 @@ const userSchema = Joi.object({
   userName: Joi.string().required(),
 });
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
+// const uploadDir = "uploads";
+// if (!fs.existsSync(uploadDir)) {
+//   fs.mkdirSync(uploadDir);
+// }
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      path.parse(file.originalname).name + path.extname(file.originalname)
-    );
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, uploadDir);
+//   },
+//   filename: function (req, file, cb) {
+//     cb(
+//       null,
+//       path.parse(file.originalname).name + path.extname(file.originalname)
+//     );
+//   },
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
 const client = new MongoClient(mongoUrl);
 
@@ -63,7 +64,7 @@ async function fetchUserData(userCollection, id) {
 }
 
 // register route
-router.post("/register", upload.single("profileImage"), async (req, res) => {
+router.post("/register", async (req, res) => {
   const validationResult = userSchema.validate(req.body);
 
   // check for validation
@@ -72,7 +73,7 @@ router.post("/register", upload.single("profileImage"), async (req, res) => {
       .status(400)
       .json({ msg: validationResult.error.details[0].message });
 
-  const { email, password, userName } = req.body;
+  const { email, password, userName, profileImage } = req.body;
 
   // check if fields are not empty
   if (!userName || !email || !password)
@@ -90,12 +91,21 @@ router.post("/register", upload.single("profileImage"), async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  if (req.file) {
+    try {
+      const fileId = await uploadImage(req.file.buffer, req.file.originalname);
+      newUser.profileImage = fileId;
+    } catch (err) {
+      console.log("Error uploading profile image", err);
+    }
+  }
+
   // create a new user object and insert it to the db
   const newUser = {
     userName,
     email,
     password: hashedPassword,
-    // profileImage: req.file.path,
+    profileImage: req.file.path,
   };
 
   try {
