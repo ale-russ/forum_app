@@ -57,10 +57,7 @@ const socketControllers = (io) => {
       if (recipientSocket && recipientSocket.socketId) {
         io.to(recipientSocket.socketId).emit("private message", {
           senderId: message.from,
-          message: {
-            ...message,
-            sender: message.from,
-          },
+          message: message,
         });
       } else {
         console.log("Recipient not connected");

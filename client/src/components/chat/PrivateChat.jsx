@@ -14,8 +14,9 @@ const PrivateChat = ({ recipient, onClose }) => {
   const { user } = useForum();
 
   useEffect(() => {
-    socket.on("private message", (message) => {
+    socket.on("private message", ({ senderId, message }) => {
       console.log("Received message:", message);
+      console.log("Sender ID:", senderId);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 

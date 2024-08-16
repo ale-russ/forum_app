@@ -10,6 +10,8 @@ const fs = require("fs");
 const path = require("path");
 
 const User = require("../models/user_models");
+const Post = require("../models/post_model");
+
 const { verifyToken } = require("../middleware/auth");
 const { uploadImage, uploadFile } = require("../middleware/utils");
 
@@ -87,7 +89,6 @@ router.post("/register", uploadFile.single("image"), async (req, res) => {
         console.log("Error uploading profile image", err);
       }
     }
-    // profileImageUrl = `${process.env.APPWRITE_ENDPOINT}/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${fileId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=public`;
 
     const newUser = {
       userName,
@@ -112,7 +113,10 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ msg: "All fields are required" });
 
   try {
-    const user = await userCollection.findOne({ email });
+    const user = await User.findOne({ email })
+      .populate("posts")
+      .populate("roomsJoined")
+      .populate("roomsCreated");
 
     if (!user)
       return res.status(401).json({ msg: "Invalid Email or Password" });
@@ -124,23 +128,25 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    const userId = user._id;
-    const userEmail = user.email;
-    const userName = user.userName;
-    const userProfileImage = user.profileImage;
+    const postsCount = await Post.countDocuments({ author: user._id });
+    const roomsJoinedCount = user.roomsJoined.length;
+    const roomsCreatedCount = user.roomsCreated.length;
 
-    delete user.password;
+    // delete user.password;
+    user.password = undefined;
+    console.log("User logged in successfully", user);
 
     if (res.statusCode === 200) {
       return res.status(200).json({
         msg: "User successfully Logged In",
         token,
-        userId,
-        userEmail,
-        userName,
-        userProfileImage,
+        ...user._doc,
+        postsCount,
+        roomsJoinedCount,
+        roomsCreatedCount,
       });
     } else {
+      console.log("Error in login route", err);
       return res.status(401).json({ msg: "Internal Server Error" });
     }
   } catch (err) {

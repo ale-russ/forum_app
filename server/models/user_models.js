@@ -8,6 +8,9 @@ const UserSchema = new mongoose.Schema({
   userName: { type: String, required: true, unique: true },
   profileImage: { type: String },
   role: { type: String, enum: ["user", "admin"], default: "user" },
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  roomsJoined: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
+  roomsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
 });
 
 UserSchema.methods.comparePassword = function (userPassword) {

@@ -17,8 +17,8 @@ import { handleSearch } from "../controllers/ForumController";
 import { useForum } from "../utils/PostContext";
 
 const NavBar = () => {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const { token } = useForum();
+  // const user = JSON.parse(localStorage.getItem("currentUser"));
+  const { token, user } = useForum();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -42,8 +42,8 @@ const NavBar = () => {
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg">
       <div
-        className="flex items-center px-1 md:px-4"
-        // onClick={navigate("/home")}
+        className="flex items-center px-1 md:px-4 cursor-pointer"
+        onClick={() => navigate("/home")}
       >
         <Logo />
         <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">
@@ -88,13 +88,11 @@ const NavBar = () => {
 
         <img
           src={user.userProfileImage}
-          className="mr-2 h-10 w-10 rounded-full border primary-border object-fill"
+          className=" hidden sm:hidden md:block lg:block xl:block mr-2 h-8 w-8 rounded-full border primary-border object-fill"
           alt="User Profile"
         />
 
-        <p className="hidden sm:hidden md:block lg:block xl:block  font-bold text-[16px] text-ellipsis">
-          {user.userName}
-        </p>
+        <p className="font-bold text-[16px] text-ellipsis">{user.userName}</p>
         <TiArrowSortedDown
           className="relative mx-2 w-4 h-4 cursor-pointer"
           onClick={() => setShowDropdown(!showDropdown)}
@@ -171,7 +169,10 @@ const UserMenus = () => {
       </div>
       <div className="w-full border border-gray-300 m-3" />
       <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
-        <p className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 ">
+        <p
+          className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 cursor-pointer "
+          onClick={() => navigate("/user-profile")}
+        >
           Profile
         </p>
         <button
