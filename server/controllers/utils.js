@@ -7,6 +7,7 @@ const { Readable } = require("stream");
 const dotenv = require("dotenv");
 
 const Image = require("../models/image_model");
+const { verifyToken } = require("../middleware/auth");
 
 dotenv.config();
 const router = express.Router();
@@ -40,7 +41,7 @@ async function uploadImage(fileBuffer, fileName) {
   }
 }
 
-router.post("/image", upload.single("image"), async (req, res) => {
+router.post("/upload-image", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ msg: "No file found" });
 
@@ -61,7 +62,7 @@ router.post("/image", upload.single("image"), async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
-router.get("/image/:id", async (req, res) => {
+router.get("/image-url/:id", verifyToken, async (req, res) => {
   console.log("in get image");
   try {
     const imageId = req.params.id;
@@ -89,11 +90,11 @@ router.get("/image/:id", async (req, res) => {
     const baseUrl = process.env.APPWRITE_ENDPOINT;
     const bucketId = process.env.APPWRITE_BUCKET_ID;
     const projectId = process.env.APPWRITE_PROJECT_ID;
-    const url = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
+    const url = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
 
     console.log(url);
 
-    // res.send(fileView.href);
+    res.send(url);
   } catch (err) {
     console.error("ERROR: ", err.message);
     res.status(500).json({ msg: "Failed to retrieve image" });

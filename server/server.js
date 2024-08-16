@@ -45,7 +45,7 @@ mongoose
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
-app.use("/upload", upload);
+app.use("/image", upload);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });
