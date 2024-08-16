@@ -37,31 +37,7 @@ const NavBar = () => {
     setSearchQuery("");
   };
 
-  // const debouncedSearch = useCallback(
-  //   debounce((query) => {
-  //     // handleSearch(query);
-  //     getSearchResults();
-  //   }, 300),
-  //   []
-  // );
-
-  // useEffect(() => {
-  //   if (searchQuery) {
-  //     debouncedSearch(searchQuery);
-  //   } else {
-  //     setSearchResult([]);
-  //   }
-  // }, [searchQuery, debouncedSearch]);
-
-  // useEffect(() => {
-  //   if (searchResult.length === 0) {
-  //     setShowSearchModal(false);
-  //   } else {
-  //     setShowSearchModal(true);
-  //   }
-  // }, [searchResult, showSearchModal]);
-
-  // console.log("ShowSearchModal: ", showSearchModal);
+  // console.log("user: ", user.userProfileImage);
 
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg">
@@ -108,7 +84,14 @@ const NavBar = () => {
             <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
           </div>
         </div>
-        <Profile className="mr-2" />
+        {/* <Profile className="mr-2" /> */}
+
+        <img
+          src={user.userProfileImage}
+          className="mr-2 h-10 w-10 rounded-full border primary-border object-fill"
+          alt="User Profile"
+        />
+
         <p className="hidden sm:hidden md:block lg:block xl:block  font-bold text-[16px] text-ellipsis">
           {user.userName}
         </p>

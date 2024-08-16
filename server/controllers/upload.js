@@ -1,49 +1,23 @@
 const express = require("express");
-const multer = require("multer");
 const mongoose = require("mongoose");
-const { Client, Storage, ID } = require("node-appwrite");
-const { InputFile } = require("node-appwrite/file");
-const { Readable } = require("stream");
 const dotenv = require("dotenv");
 
 const Image = require("../models/image_model");
 const { verifyToken } = require("../middleware/auth");
+const { uploadFile, uploadImage, storage } = require("../middleware/utils");
 
 dotenv.config();
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
-const client = new Client()
-  .setEndpoint(process.env.APPWRITE_ENDPOINT)
-  .setProject(process.env.APPWRITE_PROJECT_ID)
-  .setKey(process.env.APPWRITE_API_KEY);
+const baseUrl = process.env.APPWRITE_ENDPOINT;
+const bucketId = process.env.APPWRITE_BUCKET_ID;
+const projectId = process.env.APPWRITE_PROJECT_ID;
 
-const storage = new Storage(client);
-
-async function uploadImage(fileBuffer, fileName) {
-  console.log("FileName: ", fileName);
-  const readableStream = new Readable();
-  readableStream.push(fileBuffer);
-  readableStream.push(null);
-  try {
-    if (!fileBuffer) throw new Error("Invalid file buffer");
-
-    const response = await storage.createFile(
-      process.env.APPWRITE_BUCKET_ID,
-      ID.unique(),
-      InputFile.fromBuffer(readableStream, fileName)
-    );
-
-    return response.$id;
-  } catch (err) {
-    console.error("UPLOAD ERROR: ", err.message);
-    throw new Error("Failed to upload image");
-  }
-}
-
-router.post("/upload-image", upload.single("image"), async (req, res) => {
+router.post("/upload-image", uploadFile.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ msg: "No file found" });
+
+    console.log("req.file", req.file);
 
     const fileId = await uploadImage(req.file.buffer, req.file.originalname);
 
@@ -77,24 +51,24 @@ router.get("/image-url/:id", verifyToken, async (req, res) => {
 
     if (!image) return res.status(404).json({ msg: "Image not found" });
 
+    console.log("Image from appwrite: ", image);
+
     const fileId = image.appwriteFileId;
 
     console.log("fileId ", fileId);
 
     // GENERATE A URL
-    const fileView = await storage.getFileView(
+    const fileView = await storage.getFilePreview(
       process.env.APPWRITE_BUCKET_ID,
       fileId
     );
-    console.log("fileView: ", fileView);
-    const baseUrl = process.env.APPWRITE_ENDPOINT;
-    const bucketId = process.env.APPWRITE_BUCKET_ID;
-    const projectId = process.env.APPWRITE_PROJECT_ID;
-    const url = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
+
+    const url = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
 
     console.log(url);
 
     res.send(url);
+    // return url.href;
   } catch (err) {
     console.error("ERROR: ", err.message);
     res.status(500).json({ msg: "Failed to retrieve image" });

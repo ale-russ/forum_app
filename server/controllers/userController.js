@@ -11,11 +11,14 @@ const path = require("path");
 
 const User = require("../models/user_models");
 const { verifyToken } = require("../middleware/auth");
-const { uploadImage } = require("./utils");
+const { uploadImage, uploadFile } = require("../middleware/utils");
 
 dotenv.config();
 
 const mongoUrl = process.env.MONGODB_URL;
+const baseUrl = process.env.APPWRITE_ENDPOINT;
+const bucketId = process.env.APPWRITE_BUCKET_ID;
+const projectId = process.env.APPWRITE_PROJECT_ID;
 
 const router = express.Router();
 
@@ -25,25 +28,6 @@ const userSchema = Joi.object({
   userName: Joi.string().required(),
 });
 
-// const uploadDir = "uploads";
-// if (!fs.existsSync(uploadDir)) {
-//   fs.mkdirSync(uploadDir);
-// }
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, uploadDir);
-//   },
-//   filename: function (req, file, cb) {
-//     cb(
-//       null,
-//       path.parse(file.originalname).name + path.extname(file.originalname)
-//     );
-//   },
-// });
-
-// const upload = multer({ storage });
-
 const client = new MongoClient(mongoUrl);
 
 const db = client.db("test");
@@ -52,7 +36,6 @@ const userCollection = db.collection("users");
 // Check if email exists in the db
 async function checkEmailStatus(userCollection, email) {
   const user = await userCollection.findOne({ email });
-  //   return !!user;
   return user !== null;
 }
 
@@ -64,56 +47,59 @@ async function fetchUserData(userCollection, id) {
 }
 
 // register route
-router.post("/register", async (req, res) => {
-  const validationResult = userSchema.validate(req.body);
-
-  // check for validation
-  if (validationResult.error)
-    return res
-      .status(400)
-      .json({ msg: validationResult.error.details[0].message });
-
-  const { email, password, userName, profileImage } = req.body;
-
-  // check if fields are not empty
-  if (!userName || !email || !password)
-    return res.status(400).json({ msg: "Please enter all fields" });
-
-  // check if profile image is provided
-  // if (!req.file)
-  //   return res.status(400).json({ msg: "Profile Image is required" });
-
-  // check if email exists
-  const emailExists = await checkEmailStatus(userCollection, email);
-  if (emailExists) return res.status(409).json({ msg: "Email already exists" });
-
-  // hash the password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  if (req.file) {
-    try {
-      const fileId = await uploadImage(req.file.buffer, req.file.originalname);
-      newUser.profileImage = fileId;
-    } catch (err) {
-      console.log("Error uploading profile image", err);
-    }
-  }
-
-  // create a new user object and insert it to the db
-  const newUser = {
-    userName,
-    email,
-    password: hashedPassword,
-    profileImage: req.file.path,
-  };
-
+router.post("/register", uploadFile.single("image"), async (req, res) => {
+  console.log("in register");
+  console.log("Request body: ", req.body);
   try {
+    const validationResult = userSchema.validate(req.body);
+
+    if (validationResult.error)
+      return res
+        .status(400)
+        .json({ msg: validationResult.error.details[0].message });
+
+    const { email, password, userName, profileImage } = req.body;
+
+    if (!userName || !email || !password)
+      return res.status(400).json({ msg: "Please enter all fields" });
+
+    // check if profile image is provided
+    // if (!req.file)
+    //   return res.status(400).json({ msg: "Profile Image is required" });
+
+    const emailExists = await checkEmailStatus(userCollection, email);
+    if (emailExists)
+      return res.status(409).json({ msg: "Email already exists" });
+
+    // hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    let profileImageUrl;
+    if (req.file) {
+      try {
+        const fileId = await uploadImage(
+          req.file.buffer,
+          req.file.originalname
+        );
+        profileImageUrl = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
+      } catch (err) {
+        console.log("Error uploading profile image", err);
+      }
+    }
+    // profileImageUrl = `${process.env.APPWRITE_ENDPOINT}/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${fileId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=public`;
+
+    const newUser = {
+      userName,
+      email,
+      password: hashedPassword,
+      profileImage: profileImageUrl,
+    };
     await userCollection.insertOne(newUser);
     delete newUser.password;
     return res.json({ msg: "User registered successfully", user: newUser });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -152,7 +138,7 @@ router.post("/login", async (req, res) => {
         userId,
         userEmail,
         userName,
-        // userProfileImage,
+        userProfileImage,
       });
     } else {
       return res.status(401).json({ msg: "Internal Server Error" });

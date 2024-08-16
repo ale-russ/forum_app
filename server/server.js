@@ -9,7 +9,7 @@ const http = require("http");
 const authRoutes = require("./controllers/userController");
 const forumRoute = require("./controllers/forumController");
 const chatRoute = require("./controllers/chat_controller");
-const upload = require("./controllers/utils");
+const upload = require("./controllers/upload");
 
 const socketControllers = require("./controllers/socketController");
 

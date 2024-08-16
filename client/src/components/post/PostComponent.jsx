@@ -68,7 +68,12 @@ const PostComponent = ({ post }) => {
               )}
             </div>
             <div className="block md:hidden lg:hidden xl:hidden">
-              <ProfileImage className="rounded-full h-auto object-fill " />
+              <img
+                src={user.userProfileImage}
+                className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
+                alt="User Profile"
+              />
+              {/* <ProfileImage className="rounded-full h-auto object-fill " /> */}
             </div>
           </div>
           <div className="flex items-center gap-x-2">

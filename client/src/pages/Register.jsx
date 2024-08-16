@@ -33,6 +33,9 @@ const Register = () => {
       setLoading(true);
 
       await register({ values, image });
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response.data.msg, toastOptions);
     } finally {
       setValues({
         username: "",
@@ -41,15 +44,12 @@ const Register = () => {
         confirm_password: "",
       });
       setLoading(false);
-      navigate("/");
     }
   };
 
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
   };
-
-  console.log("Image: ", image);
 
   return (
     <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
@@ -104,6 +104,7 @@ const Register = () => {
               value={values.confirm_password}
               onChange={(event) => handleChange(event)}
             />
+            <label htmlFor="profile_image">Profile Image</label>
             <UploadImage setImage={setImage} />
             <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               REGISTER

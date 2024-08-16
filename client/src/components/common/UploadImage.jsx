@@ -3,8 +3,7 @@ import Dropzone from "react-dropzone";
 
 const UploadImage = ({ setImage }) => {
   return (
-    <div className="w-full">
-      Upload Image
+    <div className="w-full cursor-pointer">
       <Dropzone
         multiple={false}
         onDrop={async (acceptedFiles) => {

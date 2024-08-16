@@ -4,12 +4,17 @@ import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
 import { useForum } from "../../utils/PostContext";
 import UploadImages from "../common/UploadImage";
 const CreatePost = () => {
-  const user = localStorage.getItem("currentUser");
-  const { newPost, setNewPost, handleCreatePost } = useForum();
+  // const user = localStorage.getItem("currentUser");
+  const { newPost, setNewPost, handleCreatePost, user } = useForum();
 
   return (
     <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg">
-      <ProfileImage className="rounded-full h-auto object-fill mr-4" />
+      {/* <ProfileImage className="rounded-full h-auto object-fill mr-4" /> */}
+      <img
+        src={user.userProfileImage}
+        className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
+        alt="User Profile"
+      />
       <div className="flex flex-col md:flex-row lg:flex-row xl:flex-row  items-center gap-x-4  w-full">
         <div className="flex flex-col gap-y-4 w-full">
           <input

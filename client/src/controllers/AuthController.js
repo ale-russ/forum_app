@@ -43,8 +43,8 @@ export async function register({ values, navigate, image }) {
   try {
     if (handleValidation({ values, isRegister: true })) {
       const { username, email, password, confirm_password } = values;
+      console.log("image: " + { image });
 
-      console.log("image: " + image);
       const formData = new FormData();
       formData.append("userName", username);
       formData.append("email", email);
@@ -68,11 +68,8 @@ export async function register({ values, navigate, image }) {
       }
     }
   } catch (error) {
-    if (error.response.data.message === "Phone number already exist!") {
-      toast.error("User already exist", toastOptions);
-    } else {
-      toast.error("Oops! Something went wrong. Please try again", toastOptions);
-    }
+    console.log("Error: ", error);
+    throw error;
   }
 }
 

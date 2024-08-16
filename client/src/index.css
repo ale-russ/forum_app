@@ -40,6 +40,10 @@ a {
   @apply bg-[#FF571A];
 }
 
+.primary-border {
+  @apply border-[#FF571A];
+}
+
 /* Light Theme */
 .light {
   @apply bg-white text-[#192351];
