@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { register } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
 import toastOptions from "../utils/constants";
+import UploadImage from "../components/common/UploadImage";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -99,6 +100,7 @@ const Register = () => {
               value={values.confirm_password}
               onChange={(event) => handleChange(event)}
             />
+            <UploadImage />
             <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               REGISTER
             </button>
