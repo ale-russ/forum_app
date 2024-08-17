@@ -12,26 +12,30 @@ const PrivateChat = ({ recipient, onClose }) => {
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
 
-  // console.log("RECIPIENT: ", recipient);
+  useEffect(() => {
+    if (socket) {
+      const handlePrivateMessage = (message) => {
+        console.log("Received message:", message);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      };
+
+      const handleError = (errorMessage) => {
+        console.error("Socket error:", errorMessage);
+      };
+
+      socket.on("private message", handlePrivateMessage);
+      socket.on("error", handleError);
+
+      return () => {
+        socket.off("private message", handlePrivateMessage);
+        socket.off("error", handleError);
+      };
+    }
+  }, [socket]);
 
   useEffect(() => {
-    socket.on("private message", (message) => {
-      console.log("Received message:", message);
-      // console.log("Sender ID:", recipient);
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    console.log("Received: ", messages);
-
-    socket.on("error", (errorMessage) => {
-      console.error("Socket error:", errorMessage);
-    });
-
-    return () => {
-      socket.off("private message");
-      socket.off("error");
-    };
-  }, []);
+    console.log("Messages updated:", messages);
+  }, [messages]);
 
   const sendPrivateMessage = () => {
     if (input.trim() && socket) {
@@ -39,7 +43,7 @@ const PrivateChat = ({ recipient, onClose }) => {
         content: input,
         from: user._id,
         to: recipient._id,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       };
       console.log("Sending Private message:", message);
       socket.emit("private message", { message, recipient });
@@ -60,28 +64,39 @@ const PrivateChat = ({ recipient, onClose }) => {
           X
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">
-        {messages.map((msg, index) => {
-          //   console.log("MESSAGE: ", msg);
-          const isCurrentUser = msg.to !== user._id;
+      <div
+        key={messages.length}
+        className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full"
+      >
+        {messages.map((msg) => {
+          // console.log("msg: ", msg);
+          const isCurrentUser = msg.from === user._id;
+          const key = `${msg.timestamp}-${Math.random()}`;
+          // console.log("MESSAGE CONTENT: ", msg.content);
           return (
             <div
-              key={index}
-              className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
-                !isCurrentUser
-                  ? "bg-blue-600 text-right"
-                  : "bg-zinc-600 text-left"
-              }
-           
-              `}
+              key={key}
+              className={`w-full flex ${
+                isCurrentUser ? "items-end" : "items-start"
+              }`}
             >
-              <span
-                className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                  isCurrentUser ? "text-white" : "text-gray-200"
+              <div
+                className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
+                ${isCurrentUser ? "items-end" : "items-start"}
+                ${
+                  isCurrentUser
+                    ? "bg-blue-600 text-right"
+                    : "bg-zinc-600 text-left"
                 }`}
               >
-                {msg.content}
-              </span>
+                <span
+                  className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
+                    isCurrentUser ? "text-white" : "text-red-200"
+                  }`}
+                >
+                  {msg.content}
+                </span>
+              </div>
             </div>
           );
         })}

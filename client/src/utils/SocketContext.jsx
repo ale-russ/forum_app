@@ -12,7 +12,9 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io(host);
+    const newSocket = io(host, {
+      query: { token: localStorage.getItem("token") },
+    });
     setSocket(newSocket);
 
     return () => newSocket.close();

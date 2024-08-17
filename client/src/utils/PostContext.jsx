@@ -116,11 +116,10 @@ export const ForumProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // if (socket) {
+    if (!socket) return;
     socket.emit("user connected", user?._id);
 
-    socket?.on("update user list", (users) => {
-      // console.log("Updated Users");
+    socket.on("update user list", (users) => {
       setOnlineUsers(users);
     });
 
@@ -131,19 +130,23 @@ export const ForumProvider = ({ children }) => {
       }));
     };
 
-    socket?.on("new comment", handleNewComment);
+    socket.on("new comment", handleNewComment);
 
     return () => {
-      socket?.off("new comment", handleNewComment);
+      socket.off("new comment", handleNewComment);
     };
     // }
-  }, []);
+  }, [socket]);
 
   const handleFetchRooms = async () => {
     const response = await fetchRooms();
     setChatRooms(response?.data);
     return response?.data;
   };
+
+  if (!socket) {
+    return <Loader />;
+  }
 
   return (
     <ForumContext.Provider
