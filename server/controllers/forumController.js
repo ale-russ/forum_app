@@ -53,16 +53,23 @@ router.get("/posts", async (req, res) => {
 // Get a single post
 router.get("/posts/:id", verifyToken, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id)
-      .populate("author", "userName")
+    const post = await Post.findById(req.params.id);
+
+    if (req.user?._id && !post.views.includes(req.user?._id)) {
+      post.views.push(req.user?._id);
+      await post.save();
+    }
+
+    if (!post) return res.status(404).json({ msg: "Post not found" });
+
+    const populatedPost = await (await post.populate("author", "userName"))
+      .populate("views", "userName")
       .populate({
         path: "comments",
         populate: { path: "author", select: "userName" },
       });
 
-    if (!post) return res.status(404).json({ msg: "Post not found" });
-
-    res.status(200).json(post);
+    res.status(200).json(populatedPost);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
