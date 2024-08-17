@@ -15,4 +15,16 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken };
+const getUserIdFromToken = (token) => {
+  console.log("JWT_SECRET: ", process.env.JWT_SECRET);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("decoded ", decoded);
+    return decoded.id;
+  } catch (err) {
+    console.error("Error in getUserIdFromToken", err);
+    return null;
+  }
+};
+
+module.exports = { verifyToken, getUserIdFromToken };

@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import io from "socket.io-client";
 import { formatDistanceToNow } from "date-fns";
-import { IoMdSend } from "react-icons/io";
-import Picker from "emoji-picker-react";
-import { BsEmojiSmile } from "react-icons/bs";
 
-import { host } from "../../utils/ApiRoutes";
 import { fetchChatMessages } from "../../controllers/ChatController";
 import { InputComponent } from "../common/InputComponent";
 import { useForum } from "../../utils/PostContext";
-
-const socket = io(host);
+import { useSocket } from "../../utils/SocketContext";
 
 const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
-  const messagesEndRef = useRef(null);
   const { user, onlineUsers } = useForum();
+  const socket = useSocket();
+
+  const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
+  const [typingStatus, setTypingStatus] = useState("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -70,6 +67,13 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on("typingResponse", (data) => {
+      console.log("data: ", data);
+      setTypingStatus(data);
+    });
+  }, [socket]);
+
   return (
     <div
       className={`w-80 h-[600px] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300 ${
@@ -88,17 +92,17 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
         </div>
         Online Users
         <div className="flex items-center justify-start space-x-2 w-full overflow-x-auto scrollbar custom-scrollbar">
-          {onlineUsers?.map((user) => {
+          {onlineUsers?.map((onlineUser) => {
             return (
               <div
                 className="bg-green-600"
-                key={user.user._id}
+                key={onlineUser.user._id}
                 onClick={() => {
                   console.log("button clicked");
-                  openChatModal(user.user);
+                  openChatModal(onlineUser.user);
                 }}
               >
-                {user.user.userName}
+                {onlineUser.user.userName}
               </div>
             );
           })}
@@ -111,7 +115,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
             <div
               key={index}
               className={`flex flex-col ${
-                msg.author._id === user._id ? "items-end" : "items-start"
+                isCurrentUser ? "items-end" : "items-start"
               }`}
             >
               {msg.author._id !== user._id && (
@@ -119,14 +123,14 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
               )}
               <div
                 className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
-                  msg.author._id === user._id
+                  isCurrentUser
                     ? "bg-blue-600 text-right"
                     : "bg-zinc-600 text-left"
                 }`}
               >
                 <span
                   className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                    msg.author._id === user._id ? "text-white" : "text-gray-200"
+                    isCurrentUser ? "text-white" : "text-gray-200"
                   }`}
                 >
                   {msg.content}
@@ -139,6 +143,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
           );
         })}
         <div ref={messagesEndRef} />
+        <p className="text-sm text-gray-400 ">{typingStatus}</p>
       </div>
       <InputComponent
         setInput={setInput}
@@ -146,8 +151,8 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
         showPicker={showPicker}
         setShowPicker={setShowPicker}
         input={input}
+        socket={socket}
       />
-      {open}
     </div>
   );
 };

@@ -14,6 +14,7 @@ import toastOptions from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
 import { host } from "../utils/ApiRoutes";
 import Loader from "../components/common/Loader";
+import { useSocket } from "./SocketContext";
 
 const ForumContext = createContext();
 
@@ -33,6 +34,9 @@ export const ForumProvider = ({ children }) => {
 
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
+  const socket = useSocket();
+
+  // console.log("socket ", socket);
 
   const handleFetchPosts = async () => {
     try {
@@ -112,12 +116,11 @@ export const ForumProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const socket = io(host);
-
+    // if (socket) {
     socket.emit("user connected", user?._id);
 
-    socket.on("update user list", (users) => {
-      console.log("Updated Users");
+    socket?.on("update user list", (users) => {
+      // console.log("Updated Users");
       setOnlineUsers(users);
     });
 
@@ -128,11 +131,12 @@ export const ForumProvider = ({ children }) => {
       }));
     };
 
-    socket.on("new comment", handleNewComment);
+    socket?.on("new comment", handleNewComment);
 
     return () => {
-      socket.off("new comment", handleNewComment);
+      socket?.off("new comment", handleNewComment);
     };
+    // }
   }, []);
 
   const handleFetchRooms = async () => {

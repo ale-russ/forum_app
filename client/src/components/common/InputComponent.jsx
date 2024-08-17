@@ -2,6 +2,7 @@ import React from "react";
 import { IoMdSend } from "react-icons/io";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
+import { useForum } from "../../utils/PostContext";
 
 export const InputComponent = ({
   setInput,
@@ -9,11 +10,17 @@ export const InputComponent = ({
   showPicker,
   handleSendMessage,
   input,
+  socket,
 }) => {
+  const { user } = useForum();
   const addEmoji = (e) => {
     const emoji = e.emoji;
     setInput((prevInput) => prevInput + emoji);
   };
+
+  const handleTyping = () =>
+    socket.emit("typing", `${user.userName} is typing`);
+
   return (
     <div className=" relative flex items-center light-search  h-12 pl-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg m-4">
       <span
@@ -41,6 +48,12 @@ export const InputComponent = ({
           if (e.key === "Enter") {
             handleSendMessage();
           }
+          //  else {
+          //   if (e.target.value.trim()) handleTyping();
+          //   setTimeout(() => {
+          //     socket.emit("stopTyping");
+          //   }, 5000);
+          // }
         }}
       />
       <button className="bg-[#FF571A] text-white p-2 rounded-r-lg h-full">

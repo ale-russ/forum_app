@@ -6,30 +6,56 @@ import JoinRoom from "./JoinRoom";
 import Room from "./RoomComponent";
 import PrivateChat from "./PrivateChat";
 import { host } from "../../utils/ApiRoutes";
+import { useSocket } from "../../utils/SocketContext";
+import { useForum } from "../../utils/PostContext";
 
-const socket = io(host);
+// const token = localStorage.getItem("token");
+
+// const socket = io(host);
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
-  const [activePrivateChat, setActivePrivateChat] = useState(null);
-
   const [openModals, setOpenModals] = useState([]);
+  const socket = useSocket();
+  const { user, onlineUsers } = useForum();
+
+  useEffect(() => {
+    if (socket && user) {
+      socket.emit("user connected", user._id);
+    }
+  }, [socket, user]);
 
   const openChatModal = (recipient) => {
-    // console.log("REcipient: ", recipient);
-    console.log("recipient in chat", recipient);
     const isAlreadyOpen = openModals.some(
       (modal) => modal.recipient === recipient
     );
 
     if (!isAlreadyOpen) {
-      setOpenModals([{ recipient }]);
+      const onlineRecipient = onlineUsers.find(
+        (user) => user.user._id === recipient._id
+      );
+      console.log("onlineUsers ", onlineRecipient);
+      setOpenModals((prevModals) => [
+        ...prevModals,
+        {
+          recipient: {
+            _id: recipient._id,
+            userName: recipient.userName,
+            // socketId: socket.id,
+            socketId: onlineRecipient ? onlineRecipient.socketId : null,
+          },
+          key: recipient._id,
+        },
+      ]);
+      console.log("REcipient: ", recipient);
     }
   };
 
   const closeChatModal = (recipient) => {
+    console.log("Recipient: ", recipient);
+    //todo make it modal.recipient._id !== recipient._id
     setOpenModals((prevModals) =>
       prevModals.filter((modal) => modal.recipient !== recipient)
     );
@@ -47,17 +73,6 @@ const Chat = () => {
     setCreateModalOpen(true);
     setIsOpen(false);
   };
-
-  const startPrivateChat = (user) => {
-    setActivePrivateChat(user);
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   return (
     <div className="fixed bottom-24 right-5 z-50 flex items-center">
@@ -97,13 +112,16 @@ const Chat = () => {
           {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
           {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
         </div>
-        {openModals.map(({ recipient }) => (
-          <PrivateChat
-            key={recipient._id}
-            recipient={recipient}
-            onClose={() => closeChatModal(recipient)}
-          />
-        ))}
+        {openModals.map(({ recipient }) => {
+          return (
+            <PrivateChat
+              key={recipient._id}
+              recipient={recipient}
+              onClose={() => closeChatModal(recipient)}
+              // socket={socket}
+            />
+          );
+        })}
       </div>
     </div>
   );

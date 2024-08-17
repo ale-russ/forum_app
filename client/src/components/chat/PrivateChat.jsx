@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
 
-import { host } from "../../utils/ApiRoutes";
 import { InputComponent } from "../common/InputComponent";
 import { useForum } from "../../utils/PostContext";
-
-const socket = io(host);
+import { useSocket } from "../../utils/SocketContext";
 
 const PrivateChat = ({ recipient, onClose }) => {
+  const { user } = useForum();
+  const socket = useSocket();
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
-  const { user } = useForum();
+
+  // console.log("RECIPIENT: ", recipient);
 
   useEffect(() => {
-    socket.on("private message", ({ message, senderId }) => {
-      console.log("Received message:", message, senderId);
-      console.log("Sender ID:", senderId);
+    socket.on("private message", (message) => {
+      console.log("Received message:", message);
+      // console.log("Sender ID:", recipient);
       setMessages((prevMessages) => [...prevMessages, message]);
     });
+
+    console.log("Received: ", messages);
 
     socket.on("error", (errorMessage) => {
       console.error("Socket error:", errorMessage);
@@ -31,7 +34,7 @@ const PrivateChat = ({ recipient, onClose }) => {
   }, []);
 
   const sendPrivateMessage = () => {
-    if (input.trim()) {
+    if (input.trim() && socket) {
       const message = {
         content: input,
         from: user._id,
@@ -39,7 +42,7 @@ const PrivateChat = ({ recipient, onClose }) => {
         timestamp: new Date(),
       };
       console.log("Sending Private message:", message);
-      socket.emit("private message", { message });
+      socket.emit("private message", { message, recipient });
       setMessages((prevMessages) => [...prevMessages, message]);
       setInput("");
       setShowPicker(false);
@@ -60,12 +63,25 @@ const PrivateChat = ({ recipient, onClose }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">
         {messages.map((msg, index) => {
           //   console.log("MESSAGE: ", msg);
+          const isCurrentUser = msg.to !== user._id;
           return (
             <div
               key={index}
-              className={msg.from === user._id ? "sent" : "received"}
+              className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
+                !isCurrentUser
+                  ? "bg-blue-600 text-right"
+                  : "bg-zinc-600 text-left"
+              }
+           
+              `}
             >
-              {msg.content}
+              <span
+                className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
+                  isCurrentUser ? "text-white" : "text-gray-200"
+                }`}
+              >
+                {msg.content}
+              </span>
             </div>
           );
         })}
@@ -76,6 +92,7 @@ const PrivateChat = ({ recipient, onClose }) => {
         handleSendMessage={sendPrivateMessage}
         showPicker={showPicker}
         setShowPicker={setShowPicker}
+        socket={socket}
       />
     </div>
   );

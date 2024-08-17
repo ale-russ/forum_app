@@ -17,31 +17,34 @@ import { ForumProvider } from "./utils/PostContext";
 import ChatRoom from "./pages/ChatRoom";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
+import { SocketProvider } from "./utils/SocketContext";
 
 function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
     <div className="light h-full w-full overflow-x-hidden">
-      <ForumProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<AuthWrapper />}>
-              <Route path="/" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </Route>
-            <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/rooms/:roomId" element={<ChatRoom />} />
-              <Route path="/:id/replies" element={<Replies />} />
-              <Route path="/post/:id" element={<PostPage />} />
-              <Route path="/user-profile" element={<ProfilePage />} />
-            </Route>
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/not-found" element={<NoPageFound />} />
-          </Routes>
-        </BrowserRouter>
-      </ForumProvider>
+      <SocketProvider>
+        <ForumProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AuthWrapper />}>
+                <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
+              <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
+                <Route path="/home" element={<Home />} />
+                <Route path="/rooms/:roomId" element={<ChatRoom />} />
+                <Route path="/:id/replies" element={<Replies />} />
+                <Route path="/post/:id" element={<PostPage />} />
+                <Route path="/user-profile" element={<ProfilePage />} />
+              </Route>
+              <Route path="/unauthorized" element={<Unauthorized />} />
+              <Route path="/not-found" element={<NoPageFound />} />
+            </Routes>
+          </BrowserRouter>
+        </ForumProvider>
+      </SocketProvider>
       <ToastContainer />
     </div>
   );

@@ -34,12 +34,13 @@ const socketControllers = (io) => {
     });
 
     socket.on("user connected", async (userId) => {
-      console.log("user connected: ", userId);
+      // console.log("user connected: ", userId);
+      // console.log("socketId: ", socket.id);
       try {
         const user = await User.findById(userId).select("userName email _id");
         if (user) {
           users[userId] = { socketId: socket.id, user };
-          console.log("USERS: ", users);
+          // console.log("USERS: ", users);
           io.emit("update user list", Object.values(users));
         }
       } catch (err) {
@@ -48,19 +49,19 @@ const socketControllers = (io) => {
       }
     });
 
-    socket.on("private message", ({ message }) => {
-      console.log("Message: ", message);
+    socket.on("private message", ({ message, recipient }) => {
+      console.log("Private Message: ", message);
+      console.log("Recipient: ", recipient);
       console.log("users: ", users);
-
       try {
-        const recipientSocket = users[message.to];
-        console.log("RecipientSocket: ", recipientSocket);
+        const recipientSocketId = users[recipient._id]?.socketId;
 
-        if (recipientSocket && recipientSocket.socketId) {
-          io.to(recipientSocket.socketId).emit("private message", {
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("private message", {
             senderId: message.from,
             message: message,
           });
+          console.log("RecipientSocket: ", recipientSocketId);
         } else {
           console.log("Recipient not connected");
           io.emit("error", "Recipient not connected");
@@ -113,6 +114,15 @@ const socketControllers = (io) => {
         io.emit("error", "Sending Message Failed");
       }
     });
+
+    socket.on("typing", (data) => {
+      console.log("Typing: ", data);
+      socket.emit("typingResponse", data);
+    });
+
+    socket.on("stopTyping", () =>
+      socket.emit("response", "user stopped typing")
+    );
 
     socket.on("chat room message", async ({ room, message }) => {
       try {
