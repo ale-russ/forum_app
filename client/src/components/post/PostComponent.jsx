@@ -63,7 +63,7 @@ const PostComponent = ({ post }) => {
       <div className="flex items-start flex-col justify-between w-full h-full px-2 ">
         <div className="flex flex-col w-full gap-y-3">
           <div className="flex items-center justify-between w-full">
-            <div className="line-clamp-2 font-bold">
+            <div className="line-clamp-2 font-bold w-[90%]">
               {post?.title} : {post?.content}
             </div>
             <div className="hidden md:block lg:block xl:block" onClick={handleLike}>
@@ -101,7 +101,17 @@ const PostComponent = ({ post }) => {
         </div>
         <div className="flex items-center justify-between w-full">
           <div className="hidden lg:flex md:flex xl:flex items-center">
-            <ProfileImage className="rounded-full h-auto object-fill mr-4" />
+            {post?.author?.profileImage ? (
+              <img
+                src={post.author.profileImage}
+                className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
+                alt="User Profile"
+              />
+            ) : (
+              <div className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 flex items-center justify-center light-search">
+                {post?.author.userName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex flex-col items-start">
               <div className="font-bold text-sm">{post?.author.userName}</div>
               <div className="text-[10px] text-[#48494e]">
