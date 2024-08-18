@@ -1,15 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { CiHeart } from "react-icons/ci";
-import { FaHeart } from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
-import io from "socket.io-client";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from 'react';
+import { CiHeart } from 'react-icons/ci';
+import { FaHeart } from 'react-icons/fa';
+import { formatDistanceToNow } from 'date-fns';
+import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
-import { useForum } from "../../utils/PostContext";
-import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
-import CommentsModal from "./CommentsModal";
-import { host } from "../../utils/ApiRoutes";
-import { updatePost, updateViewCount } from "../../controllers/ForumController";
+import { useForum } from '../../utils/PostContext';
+import { ReactComponent as ProfileImage } from '../../assets/ProfileImage.svg';
+import CommentsModal from './CommentsModal';
+import { host } from '../../utils/ApiRoutes';
+import { updatePost, updateViewCount } from '../../controllers/ForumController';
 
 const socket = io(host);
 
@@ -21,9 +21,7 @@ const PostComponent = ({ post }) => {
   const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
   const [viewCount, setViewCount] = useState(post.views.length || 0);
 
-  const [localCommentCount, setLocalCommentCount] = useState(
-    post.comments?.length || 0
-  );
+  const [localCommentCount, setLocalCommentCount] = useState(post.comments?.length || 0);
 
   const handleLike = async () => {
     try {
@@ -31,7 +29,7 @@ const PostComponent = ({ post }) => {
       setIsLiked(updatedPost?.likes.includes(user._id));
       setLikeCount(updatedPost?.likes?.length);
     } catch (err) {
-      console.error("Error updating like:", err);
+      console.error('Error updating like:', err);
     }
   };
 
@@ -53,10 +51,10 @@ const PostComponent = ({ post }) => {
       }
     };
 
-    socket.on("new comment", handleNewComment);
+    socket.on('new comment', handleNewComment);
 
     return () => {
-      socket.off("new comment", handleNewComment);
+      socket.off('new comment', handleNewComment);
     };
   }, [post._id]);
 
@@ -68,37 +66,37 @@ const PostComponent = ({ post }) => {
             <div className="line-clamp-2 font-bold">
               {post?.title} : {post?.content}
             </div>
-            <div
-              className="hidden md:block lg:block xl:block"
-              onClick={handleLike}
-            >
+            <div className="hidden md:block lg:block xl:block" onClick={handleLike}>
               {isLiked ? (
-                <FaHeart
-                  className={`cursor-pointer ${isLiked ? "text-red-500" : ""}`}
-                />
+                <FaHeart className={`cursor-pointer ${isLiked ? 'text-red-500' : ''}`} />
               ) : (
                 <CiHeart className={`cursor-pointer `} />
               )}
             </div>
             <div className="block md:hidden lg:hidden xl:hidden">
-              <img
-                src={user.profileImage}
-                className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
-                alt="User Profile"
-              />
+              {post?.author?.profileImage ? (
+                <img
+                  src={post.author.profileImage}
+                  className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
+                  alt="User Profile"
+                />
+              ) : (
+                <div className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 flex items-center justify-center light-search">
+                  {post?.author.userName.charAt(0).toUpperCase()}
+                </div>
+              )}
               {/* <ProfileImage className="rounded-full h-auto object-fill " /> */}
             </div>
           </div>
           <div className="flex items-center gap-x-2">
-            <div className="rounded-lg shadow-lg text-[10px] p-2 light-search">
-              tag of the first tags
-            </div>
-            <div className="rounded-lg shadow-lg text-[10px] p-2 light-search">
-              tag3
-            </div>
-            <div className="rounded-lg shadow-lg text-[10px] p-2 light-search">
-              tag2
-            </div>
+            {post?.tags &&
+              post.tags.map((tag, index) => {
+                return (
+                  <div key={index} className="rounded-lg shadow-lg text-[10px] p-2 light-search">
+                    {tag}
+                  </div>
+                );
+              })}
           </div>
         </div>
         <div className="flex items-center justify-between w-full">
@@ -112,9 +110,7 @@ const PostComponent = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#48494e] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
-            <div className="flex flex-wrap items-center px-2">
-              {viewCount} View
-            </div>
+            <div className="flex flex-wrap items-center px-2">{viewCount} View</div>
             <div className="flex flex-wrap cursor-pointer" onClick={handleLike}>
               {likeCount} Likes
             </div>
