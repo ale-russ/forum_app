@@ -75,7 +75,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
     });
   }, [socket]);
 
-  // console.log('online users: ', onlineUsers.);
+  // console.log('online users: ', onlineUsers);
 
   return (
     <div
@@ -102,7 +102,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
 
               return (
                 <div
-                  className=""
+                  className="flex flex-col items-center"
                   key={onlineUser.user._id}
                   onClick={() => {
                     console.log('button clicked');
@@ -110,6 +110,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
                   }}
                 >
                   <ProfileImage author={onlineUser?.user} />
+                  <p>{onlineUser?.user.userName}</p>
                 </div>
               );
             })}

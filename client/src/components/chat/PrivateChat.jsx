@@ -43,6 +43,8 @@ const PrivateChat = ({ recipient, onClose }) => {
         content: input,
         from: user._id,
         to: recipient._id,
+        userName: user.userName,
+        profileImage: user.profileImage,
         timestamp: new Date().toISOString(),
       };
       console.log('Sending Private message:', message);
