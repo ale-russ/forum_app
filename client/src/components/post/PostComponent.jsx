@@ -9,15 +9,17 @@ import { useForum } from "../../utils/PostContext";
 import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
 import CommentsModal from "./CommentsModal";
 import { host } from "../../utils/ApiRoutes";
+import { updatePost, updateViewCount } from "../../controllers/ForumController";
 
 const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const { handleLikePost, user } = useForum();
+  const { handleLikePost, user, token } = useForum();
   const [likeCount, setLikeCount] = useState(post?.likes?.length);
   const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
+  const [viewCount, setViewCount] = useState(post.views.length || 0);
 
   const [localCommentCount, setLocalCommentCount] = useState(
     post.comments?.length || 0
@@ -33,6 +35,17 @@ const PostComponent = ({ post }) => {
     }
   };
 
+  const handleViewPost = async () => {
+    if (post.views.includes(user._id)) return;
+
+    setViewCount((prevCount) => prevCount + 1);
+
+    const response = await updateViewCount({
+      postId: post._id,
+      token,
+    });
+  };
+
   useEffect(() => {
     const handleNewComment = ({ id }) => {
       if (id === post._id) {
@@ -46,7 +59,7 @@ const PostComponent = ({ post }) => {
       socket.off("new comment", handleNewComment);
     };
   }, [post._id]);
-  // console.log("Like Count: ", likeCount);
+
   return (
     <div className="light-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3 px-4">
       <div className="flex items-start flex-col justify-between w-full h-full px-2 ">
@@ -99,7 +112,9 @@ const PostComponent = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#48494e] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
-            <div className="flex flex-wrap items-center px-2">244,567 View</div>
+            <div className="flex flex-wrap items-center px-2">
+              {viewCount} View
+            </div>
             <div className="flex flex-wrap cursor-pointer" onClick={handleLike}>
               {likeCount} Likes
             </div>
@@ -113,9 +128,10 @@ const PostComponent = ({ post }) => {
             </div>
             <div
               className="primary text-white rounded-lg px-2 py-1 text-[13px] cursor-pointer"
-              onClick={() =>
-                navigate(`/post/:${post._id}`, { state: { post } })
-              }
+              onClick={() => {
+                handleViewPost();
+                navigate(`/post/:${post._id}`, { state: { post } });
+              }}
             >
               Read
             </div>

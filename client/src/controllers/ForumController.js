@@ -43,10 +43,17 @@ export const createPost = async (post, token) => {
   }
 };
 
-export const updatePost = async (id, post, token) => {
-  await axios.put(`${postsRoute}/post/${id}`, post, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const updatePost = async ({ post, token }) => {
+  try {
+    const response = await axios.put(`${postsRoute}/post/${post._id}`, post, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Updated Post: ", response);
+    return response;
+  } catch (error) {
+    console.log("Error: " + error);
+    toast.error(error.response.data.msg, toastOptions);
+  }
 };
 
 export const handleSearch = async (searchQuery, token) => {
@@ -95,6 +102,20 @@ export const likePost = async (id, token) => {
     );
 
     return response;
+  } catch (error) {
+    toast.error(error.response.data.msg, toastOptions);
+  }
+};
+
+export const updateViewCount = async ({ postId, token }) => {
+  try {
+    const response = await axios.post(
+      `${postsRoute}/post/${postId}/view`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data.views;
   } catch (error) {
     toast.error(error.response.data.msg, toastOptions);
   }

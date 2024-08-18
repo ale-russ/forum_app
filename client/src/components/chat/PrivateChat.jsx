@@ -33,9 +33,9 @@ const PrivateChat = ({ recipient, onClose }) => {
     }
   }, [socket]);
 
-  useEffect(() => {
-    console.log("Messages updated:", messages);
-  }, [messages]);
+  /*  useEffect(() => {
+    // console.log("Messages updated:", messages);
+  }, [messages]); */
 
   const sendPrivateMessage = () => {
     if (input.trim() && socket) {

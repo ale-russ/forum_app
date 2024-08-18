@@ -173,4 +173,26 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
   }
 });
 
+//add view count route
+router.post("/post/:id/view", verifyToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    const userId = req.user.id;
+
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    if (!post.views.includes(userId)) {
+      post.views.push(userId);
+      await post.save();
+    } else {
+      console.log("User already viewed the post");
+      return;
+    }
+
+    res.status(200).json({ views: post.views.length });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
