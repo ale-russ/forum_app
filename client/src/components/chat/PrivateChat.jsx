@@ -73,12 +73,12 @@ const PrivateChat = ({ recipient, onClose }) => {
             <div key={key} className={`w-full flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
-                ${isCurrentUser ? 'bg-blue-600 text-right' : 'bg-zinc-600 text-left'}`}
+                ${isCurrentUser ? 'bg-blue-600 text-right justify-end' : 'bg-zinc-600 text-left justify-start'}`}
               >
                 <span
-                  className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                    isCurrentUser ? 'text-white' : 'text-red-200'
-                  }`}
+                  className={`inline-block px-1 py-1 rounded-lg text-[12px] 
+                  text-white
+                  `}
                 >
                   {msg.content}
                 </span>

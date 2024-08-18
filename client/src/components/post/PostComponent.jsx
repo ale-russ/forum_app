@@ -6,10 +6,10 @@ import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 
 import { useForum } from '../../utils/PostContext';
-import { ReactComponent as ProfileImage } from '../../assets/ProfileImage.svg';
 import CommentsModal from './CommentsModal';
 import { host } from '../../utils/ApiRoutes';
 import { updatePost, updateViewCount } from '../../controllers/ForumController';
+import ProfileImage from '../common/ProfileImage';
 
 const socket = io(host);
 
@@ -74,21 +74,10 @@ const PostComponent = ({ post }) => {
               )}
             </div>
             <div className="block md:hidden lg:hidden xl:hidden">
-              {post?.author?.profileImage ? (
-                <img
-                  src={post.author.profileImage}
-                  className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
-                  alt="User Profile"
-                />
-              ) : (
-                <div className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 flex items-center justify-center light-search">
-                  {post?.author.userName.charAt(0).toUpperCase()}
-                </div>
-              )}
-              {/* <ProfileImage className="rounded-full h-auto object-fill " /> */}
+              <ProfileImage author={post?.author} />
             </div>
           </div>
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2 mb-3">
             {post?.tags &&
               post.tags.map((tag, index) => {
                 return (
@@ -101,22 +90,10 @@ const PostComponent = ({ post }) => {
         </div>
         <div className="flex items-center justify-between w-full">
           <div className="hidden lg:flex md:flex xl:flex items-center">
-            {post?.author?.profileImage ? (
-              <img
-                src={post.author.profileImage}
-                className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
-                alt="User Profile"
-              />
-            ) : (
-              <div className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 flex items-center justify-center light-search">
-                {post?.author.userName.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <ProfileImage author={post?.author} />
             <div className="flex flex-col items-start">
               <div className="font-bold text-sm">{post?.author.userName}</div>
-              <div className="text-[10px] text-[#48494e]">
-                {/* {formatDistanceToNow(new Date(post?.createdAt))} ago */}
-              </div>
+              <div className="text-[10px] text-[#48494e]">{formatDistanceToNow(new Date(post?.createdAt))} ago</div>
             </div>
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#48494e] w-full md:w-[50%] lg:w-[50%] xl:w-[50%]">
