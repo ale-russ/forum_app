@@ -18,6 +18,23 @@ router.get("/messages", async (req, res) => {
   }
 });
 
+// get private messages between two users
+router.get("/private/:author/:recipient", verifyToken, async (req, res) => {
+  const { author, recipient } = req.params;
+
+  try {
+    const messages = await Messages.find({
+      $or: [
+        { author: author, recipient: recipient },
+        { author: recipient, recipient: author },
+      ],
+    }).sort({ createdAt: 1 });
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // update a message
 router.post("/message/:id", async (req, res) => {
   try {

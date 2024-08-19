@@ -31,6 +31,7 @@ export const ForumProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [postLoading, setPostLoading] = useState(false);
 
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -39,6 +40,7 @@ export const ForumProvider = ({ children }) => {
   // console.log("socket ", socket);
 
   const handleFetchPosts = async () => {
+    setPostLoading(true);
     try {
       const response = await fetchPosts();
       if (response && response.data) {
@@ -48,6 +50,8 @@ export const ForumProvider = ({ children }) => {
       }
     } catch (err) {
       toast.error("Failed to fetch posts", toastOptions);
+    } finally {
+      setPostLoading(false);
     }
   };
 
@@ -107,6 +111,7 @@ export const ForumProvider = ({ children }) => {
 
   const handleLikePost = async (id) => {
     const response = await likePost(id, token);
+    console.log("response ", response);
     setThreads((prevThreads) =>
       prevThreads.map((pst) =>
         pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
@@ -162,6 +167,7 @@ export const ForumProvider = ({ children }) => {
         postComments,
         currentPost,
         onlineUsers,
+        postLoading,
         setPostComments,
         setNewPost,
         setLikeCounts,

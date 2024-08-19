@@ -10,6 +10,7 @@ const authRoutes = require("./controllers/userController");
 const forumRoute = require("./controllers/forumController");
 const chatRoute = require("./controllers/chat_controller");
 const upload = require("./controllers/upload");
+const chat = require("./controllers/chat_controller");
 
 const socketControllers = require("./controllers/socketController");
 
@@ -46,6 +47,7 @@ app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
 app.use("/image", upload);
+app.use("/chat", chat);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });

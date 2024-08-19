@@ -49,16 +49,17 @@ const socketControllers = (io) => {
       }
     });
 
-    socket.on("private message", ({ message, recipient }) => {
+    socket.on("private message", async ({ message, recipient }) => {
       console.log("Private Message: ", message);
       console.log("Recipient: ", recipient);
       console.log("users: ", users);
+
       try {
         const recipientSocketId = users[recipient._id]?.socketId;
 
         if (recipientSocketId) {
           io.to(recipientSocketId).emit("private message", {
-            senderId: message.from,
+            senderId: message.author,
             message: message,
           });
           console.log("RecipientSocket: ", recipientSocketId);
@@ -66,8 +67,16 @@ const socketControllers = (io) => {
           console.log("Recipient not connected");
           io.emit("error", "Recipient not connected");
         }
+
+        const newMessage = new Message({
+          author: message.author,
+          recipient: recipient._id,
+          content: message.content,
+        });
+        await newMessage.save();
       } catch (error) {
         console.log("ERROR: ", error);
+        io.emit("error", "Error sending private message");
       }
     });
 

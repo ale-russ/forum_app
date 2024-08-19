@@ -1,17 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
 
 import ChatTile from "./ChatTile";
 import JoinRoom from "./JoinRoom";
 import Room from "./RoomComponent";
 import PrivateChat from "./PrivateChat";
-import { host } from "../../utils/ApiRoutes";
 import { useSocket } from "../../utils/SocketContext";
 import { useForum } from "../../utils/PostContext";
-
-// const token = localStorage.getItem("token");
-
-// const socket = io(host);
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,26 +30,21 @@ const Chat = () => {
       const onlineRecipient = onlineUsers.find(
         (user) => user.user._id === recipient._id
       );
-      console.log("onlineUsers ", onlineRecipient);
       setOpenModals((prevModals) => [
         ...prevModals,
         {
           recipient: {
             _id: recipient._id,
             userName: recipient.userName,
-            // socketId: socket.id,
             socketId: onlineRecipient ? onlineRecipient.socketId : null,
           },
           key: recipient._id,
         },
       ]);
-      console.log("REcipient: ", recipient);
     }
   };
 
   const closeChatModal = (recipient) => {
-    console.log("Recipient: ", recipient);
-    //todo make it modal.recipient._id !== recipient._id
     setOpenModals((prevModals) =>
       prevModals.filter((modal) => modal.recipient !== recipient)
     );
@@ -75,7 +64,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="fixed bottom-24 right-5 z-50 flex items-center">
+    <div className="fixed bottom-24 left-5 z-50 flex items-center">
       <div className="flex flex-col gap-y-4">
         <button
           className={`${
@@ -101,7 +90,10 @@ const Chat = () => {
         </button>
       </div>
       <div className="flex items-center">
-        <div className="fixed bottom-24 right-20 z-50">
+        <div
+          className="relative"
+          // className="relative bottom-24 right-20 z-50"
+        >
           {isOpen && (
             <ChatTile
               handleToggle={handleToggle}
@@ -118,7 +110,6 @@ const Chat = () => {
               key={recipient._id}
               recipient={recipient}
               onClose={() => closeChatModal(recipient)}
-              // socket={socket}
             />
           );
         })}

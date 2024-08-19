@@ -4,7 +4,7 @@ import io from "socket.io-client";
 
 import toastOptions from "../utils/constants";
 
-import { chatRoute } from "../utils/ApiRoutes";
+import { chatRoute, privateChatRoute } from "../utils/ApiRoutes";
 import { host } from "../utils/ApiRoutes";
 
 const socket = io(host);
@@ -26,6 +26,21 @@ export const fetchChatMessages = async () => {
       return response;
     }
     return null;
+  } catch (err) {
+    toast.error(err.response?.data.msg, toastOptions);
+  }
+};
+
+export const fetchPrivateMessages = async (author, recipient, token) => {
+  try {
+    const response = await axios.get(
+      `${privateChatRoute}/${author}/${recipient}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response;
   } catch (err) {
     toast.error(err.response?.data.msg, toastOptions);
   }

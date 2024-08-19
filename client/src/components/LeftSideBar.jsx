@@ -8,7 +8,7 @@ const RightSideBar = () => {
     <div className=" hidden md:flex lg:flex xl:flex flex-col">
       <LargeBaches />
       <PopularRooms />
-      <PinnedGroups />
+      {/* <PinnedGroups /> */}
     </div>
   );
 };
