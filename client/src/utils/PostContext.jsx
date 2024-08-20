@@ -9,6 +9,7 @@ import {
   addComment,
   likePost,
   getSinglePost,
+  deletePost,
 } from "../controllers/ForumController";
 import toastOptions from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
@@ -43,6 +44,7 @@ export const ForumProvider = ({ children }) => {
     setPostLoading(true);
     try {
       const response = await fetchPosts();
+      // console.log("REsponse: ", response);
       if (response && response.data) {
         setThreads(response.data);
       } else {
@@ -120,6 +122,22 @@ export const ForumProvider = ({ children }) => {
     return response?.data;
   };
 
+  const handleDeletePost = async (post) => {
+    // setPostLoading(true);
+    try {
+      if (post.author._id !== user._id) {
+        toast.error("You are not authorized to delete this post", toastOptions);
+        return;
+      }
+      await deletePost(post._id, token);
+      setThreads(threads.filter((t) => t._id !== post._id));
+    } catch (error) {
+      console.log("Error Delete: ", error);
+      toast.error("Failed to delete post", toastOptions);
+    }
+    // setPostLoading(false);
+  };
+
   useEffect(() => {
     if (!socket) return;
     socket.emit("user connected", user?._id);
@@ -177,6 +195,7 @@ export const ForumProvider = ({ children }) => {
         handleLikePost,
         handleFetchRooms,
         handleSinglePost,
+        handleDeletePost,
       }}
     >
       {loading ? <Loader /> : <>{children}</>}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const ProfileImage = ({ author }) => {
   return (
@@ -11,7 +11,7 @@ const ProfileImage = ({ author }) => {
         />
       ) : (
         <div className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 flex items-center justify-center light-search">
-          {author?.userName.charAt(0).toUpperCase()}
+          {author?.userName?.charAt(0).toUpperCase()}
         </div>
       )}
     </>

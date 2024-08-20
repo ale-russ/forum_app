@@ -37,7 +37,7 @@ const LargeBaches = () => {
                 <div className="flex items-center">
                   <p className="font-bold text-lg">Following</p>
                   <div className="bg-[#FF571A] h-7 w-7 rounded-lg flex items-center justify-center mx-1">
-                    <p className="text-bold text-xs">251</p>
+                    <p className="text-bold text-xs text-white">0</p>
                   </div>
                 </div>
                 <p className="light-caption">Find the latest update</p>
