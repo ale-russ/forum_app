@@ -18,6 +18,7 @@ import ChatRoom from "./pages/ChatRoom";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import { SocketProvider } from "./utils/SocketContext";
+import PrivateChatPage from "./pages/PrivateChatPage";
 
 function App() {
   const { token } = useContext(UserAuthContext);
@@ -38,6 +39,10 @@ function App() {
                 <Route path="/:id/replies" element={<Replies />} />
                 <Route path="/post/:id" element={<PostPage />} />
                 <Route path="/user-profile" element={<ProfilePage />} />
+                <Route
+                  path="/chat/private-chat/:userId"
+                  element={<PrivateChatPage />}
+                />
               </Route>
               <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="/not-found" element={<NoPageFound />} />

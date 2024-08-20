@@ -6,8 +6,11 @@ import { InputComponent } from "../common/InputComponent";
 import { useForum } from "../../utils/PostContext";
 import { useSocket } from "../../utils/SocketContext";
 import ProfileImage from "../common/ProfileImage";
+import PrivateChatPage from "../../pages/PrivateChatPage";
+import { useNavigate } from "react-router-dom";
 
 const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
+  const navigate = useNavigate();
   const { user, onlineUsers } = useForum();
   const socket = useSocket();
 
@@ -96,13 +99,16 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
           {onlineUsers
             ?.filter((onlineUser) => onlineUser.user._id !== user._id)
             .map((onlineUser) => {
+              console.log("online user: ", onlineUser);
               return (
                 <div
-                  className="flex flex-col items-center"
+                  className="flex flex-col items-center cursor-pointer"
                   key={onlineUser.user._id}
                   onClick={() => {
-                    console.log("button clicked");
-                    openChatModal(onlineUser.user);
+                    navigate(`/chat/private-chat/${onlineUser.user._id}`, {
+                      state: { recipient: onlineUser.user },
+                    });
+                    // openChatModal(onlineUser.user);
                   }}
                 >
                   <ProfileImage author={onlineUser?.user} />

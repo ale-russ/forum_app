@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 
 import { host } from "../utils/ApiRoutes";
@@ -12,6 +12,7 @@ import { InputComponent } from "../components/common/InputComponent";
 const socket = io(host);
 
 const ChatRoom = () => {
+  const navigate = useNavigate();
   const { roomId } = useParams();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -105,8 +106,8 @@ const ChatRoom = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex h-[80%] w-full lg:w-[60%] xl:w-[60%] shadow-xl border rounded-lg m-auto mt-3">
-          <div className="light-search w-full md:w-[30%] py-4 px-2 border-r">
+        <div className="flex h-[80%] w-full shadow-xl border rounded-lg m-auto">
+          <div className="light-search w-[20%] py-4 px-2 border-r">
             <h2 className="text-lg font-bold mb-4">Users</h2>
             <ul>
               {chatRoom?.users &&
@@ -114,17 +115,23 @@ const ChatRoom = () => {
                   .filter((usr) => {
                     return usr._id !== user._id;
                   })
-                  .map((roomUser) => {
+                  .map((usr) => {
                     const isOnline = onlineUsers?.some(
-                      (onlineUser) => onlineUser.user._id === roomUser._id
+                      (onlineUser) => onlineUser.user._id === usr._id
                     );
+
                     return (
                       <div
-                        key={roomUser._id}
+                        key={usr._id}
                         className="flex items-center relative cursor-pointer"
+                        onClick={() => {
+                          navigate(`/chat/private-chat/${usr._id}`, {
+                            state: { recipient: usr },
+                          });
+                        }}
                       >
                         <li className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
-                          {roomUser.userName}
+                          {usr.userName}
                         </li>
                         {isOnline && (
                           <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-1" />
@@ -134,7 +141,7 @@ const ChatRoom = () => {
                   })}
             </ul>
           </div>
-          <div className="w-full md:w-[70%] p-4 flex flex-col light-navbar">
+          <div className="w-full  p-4 flex flex-col light-navbar">
             <div className="flex-1 overflow-y-auto overflow-x-hidden mb-4">
               {messages.map((msg, index) => {
                 return (
