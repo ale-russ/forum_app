@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import io from "socket.io-client";
-import { useNavigate, useParams } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import React, { useEffect, useState, useRef } from 'react';
+import io from 'socket.io-client';
+import { useNavigate, useParams } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
 
-import { host } from "../utils/ApiRoutes";
-import Chat from "../components/chat/Chat";
-import { useForum } from "../utils/PostContext";
-import HomeWrapper from "../components/common/HomeWrapper";
-import { InputComponent } from "../components/common/InputComponent";
+import { host } from '../utils/ApiRoutes';
+import Chat from '../components/chat/Chat';
+import { useForum } from '../utils/PostContext';
+import HomeWrapper from '../components/common/HomeWrapper';
+import { InputComponent } from '../components/common/InputComponent';
 
 const socket = io(host);
 
@@ -15,7 +15,7 @@ const ChatRoom = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(roomId);
   const [chatRoom, setChatRoom] = useState();
@@ -25,45 +25,45 @@ const ChatRoom = () => {
   const [showPicker, setShowPicker] = useState(false);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => scrollToBottom, [messages]);
 
   useEffect(() => {
     if (roomId) {
-      socket.emit("join room", roomId);
+      socket.emit('join room', roomId);
     }
 
     return () => {
       if (roomId) {
-        socket.emit("leave room", roomId);
+        socket.emit('leave room', roomId);
       }
     };
   }, [roomId]);
 
   useEffect(() => {
-    socket.on("chat room message", (message) => {
+    socket.on('chat room message', (message) => {
       setMessages((prevMessages) => {
         if (message.room === currentRoom) {
           return [...prevMessages, message];
         }
       });
-      setTimeout(() => scrollToBottom(), 0);
+      scrollToBottom();
     });
 
-    socket.on("user join", (user) => {
+    socket.on('user join', (user) => {
       setUsers((prevUsers) => [...prevUsers, user]);
     });
 
-    socket.on("user left", (user) => {
+    socket.on('user left', (user) => {
       setUsers((prevUsers) => prevUsers.filter((u) => u.name !== user));
     });
 
     return () => {
-      socket.off("message");
-      socket.off("user join");
-      socket.off("user left");
+      socket.off('message');
+      socket.off('user join');
+      socket.off('user left');
     };
   }, []);
 
@@ -94,11 +94,11 @@ const ChatRoom = () => {
         author: user._id,
         userName: user.userName,
       };
-      socket.emit("chat room message", {
+      socket.emit('chat room message', {
         room: roomId,
         message,
       });
-      setInput("");
+      setInput('');
       setShowPicker(false);
     }
   };
@@ -116,9 +116,7 @@ const ChatRoom = () => {
                     return usr._id !== user._id;
                   })
                   .map((usr) => {
-                    const isOnline = onlineUsers?.some(
-                      (onlineUser) => onlineUser.user._id === usr._id
-                    );
+                    const isOnline = onlineUsers?.some((onlineUser) => onlineUser.user._id === usr._id);
 
                     return (
                       <div
@@ -133,9 +131,7 @@ const ChatRoom = () => {
                         <li className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
                           {usr.userName}
                         </li>
-                        {isOnline && (
-                          <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-1" />
-                        )}
+                        {isOnline && <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-1" />}
                       </div>
                     );
                   })}
@@ -147,22 +143,12 @@ const ChatRoom = () => {
                 return (
                   <div
                     key={index}
-                    className={`flex flex-col ${
-                      msg.author._id === user._id ? "items-end" : "items-start"
-                    }`}
+                    className={`flex flex-col ${msg.author._id === user._id ? 'items-end' : 'items-start'}`}
                   >
-                    {msg.author._id !== user._id && (
-                      <p className="text-xs italic mb-1">
-                        {msg.author.userName}
-                      </p>
-                    )}
+                    {msg.author._id !== user._id && <p className="text-xs italic mb-1">{msg.author.userName}</p>}
                     <div
                       className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
-             ${
-               msg.author._id === user._id
-                 ? "bg-blue-600 text-right"
-                 : "bg-zinc-600 text-left"
-             }`}
+             ${msg.author._id === user._id ? 'bg-blue-600 text-right' : 'bg-zinc-600 text-left'}`}
                     >
                       <span
                         className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
@@ -172,9 +158,7 @@ const ChatRoom = () => {
                         {msg.content}
                       </span>
                     </div>
-                    <p className="text-[10px] italic">
-                      {formatDistanceToNow(msg.createdAt)} ago
-                    </p>
+                    <p className="text-[10px] italic">{formatDistanceToNow(msg.createdAt)} ago</p>
                   </div>
                 );
               })}

@@ -1,25 +1,25 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { MdHomeFilled } from "react-icons/md";
-import { BsCalendar4 } from "react-icons/bs";
-import { IoIosPeople } from "react-icons/io";
-import { CiSearch } from "react-icons/ci";
-import { AiFillMessage } from "react-icons/ai";
-import { TbBellFilled } from "react-icons/tb";
-import { TiArrowSortedDown } from "react-icons/ti";
-import { debounce } from "lodash";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MdHomeFilled } from 'react-icons/md';
+import { BsCalendar4 } from 'react-icons/bs';
+import { IoIosPeople } from 'react-icons/io';
+import { CiSearch } from 'react-icons/ci';
+import { AiFillMessage } from 'react-icons/ai';
+import { TbBellFilled } from 'react-icons/tb';
+import { TiArrowSortedDown } from 'react-icons/ti';
+import { debounce } from 'lodash';
 
-import { ReactComponent as Logo } from "../assets/Logo.svg";
-import { ReactComponent as Profile } from "../assets/ProfileImage.svg";
-import { UserAuthContext } from "../utils/UserAuthenticationProvider";
-import { handleLogout } from "../controllers/AuthController";
-import { handleSearch } from "../controllers/ForumController";
-import { useForum } from "../utils/PostContext";
+import { ReactComponent as Logo } from '../assets/Logo.svg';
+import { ReactComponent as Profile } from '../assets/ProfileImage.svg';
+import { UserAuthContext } from '../utils/UserAuthenticationProvider';
+import { handleLogout } from '../controllers/AuthController';
+import { handleSearch } from '../controllers/ForumController';
+import { useForum } from '../utils/PostContext';
 
 const NavBar = () => {
   // const user = JSON.parse(localStorage.getItem("currentUser"));
   const { token, user } = useForum();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -33,22 +33,17 @@ const NavBar = () => {
     } else {
       setShowSearchModal(true);
     }
-    console.log("Search Results: ", searchResult);
-    setSearchQuery("");
+    console.log('Search Results: ', searchResult);
+    setSearchQuery('');
   };
 
   // console.log("user: ", user.userProfileImage);
 
   return (
-    <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg">
-      <div
-        className="flex items-center px-1 md:px-4 cursor-pointer"
-        onClick={() => navigate("/home")}
-      >
+    <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-[100%] shadow-lg sticky top-0 right-0 left-0 z-50">
+      <div className="flex items-center px-1 md:px-4 cursor-pointer" onClick={() => navigate('/home')}>
         <Logo />
-        <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">
-          KnowledgeChain
-        </p>
+        <p className="hidden md:flex lg:flex xl:flex px-4 text-[#FF571A] font-bold text-xl">KnowledgeChain</p>
       </div>
       {/* <IconsTile /> */}
       <div className="flex flex-col relative w-full md:w-[300px] xl:w-[600px]">
@@ -60,7 +55,7 @@ const NavBar = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
               e.preventDefault;
-              if (e.key === "Enter") {
+              if (e.key === 'Enter') {
                 getSearchResults();
               }
             }}
@@ -68,10 +63,7 @@ const NavBar = () => {
           <CiSearch className="text-[#858EAD] w-7 h-7" />
         </div>
         {showSearchModal ? (
-          <DisplaySearchResults
-            setShowSearchModal={setShowSearchModal}
-            searchResults={searchResult}
-          />
+          <DisplaySearchResults setShowSearchModal={setShowSearchModal} searchResults={searchResult} />
         ) : null}
       </div>
 
@@ -110,10 +102,7 @@ const IconsTile = () => {
   return (
     <div className="hidden md:flex lg:flex xl:flex  text-white  items-center">
       {icons.map((Icon, index) => (
-        <Icon
-          key={index}
-          className="w-[40px] h-[40px] text-white px-2 rounded-lg bg-orange-600 m-2"
-        />
+        <Icon key={index} className="w-[40px] h-[40px] text-white px-2 rounded-lg bg-orange-600 m-2" />
       ))}
     </div>
   );
@@ -143,9 +132,7 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
             </div>
           ))
         ) : (
-          <div className="h-40 w-full flex items-center justify-center">
-            Nothing Found
-          </div>
+          <div className="h-40 w-full flex items-center justify-center">Nothing Found</div>
         )}
       </div>
     </div>
@@ -159,8 +146,8 @@ const UserMenus = () => {
 
   const signOut = async () => {
     await handleLogout({ navigate });
-    setUserAuth({ newToken: "" });
-    navigate("/");
+    setUserAuth({ newToken: '' });
+    navigate('/');
   };
   return (
     <div className="flex flex-col items-center justify-start fixed right-4 top-16 z-50 h-40 w-36 light-navbar rounded shadow-xl border border-gray-300">
@@ -171,14 +158,11 @@ const UserMenus = () => {
       <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
         <p
           className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 cursor-pointer "
-          onClick={() => navigate("/user-profile")}
+          onClick={() => navigate('/user-profile')}
         >
           Profile
         </p>
-        <button
-          className="bg-red-600 text-white rounded-lg px-1 text-sm"
-          onClick={signOut}
-        >
+        <button className="bg-red-600 text-white rounded-lg px-1 text-sm" onClick={signOut}>
           Sign out
         </button>
       </div>
