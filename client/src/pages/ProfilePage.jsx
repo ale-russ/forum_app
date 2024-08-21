@@ -1,18 +1,16 @@
 import React from "react";
 
 import { useForum } from "../utils/PostContext";
+import ProfileImage from "../components/common/ProfileImage";
 
 const ProfilePage = () => {
   const { user } = useForum();
+  // console.log("User: ", user);
   return (
-    <div className="m-auto max-h-[80%] w-full lg:w-[40%] light-navbar p-4  flex-col space-y-4 rounded-lg shadow-xl">
+    <div className="m-auto h-full w-full lg:w-[40%] light-navbar p-4  flex-col space-y-4 rounded-lg shadow-xl">
       <div className="rounded-lg shadow-xl w-full h-36 flex flex-col items-center justify-center light-search ">
         <div className="flex flex-col items-center justify-center hover:scale-105 transition duration-300 ease-in-out">
-          <img
-            src={user.userProfileImage}
-            className=" h-16 w-16 rounded-full border primary-border object-fill"
-            alt="User Profile"
-          />
+          <ProfileImage author={user} />
           <p className="font-bold ">{user.userName}</p>
         </div>
       </div>

@@ -12,7 +12,7 @@ const PrivateRoutes = ({ allowedRoutes }) => {
   return user ? (
     <>
       <Navbar />
-      <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 h-full w-full">
+      <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full">
         <LeftSideBar />
         <Outlet replace />
         <Chat />

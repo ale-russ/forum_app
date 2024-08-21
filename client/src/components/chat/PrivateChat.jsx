@@ -89,7 +89,7 @@ const PrivateChat = ({ recipient, onClose }) => {
           X
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">
+      <div className="flex-1 overflow-y-hidden p-4 space-y-2  w-full">
         {messages.map((msg) => {
           const isCurrentUser = msg.author === user._id;
           const key = `${msg.timestamp}-${Math.random()}`;

@@ -24,7 +24,7 @@ function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
-    <div className="light h-full w-full overflow-x-hidden">
+    <div className="light w-full overflow-x-hidden">
       <SocketProvider>
         <ForumProvider>
           <BrowserRouter>

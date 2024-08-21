@@ -1,9 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from "react";
 
-import { ReactComponent as ProfileImage } from '../../assets/ProfileImage.svg';
-import { useForum } from '../../utils/PostContext';
-import UploadImage from '../common/UploadImage';
-import ModalWrapper from '../common/ModalWrapper';
+import { useForum } from "../../utils/PostContext";
+import UploadImage from "../common/UploadImage";
+import ModalWrapper from "../common/ModalWrapper";
+import ProfileImage from "../common/ProfileImage";
 
 const CreatePost = () => {
   const { newPost, setNewPost, handleCreatePost, user } = useForum();
@@ -11,11 +11,7 @@ const CreatePost = () => {
 
   return (
     <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg">
-      <img
-        src={user.profileImage}
-        className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
-        alt="User Profile"
-      />
+      <ProfileImage author={user} />
       <div className="flex items-center gap-x-4  w-full">
         <button
           className="rounded bg-[#FF571A] h-10 text-sm px-3 shadow-lg text-white drop-shadow-lg w-full"
@@ -41,22 +37,22 @@ const CreatePostModal = ({ setShowModal }) => {
   const [image, setImage] = useState();
 
   const tagLists = [
-    'Travel',
-    'Arts',
-    'Culture',
-    'Politics',
-    'Technology',
-    'Artificial Intelligence',
-    'Programming',
-    'Sports',
-    'Other',
+    "Travel",
+    "Arts",
+    "Culture",
+    "Politics",
+    "Technology",
+    "Artificial Intelligence",
+    "Programming",
+    "Sports",
+    "Other",
   ];
 
   const handleSubmit = () => {
     e.preventDefault();
 
-    if (newPost.title === '' || newPost.content === '') {
-      toast.error('Title and Content cannot be empty', toastOptions);
+    if (newPost.title === "" || newPost.content === "") {
+      toast.error("Title and Content cannot be empty", toastOptions);
       return;
     }
 
@@ -70,7 +66,7 @@ const CreatePostModal = ({ setShowModal }) => {
   };
 
   useEffect(() => {
-    console.log('Tags: ', tags);
+    console.log("Tags: ", tags);
   }, [tags]);
 
   return (
@@ -99,13 +95,17 @@ const CreatePostModal = ({ setShowModal }) => {
                 type="text"
                 className="light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="Title"
-                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                onChange={(e) =>
+                  setNewPost({ ...newPost, title: e.target.value })
+                }
               />
               <textarea
                 type="text"
                 className="flex items-center light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="What's on your mind?"
-                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                onChange={(e) =>
+                  setNewPost({ ...newPost, content: e.target.value })
+                }
               />
 
               {/* <UploadImage setImage={setImage} /> */}
@@ -120,7 +120,9 @@ const CreatePostModal = ({ setShowModal }) => {
                       value={tag}
                       checked={tags.includes(tag)}
                       onChange={(e) => {
-                        const updatedTags = e.target.checked ? [...tags, tag] : tags.filter((t) => t !== tag);
+                        const updatedTags = e.target.checked
+                          ? [...tags, tag]
+                          : tags.filter((t) => t !== tag);
                         setTags(updatedTags);
                         setNewPost({ ...newPost, tags: updatedTags });
                       }}

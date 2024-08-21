@@ -6,12 +6,12 @@ import { InputComponent } from "../common/InputComponent";
 import { useForum } from "../../utils/PostContext";
 import { useSocket } from "../../utils/SocketContext";
 import ProfileImage from "../common/ProfileImage";
-import PrivateChatPage from "../../pages/PrivateChatPage";
+
 import { useNavigate } from "react-router-dom";
 
 const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
   const navigate = useNavigate();
-  const { user, onlineUsers } = useForum();
+  const { user, onlineUsers, chatRooms } = useForum();
   const socket = useSocket();
 
   const messagesEndRef = useRef(null);
@@ -80,7 +80,7 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
 
   return (
     <div
-      className={`w-66 h-[500px] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300 ${
+      className={`w-66 h-[500px] ml-1 light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl flex flex-col transition ease-in-out duration-300 ${
         setIsOpen ? "open-animation" : "close-animation"
       }`}
     >
@@ -96,26 +96,36 @@ const ChatTile = ({ handleToggle, setIsOpen, openChatModal }) => {
         </div>
         Online Users
         <div className="flex items-center justify-start space-x-2 w-full overflow-x-auto scrollbar custom-scrollbar">
-          {onlineUsers
-            ?.filter((onlineUser) => onlineUser.user._id !== user._id)
-            .map((onlineUser) => {
-              console.log("online user: ", onlineUser);
-              return (
-                <div
-                  className="flex flex-col items-center cursor-pointer"
-                  key={onlineUser.user._id}
-                  onClick={() => {
-                    navigate(`/chat/private-chat/${onlineUser.user._id}`, {
-                      state: { recipient: onlineUser.user },
-                    });
-                    // openChatModal(onlineUser.user);
-                  }}
-                >
-                  <ProfileImage author={onlineUser?.user} />
-                  <p>{onlineUser?.user.userName}</p>
-                </div>
-              );
-            })}
+          {chatRooms[0].users &&
+            chatRooms[0].users
+              ?.filter((usr) => {
+                return usr._id !== user._id;
+              })
+              .map((usr) => {
+                const isOnline = onlineUsers?.some(
+                  (onlineUser) => onlineUser.user._id === usr._id
+                );
+
+                return (
+                  <div
+                    className="flex cursor-pointer"
+                    key={usr._id}
+                    onClick={() => {
+                      navigate(`/chat/private-chat/${usr._id}`, {
+                        state: { recipient: usr },
+                      });
+                    }}
+                  >
+                    <div className="flex flex-col items-center">
+                      <ProfileImage author={usr} />
+                      <p>{usr.userName}</p>
+                    </div>
+                    {isOnline && (
+                      <div className="rounded-full h-3 w-3 bg-green-500 relative top-1 right-[18px]" />
+                    )}
+                  </div>
+                );
+              })}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar custom-scrollbar w-full">

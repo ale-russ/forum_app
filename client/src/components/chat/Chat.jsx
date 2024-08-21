@@ -44,11 +44,11 @@ const Chat = () => {
     }
   };
 
-  const closeChatModal = (recipient) => {
-    setOpenModals((prevModals) =>
-      prevModals.filter((modal) => modal.recipient !== recipient)
-    );
-  };
+  // const closeChatModal = (recipient) => {
+  //   setOpenModals((prevModals) =>
+  //     prevModals.filter((modal) => modal.recipient !== recipient)
+  //   );
+  // };
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -64,7 +64,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="fixed bottom-24 left-5 z-50 flex items-center">
+    <div className="fixed bottom-24 left-5 z-50 flex items-end">
       <div className="flex flex-col gap-y-4">
         <button
           className={`${
@@ -90,29 +90,15 @@ const Chat = () => {
         </button>
       </div>
       <div className="flex items-center">
-        <div
-          className="relative"
-          // className="relative bottom-24 right-20 z-50"
-        >
-          {isOpen && (
-            <ChatTile
-              handleToggle={handleToggle}
-              setIsOpen={setIsOpen}
-              openChatModal={openChatModal}
-            />
-          )}
-          {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
-          {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
-        </div>
-        {openModals.map(({ recipient }) => {
-          return (
-            <PrivateChat
-              key={recipient._id}
-              recipient={recipient}
-              onClose={() => closeChatModal(recipient)}
-            />
-          );
-        })}
+        {isOpen && (
+          <ChatTile
+            handleToggle={handleToggle}
+            setIsOpen={setIsOpen}
+            openChatModal={openChatModal}
+          />
+        )}
+        {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
+        {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
       </div>
     </div>
   );
