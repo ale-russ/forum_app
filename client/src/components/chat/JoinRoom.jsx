@@ -19,7 +19,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
     setLoading(true);
 
     try {
-      if (selectedRoom === "" || selectedRoom === "Join Room") {
+      if (selectedRoom === "") {
         toast.error("Please Select Room", toastOptions);
         return;
       }
@@ -30,6 +30,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
           userId: user._id,
         });
       }
+      toast.success("You have successfully joined the room", toastOptions);
     } catch (err) {
       toast.error(err, toastOptions);
     } finally {

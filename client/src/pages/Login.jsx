@@ -4,9 +4,13 @@ import { login } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
 import { ToastContainer } from "react-toastify";
 import { UserAuthContext } from "../utils/UserAuthenticationProvider";
+import { useSocket } from "../utils/SocketContext";
+import { useForum } from "../utils/PostContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const socket = useSocket();
+  const { chatRooms, handleFetchRooms } = useForum();
   const { token } = useContext(UserAuthContext);
   const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);
@@ -25,7 +29,7 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await login({ values });
+      await login({ values, socket, roomId: chatRooms[0]._id });
       setUserAuth({ newToken: localStorage.getItem("token") });
       navigate("/home");
     } finally {

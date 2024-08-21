@@ -30,23 +30,6 @@ const ChatRoom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // console.log("socket ", socket);
-
-  // useEffect(() => scrollToBottom, [messages]);
-
-  // useEffect(() => {
-  //   const socket = io(host);
-  //   if (roomId) {
-  //     socket.emit("join room", roomId);
-  //   }
-
-  //   // return () => {
-  //   //   if (roomId) {
-  //   //     socket.emit("leave room", roomId);
-  //   //   }
-  //   // };
-  // }, [roomId]);
-
   useEffect(() => {
     if (roomId) socket?.emit("join room", roomId);
 
@@ -116,7 +99,7 @@ const ChatRoom = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex h-[100%] w-full shadow-xl border rounded-lg m-auto">
+        <div className="flex w-full h-[90vh] shadow-xl border rounded-lg">
           <div className="light-search w-[20%] py-4 px-2 border-r">
             <h2 className="text-lg font-bold mb-4">Users</h2>
             <ul>
@@ -151,11 +134,11 @@ const ChatRoom = () => {
                   })}
             </ul>
           </div>
-          <div className="w-full h-[70%]  p-4 flex flex-col justify-between light-navbar">
+          <div className="w-full p-4 flex flex-col justify-between light-navbar">
             <div className="flex items-center justify-center font-bold w-full border-b-2">
               {chatRoom?.name}
             </div>
-            <div className="flex-1 overflow-y-auto overflow-x-hidden mb-4 h-96">
+            <div className="w-full p-4 flex flex-col justify-between light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
               {messages.map((msg, index) => {
                 return (
                   <div

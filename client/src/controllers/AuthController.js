@@ -39,7 +39,7 @@ export function handleValidation({ values, isRegister = false }) {
   }
 }
 
-export async function register({ values, navigate, image }) {
+export async function register({ values, image }) {
   try {
     if (handleValidation({ values, isRegister: true })) {
       const { username, email, password, confirm_password } = values;
@@ -73,7 +73,7 @@ export async function register({ values, navigate, image }) {
   }
 }
 
-export async function login({ values, navigate }) {
+export async function login({ values, socket, roomId }) {
   try {
     if (handleValidation({ values, isRegister: false })) {
       const { email, password } = values;
@@ -83,6 +83,10 @@ export async function login({ values, navigate }) {
       if (data.token != null) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("currentUser", JSON.stringify(data));
+        socket.emit("join chat room", {
+          roomId: roomId,
+          userId: data._id,
+        });
       } else {
         toast.error(`${data.msg}`, toastOptions);
         return;

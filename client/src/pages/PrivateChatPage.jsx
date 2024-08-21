@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useForum } from "../utils/PostContext";
 import { useSocket } from "../utils/SocketContext";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchPrivateMessages } from "../controllers/ChatController";
 import { toast } from "react-toastify";
 
@@ -9,7 +9,7 @@ import toastOptions from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
 
 const PrivateChatPage = () => {
-  // const { recipient } = useParams();
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { recipient } = state || {};
   const { user, token, onlineUsers } = useForum();
@@ -86,7 +86,7 @@ const PrivateChatPage = () => {
   };
 
   return (
-    <div className="flex w-full h-[100vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl  transition ease-in-out duration-300 mt-3">
+    <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
       <div className="light-search w-[30%] px-2 border-r h-full">
         <p className="font-bold flex justify-center items-center">Contacts</p>
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
@@ -96,15 +96,15 @@ const PrivateChatPage = () => {
               // const isOnline = onlineUsers?.some(
               //   (onlineUser) => onlineUser.user._id === usr._id
               // );
-              console.log("online user: ", onlineUser);
+              // console.log("online user: ", onlineUser);
               return (
                 <div
                   className="flex flex-col items-center cursor-pointer"
                   key={onlineUser.user._id}
                   onClick={() => {
-                    // navigate(`/chat/private-chat/${onlineUser.user._id}`, {
-                    //   state: { recipient: onlineUser.user },
-                    // });
+                    navigate(`/chat/private-chat/${onlineUser.user._id}`, {
+                      state: { recipient: onlineUser.user },
+                    });
                     // openChatModal(onlineUser.user);
                   }}
                 >
@@ -119,12 +119,11 @@ const PrivateChatPage = () => {
             })}
         </div>
       </div>
-      <div className="w-full h-full flex flex-col rounded-lg">
+      <div className="w-full flex flex-col justify-between rounded-lg">
         <div className="w-full bg-zinc-800 h-16 rounded-t-lg text-white flex justify-center items-center">
           <h2>{recipient?.userName}</h2>
         </div>
-        <div className="w-full p-4 flex flex-col justify-between light-navbar flex-1 overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
-          <div className="w-full bg-zinc-800"></div>
+        <div className="w-full p-4 flex flex-col justify-between light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
           {messages?.map((msg) => {
             const isCurrentUser = msg?.author === user?._id;
             const key = `${msg?.timestamp}-${Math.random()}`;
@@ -150,7 +149,7 @@ const PrivateChatPage = () => {
               </div>
             );
           })}
-          <div ref={messageEndRef} />
+          {/* <div ref={messageEndRef} /> */}
         </div>
         <InputComponent
           input={input}

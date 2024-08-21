@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import ChatTile from "./ChatTile";
 import JoinRoom from "./JoinRoom";
 import Room from "./RoomComponent";
-import PrivateChat from "./PrivateChat";
 import { useSocket } from "../../utils/SocketContext";
 import { useForum } from "../../utils/PostContext";
 
