@@ -132,6 +132,8 @@ router.post("/login", async (req, res) => {
     const roomsJoinedCount = user.roomsJoined.length;
     const roomsCreatedCount = user.roomsCreated.length;
 
+    console.log("Post count: ", postsCount);
+
     // delete user.password;
     user.password = undefined;
     console.log("User logged in successfully", user);

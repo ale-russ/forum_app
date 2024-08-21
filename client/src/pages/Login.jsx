@@ -46,7 +46,7 @@ const Login = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="m-auto border shadow-xl rounded-lg light-navbar py-8 w-[90%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[40%]">
+        <div className="m-auto flex-col justify-center items-center border shadow-xl rounded-lg light-navbar py-8 w-[90%] sm:w-[70%] md:w-[50%] lg:w-[30%] xl:w-[30%] h-[60%">
           <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
             Log in to your account
           </h1>

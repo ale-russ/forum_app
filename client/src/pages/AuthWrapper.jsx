@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 function AuthWrapper() {
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full light-search">
       <>
         <Outlet />
       </>

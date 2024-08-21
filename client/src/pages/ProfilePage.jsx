@@ -16,7 +16,7 @@ const ProfilePage = () => {
       </div>
       <div className="rounded-lg shadow-xl w-full flex flex-col items-center justify-between light-search p-3 my-2 space-y-4">
         <UserDetails title="Email" label={user?.email} />
-        <UserDetails title="Posts" label={user?.posts?.length ?? 0} />
+        <UserDetails title="Posts" label={user?.postsCount ?? 0} />
         <UserDetails
           title="Liked Posts"
           label={user?.likedPosts?.length ?? 0}
