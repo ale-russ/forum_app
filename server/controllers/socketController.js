@@ -50,9 +50,9 @@ const socketControllers = (io) => {
     });
 
     socket.on("private message", async ({ message, recipient }) => {
-      console.log("Private Message: ", message);
-      console.log("Recipient: ", recipient);
-      console.log("users: ", users);
+      // console.log("Private Message: ", message);
+      // console.log("Recipient: ", recipient);
+      // console.log("users: ", users);
 
       try {
         const recipientSocketId = users[recipient._id]?.socketId;
@@ -62,9 +62,9 @@ const socketControllers = (io) => {
             senderId: message.author,
             message: message,
           });
-          console.log("RecipientSocket: ", recipientSocketId);
+          // console.log("RecipientSocket: ", recipientSocketId);
         } else {
-          console.log("Recipient not connected");
+          // console.log("Recipient not connected");
           io.emit("error", "Recipient not connected");
         }
 
@@ -75,13 +75,13 @@ const socketControllers = (io) => {
         });
         await newMessage.save();
       } catch (error) {
-        console.log("ERROR: ", error);
+        // console.log("ERROR: ", error);
         io.emit("error", "Error sending private message");
       }
     });
 
     socket.on("chat message", async ({ room, message }) => {
-      console.log("chat message: ", message);
+      // console.log("chat message: ", message);
       try {
         let targetRoom;
         if (!room || room === null || room === "General") {
@@ -125,7 +125,7 @@ const socketControllers = (io) => {
     });
 
     socket.on("typing", (data) => {
-      console.log("Typing: ", data);
+      // console.log("Typing: ", data);
       socket.emit("typingResponse", data);
     });
 
@@ -134,7 +134,7 @@ const socketControllers = (io) => {
     );
 
     socket.on("chat room message", async ({ room, message }) => {
-      console.log("Chat room message: ", { room, message });
+      // console.log("Chat room message: ", { room, message });
       try {
         let targetRoom;
         targetRoom = await Room.findById({ _id: room });
@@ -239,7 +239,8 @@ const socketControllers = (io) => {
       try {
         socket.leave(id);
       } catch (error) {
-        console.log("Something went wrong while leaving the room");
+        // console.log("Something went wrong while leaving the room");
+        socket.emit("error", "Oops. Something went wrong!");
       }
     });
 
