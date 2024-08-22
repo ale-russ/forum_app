@@ -10,11 +10,17 @@ const fs = require("fs");
 const path = require("path");
 
 const User = require("../models/user_models");
+const Post = require("../models/post_model");
+
 const { verifyToken } = require("../middleware/auth");
+const { uploadImage, uploadFile } = require("../middleware/utils");
 
 dotenv.config();
 
 const mongoUrl = process.env.MONGODB_URL;
+const baseUrl = process.env.APPWRITE_ENDPOINT;
+const bucketId = process.env.APPWRITE_BUCKET_ID;
+const projectId = process.env.APPWRITE_PROJECT_ID;
 
 const router = express.Router();
 
@@ -24,34 +30,14 @@ const userSchema = Joi.object({
   userName: Joi.string().required(),
 });
 
-const uploadDir = "uploads";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      path.parse(file.originalname).name + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({ storage });
-
 const client = new MongoClient(mongoUrl);
 
 const db = client.db("test");
-const userCollection = db.collection("user");
+const userCollection = db.collection("users");
 
 // Check if email exists in the db
 async function checkEmailStatus(userCollection, email) {
   const user = await userCollection.findOne({ email });
-  //   return !!user;
   return user !== null;
 }
 
@@ -63,48 +49,58 @@ async function fetchUserData(userCollection, id) {
 }
 
 // register route
-router.post("/register", upload.single("profileImage"), async (req, res) => {
-  const validationResult = userSchema.validate(req.body);
-  console.log("email: ", req.body);
-
-  // check for validation
-  if (validationResult.error)
-    return res
-      .status(400)
-      .json({ msg: validationResult.error.details[0].message });
-
-  const { email, password, userName } = req.body;
-
-  // check if fields are not empty
-  if (!userName || !email || !password)
-    return res.status(400).json({ msg: "Please enter all fields" });
-
-  // check if profile image is provided
-  // if (!req.file)
-  //   return res.status(400).json({ msg: "Profile Image is required" });
-
-  // check if email exists
-  const emailExists = await checkEmailStatus(userCollection, email);
-  if (emailExists) return res.status(409).json({ msg: "Email already exists" });
-
-  // hash the password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // create a new user object and insert it to the db
-  const newUser = {
-    userName,
-    email,
-    password: hashedPassword,
-    // profileImage: req.file.path,
-  };
-
+router.post("/register", uploadFile.single("image"), async (req, res) => {
+  console.log("in register");
+  console.log("Request body: ", req.body);
   try {
+    const validationResult = userSchema.validate(req.body);
+
+    if (validationResult.error)
+      return res
+        .status(400)
+        .json({ msg: validationResult.error.details[0].message });
+
+    const { email, password, userName, profileImage } = req.body;
+
+    if (!userName || !email || !password)
+      return res.status(400).json({ msg: "Please enter all fields" });
+
+    // check if profile image is provided
+    // if (!req.file)
+    //   return res.status(400).json({ msg: "Profile Image is required" });
+
+    const emailExists = await checkEmailStatus(userCollection, email);
+    if (emailExists)
+      return res.status(409).json({ msg: "Email already exists" });
+
+    // hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    let profileImageUrl;
+    if (req.file) {
+      try {
+        const fileId = await uploadImage(
+          req.file.buffer,
+          req.file.originalname
+        );
+        profileImageUrl = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
+      } catch (err) {
+        console.log("Error uploading profile image", err);
+      }
+    }
+
+    const newUser = {
+      userName,
+      email,
+      password: hashedPassword,
+      profileImage: profileImageUrl,
+    };
     await userCollection.insertOne(newUser);
     delete newUser.password;
     return res.json({ msg: "User registered successfully", user: newUser });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -117,7 +113,10 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ msg: "All fields are required" });
 
   try {
-    const user = await userCollection.findOne({ email });
+    const user = await User.findOne({ email })
+      .populate("posts")
+      .populate("roomsJoined")
+      .populate("roomsCreated");
 
     if (!user)
       return res.status(401).json({ msg: "Invalid Email or Password" });
@@ -129,24 +128,30 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    const userId = user._id;
-    const userEmail = user.email;
-    const userProfileImage = user.profileImage;
+    const postsCount = await Post.countDocuments({ author: user._id });
+    const roomsJoinedCount = user.roomsJoined.length;
+    const roomsCreatedCount = user.roomsCreated.length;
+
+    console.log("Post count: ", postsCount);
+
+    // delete user.password;
+    user.password = undefined;
+    console.log("User logged in successfully", user);
 
     if (res.statusCode === 200) {
       return res.status(200).json({
         msg: "User successfully Logged In",
         token,
-        userId,
-        userEmail,
-        // userProfileImage,
+        ...user._doc,
+        postsCount,
+        roomsJoinedCount,
+        roomsCreatedCount,
       });
     } else {
-      console.log("RESPONSE: ", res);
+      console.log("Error in login route", err);
       return res.status(401).json({ msg: "Internal Server Error" });
     }
   } catch (err) {
-    console.error("Error: ", err);
     return res
       .status(500)
       .json({ msg: "Internal Server Error", error: err.message });
@@ -160,7 +165,7 @@ router.get("/user-info", verifyToken, async (req, res) => {
 
     // check if user exist
     if (!user) return res.status(400).json({ msg: "User Not Found" });
-
+    console.log("USER: ", user);
     delete user.password;
     return res.status(200).json({ user });
   } catch (err) {

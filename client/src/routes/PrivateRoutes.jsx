@@ -1,21 +1,25 @@
 import React, { useContext } from "react";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 
+import Navbar from "../components/NavBar";
+import LeftSideBar from "../components/LeftSideBar";
+import Chat from "../components/chat/Chat";
+
 const PrivateRoutes = ({ allowedRoutes }) => {
   const location = useLocation();
   const user = localStorage.getItem("token");
 
   return user ? (
-    <Outlet replace />
+    <>
+      <Navbar />
+      <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full">
+        <LeftSideBar />
+        <Outlet replace />
+        <Chat />
+      </div>
+    </>
   ) : (
     <Navigate to="/" state={{ from: location }} replace />
-    //    (
-    //     <Outlet replace />
-    //   ) : (
-    //     <Navigate to="/unauthorized" state={{ from: location }} replace />
-    //   )
-    // ) : (
-    //   <Navigate to="/" state={{ from: location }} replace />
   );
 };
 

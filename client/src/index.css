@@ -1,15 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: "Space Grotesk", sans-serif;
 }
+
+#root {
+  height: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  height: 100%;
+  /* overflow: auto; */
+}
+
 input,
 textarea {
   padding: 10px 20px;
@@ -21,145 +31,100 @@ a {
   text-decoration: none;
 }
 
-.register,
-.login {
-  width: 30%;
-  margin: auto;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Primary Color */
+.primary {
+  @apply bg-[#FF571A];
 }
 
-.register,
-.login,
-.home,
-.replies,
-.modal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 30px;
+.primary-border {
+  @apply border-[#FF571A];
 }
-.registerTitle,
-.loginTitle,
-.homeTitle,
-.repliesTitle {
-  margin-bottom: 30px;
+
+/* Light Theme */
+.light {
+  @apply bg-white text-[#192351];
 }
-.registerForm,
-.loginForm {
-  width: 80%;
-  display: flex;
-  flex-direction: column;
+
+.light-navbar {
+  @apply bg-[#F4F6F8] text-[#3f4354];
 }
-.registerBtn,
-.loginBtn,
-.homeBtn,
-.modalBtn {
-  display: block;
-  width: 200px;
-  padding: 15px;
-  cursor: pointer;
-  outline: none;
-  border: none;
-  border-radius: 3px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fffbf5;
-  background-color: #674188;
-  margin-bottom: 15px;
+
+.light-search {
+  @apply bg-[#E5E5E5];
 }
-.homeForm {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 80%;
-  margin-bottom: 30px;
+
+.light-icons {
+  @apply text-[#C5D0E6];
 }
-.home__container {
-  display: flex;
-  flex-direction: column;
-  width: 75%;
+
+.light-message-icon {
+  @apply text-[#858EAD];
 }
-.homeBtn {
-  margin-bottom: 0px;
+
+/* Dark theme */
+.dark {
+  @apply bg-[#1E252B] text-white custom-scrollbar;
 }
-.thread__container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  padding: 20px;
+
+.dark-navbar {
+  @apply bg-[#262D34];
 }
-.thread__item {
-  padding: 20px;
-  width: 80%;
-  box-shadow: 0 0 1px 1px #c3acd0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
+
+.dark-search {
+  @apply bg-[#2C353D];
 }
-.likes__container {
-  display: flex;
-  align-items: center;
-  margin-right: 25px;
+
+.dark-caption {
+  @apply text-sm text-[#97989D];
 }
-.likesBtn {
-  height: 30px;
-  color: #f99417;
-  cursor: pointer;
+
+/* custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-.react__container {
-  display: flex;
-  align-items: center;
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent !important;
 }
-.modal {
-  background-color: #ddd;
-  position: fixed;
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply rounded-lg bg-[#d3d1d1];
 }
-.modalInput {
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 15px;
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8e8e8f;
 }
-.modal__content {
-  background-color: #fff;
-  width: 70%;
-  padding: 30px;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+
+@keyframes slideIn {
+  from {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
 }
-.modal__content > label {
-  margin-bottom: 15px;
+
+@keyframes slideOut {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(100%, 100%) scale(0);
+    opacity: 0;
+  }
 }
-.navbar {
-  width: 100%;
-  padding: 10px 20px;
-  background-color: #674188;
-  display: flex;
-  height: 10vh;
-  align-items: center;
-  justify-content: space-between;
+
+.open-animation {
+  animation: slideIn 0.5s ease forwards;
 }
-.navbar > h2 {
-  color: #fffbf5;
-}
-.navbarRight {
-  display: flex;
-  align-items: center;
-}
-.navbarRight > button {
-  padding: 15px;
-  width: 150px;
-  background-color: #f99417;
-  color: #fffbf5;
-  font-size: 16px;
-  border: none;
-  outline: none;
-  margin-left: 15px;
-  cursor: pointer;
-  border-radius: 3px;
+
+.close-animation {
+  animation: slideOut 0.5s ease backwards;
 }

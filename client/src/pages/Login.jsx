@@ -4,9 +4,13 @@ import { login } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
 import { ToastContainer } from "react-toastify";
 import { UserAuthContext } from "../utils/UserAuthenticationProvider";
+import { useSocket } from "../utils/SocketContext";
+import { useForum } from "../utils/PostContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const socket = useSocket();
+  const { chatRooms, handleFetchRooms } = useForum();
   const { token } = useContext(UserAuthContext);
   const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);
@@ -23,10 +27,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ values });
     try {
       setLoading(true);
-      await login({ values });
+      await login({ values, socket, roomId: chatRooms[0]._id });
       setUserAuth({ newToken: localStorage.getItem("token") });
       navigate("/home");
     } finally {
@@ -43,16 +46,22 @@ const Login = () => {
   };
 
   return (
-    <main className="login">
+    <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
       {loading ? (
         <Loader />
       ) : (
-        <>
-          <h1 className="loginTitle">Log in to your account</h1>
+        <div className="m-auto flex-col justify-center items-center border shadow-xl rounded-lg light-navbar py-8 w-[90%] sm:w-[70%] md:w-[50%] lg:w-[30%] xl:w-[30%] h-[60%">
+          <h1 className="flex items-center justify-center px-4 text-[#FF571A] font-bold text-xl">
+            Log in to your account
+          </h1>
 
-          <form className="loginForm" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col items-start justify-center px-4 gap-y-4 "
+            onSubmit={handleSubmit}
+          >
             <label htmlFor="email">Email:</label>
             <input
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="email"
               id="email"
               name="email"
@@ -63,6 +72,7 @@ const Login = () => {
 
             <label htmlFor="password">Password:</label>
             <input
+              className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
               type="password"
               id="password"
               name="password"
@@ -71,13 +81,20 @@ const Login = () => {
               required
             />
 
-            <button className="loginBtn">SIGN IN</button>
+            <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
+              SIGN IN
+            </button>
 
-            <p>
-              Don't have an account ? <Link to="/register">Register</Link>
-            </p>
+            <div className="flex items-center justify-center mx-auto">
+              <p>
+                Don't have an account ?{" "}
+                <Link className="underline" to="/register">
+                  Register
+                </Link>
+              </p>
+            </div>
           </form>
-        </>
+        </div>
       )}
     </main>
   );

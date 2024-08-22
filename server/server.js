@@ -3,17 +3,36 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const socketIo = require("socket.io");
+const http = require("http");
 
 const authRoutes = require("./controllers/userController");
-const forumRoute = require("./controllers/forum_routes");
+const forumRoute = require("./controllers/forumController");
+const chatRoute = require("./controllers/chat_controller");
+const upload = require("./controllers/upload");
+const chat = require("./controllers/chat_controller");
+
+const socketControllers = require("./controllers/socketController");
 
 dotenv.config();
-const app = express();
+
 const PORT = process.env.PORT || 4000;
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    // credentials: true,
+  },
+});
+
+// Socket.io setup
+socketControllers(io);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
 const mongoUrl = process.env.MONGODB_URL;
@@ -26,13 +45,14 @@ mongoose
 // auth routes
 app.use("/auth", authRoutes);
 app.use("/forum", forumRoute);
+app.use("/chat", chatRoute);
+app.use("/image", upload);
+app.use("/chat", chat);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to my API!" });
 });
 
-const HOST = process.env.HOST || "localhost";
-
-app.listen(PORT, (HOST) => {
+server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });

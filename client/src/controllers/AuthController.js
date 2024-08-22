@@ -39,16 +39,17 @@ export function handleValidation({ values, isRegister = false }) {
   }
 }
 
-export async function register({ values, navigate }) {
-  console.log("Values in handleValidation: ", values);
+export async function register({ values, image }) {
   try {
     if (handleValidation({ values, isRegister: true })) {
       const { username, email, password, confirm_password } = values;
+      console.log("image: " + { image });
 
       const formData = new FormData();
       formData.append("userName", username);
       formData.append("email", email);
       formData.append("password", password);
+      formData.append("image", image);
 
       const { data } = await axios.post(registerRoute, formData, {
         headers: {
@@ -60,40 +61,38 @@ export async function register({ values, navigate }) {
         toast.error(`${data.msg}`, toastOptions);
         return;
       } else {
-        console.log("SUCCESS");
-        // navigate("/success", { state: { data: data.data } });
+        toast.success(
+          "You have successfully registered. Please login with the new credentials",
+          toastOptions
+        );
       }
     }
   } catch (error) {
     console.log("Error: ", error);
-    if (error.response.data.message === "Phone number already exist!") {
-      toast.error("User already exist", toastOptions);
-    } else {
-      toast.error("Oops! Something went wrong. Please try again", toastOptions);
-    }
+    throw error;
   }
 }
 
-export async function login({ values, navigate }) {
+export async function login({ values, socket, roomId }) {
   try {
     if (handleValidation({ values, isRegister: false })) {
       const { email, password } = values;
-      console.log("email: , password: ", email, password);
 
-      const data = await axios.post(loginRoute, { email, password });
+      const { data } = await axios.post(loginRoute, { email, password });
 
-      console.log("Data: ", data);
-
-      if (data) {
-        localStorage.setItem("token", data.data.token);
+      if (data.token != null) {
+        localStorage.setItem("token", data.token);
         localStorage.setItem("currentUser", JSON.stringify(data));
+        socket.emit("join chat room", {
+          roomId: roomId,
+          userId: data._id,
+        });
       } else {
         toast.error(`${data.msg}`, toastOptions);
         return;
       }
     }
   } catch (error) {
-    console.log("ERROR: ", error.response.data.msg);
     toast.error(error.response.data.msg, toastOptions);
     return;
   }
