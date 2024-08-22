@@ -29,8 +29,12 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await login({ values, socket, roomId: chatRooms[0]._id });
+      const data = await login({ values });
       setUserAuth({ newToken: localStorage.getItem("token") });
+      socket.emit("join chat room", {
+        roomId: chatRooms[0].roomId,
+        userId: data._id,
+      });
       navigate("/home");
     } finally {
       setValues({
