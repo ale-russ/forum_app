@@ -33,6 +33,7 @@ export const ForumProvider = ({ children }) => {
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
+  const [messageNotification, setMessageNotification] = useState({});
 
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -161,6 +162,10 @@ export const ForumProvider = ({ children }) => {
     // }
   }, [socket]);
 
+  useEffect(() => {
+    console.log("new notification: ", messageNotification);
+  }, [messageNotification]);
+
   const handleFetchRooms = async () => {
     const response = await fetchRooms();
     setChatRooms(response?.data);
@@ -170,6 +175,8 @@ export const ForumProvider = ({ children }) => {
   if (!socket) {
     return <Loader />;
   }
+
+  // console.log("message notification: ", messageNotification);
 
   return (
     <ForumContext.Provider
@@ -186,6 +193,8 @@ export const ForumProvider = ({ children }) => {
         currentPost,
         onlineUsers,
         postLoading,
+        messageNotification,
+        setMessageNotification,
         setPostComments,
         setNewPost,
         setLikeCounts,

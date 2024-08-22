@@ -16,7 +16,7 @@ import { useForum } from "../utils/PostContext";
 import ProfileImage from "./common/ProfileImage";
 
 const NavBar = () => {
-  const { token, user } = useForum();
+  const { token, user, messageNotification } = useForum();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);

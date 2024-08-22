@@ -12,15 +12,19 @@ const PrivateChatPage = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { recipient } = state || {};
-  const { user, token, onlineUsers } = useForum();
+  const {
+    user,
+    token,
+    onlineUsers,
+    messageNotification,
+    setMessageNotification,
+  } = useForum();
   const socket = useSocket();
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const messageEndRef = useRef();
-
-  // console.log("recipient: ", recipient);
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,6 +51,7 @@ const PrivateChatPage = () => {
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
         setMessages((prevMessages) => [...prevMessages, message]);
+        setMessageNotification({ message });
       };
 
       const handleError = (errorMessage) => {
@@ -61,7 +66,11 @@ const PrivateChatPage = () => {
         socket.off("error");
       };
     }
-  }, [socket, recipient?._id]);
+  }, [socket, recipient?._id, setMessageNotification]);
+
+  // useEffect(() => {
+  //   console.log("new notification: ", messageNotification);
+  // }, [messageNotification]);
 
   useEffect(() => {
     scrollToBottom();
@@ -105,15 +114,11 @@ const PrivateChatPage = () => {
                     navigate(`/chat/private-chat/${onlineUser.user._id}`, {
                       state: { recipient: onlineUser.user },
                     });
-                    // openChatModal(onlineUser.user);
                   }}
                 >
                   <p className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
                     {onlineUser.user.userName}
                   </p>
-                  {/* {isOnline && (
-                      <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-1" />
-                    )} */}
                 </div>
               );
             })}
@@ -149,7 +154,7 @@ const PrivateChatPage = () => {
               </div>
             );
           })}
-          {/* <div ref={messageEndRef} /> */}
+          <div ref={messageEndRef} />
         </div>
         <InputComponent
           input={input}
