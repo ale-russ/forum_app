@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import io from "socket.io-client";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import io from 'socket.io-client';
 
-import { UserAuthContext } from "./UserAuthenticationProvider";
+import { UserAuthContext } from './UserAuthenticationProvider';
 import {
   createPost,
   fetchPosts,
@@ -10,12 +10,12 @@ import {
   likePost,
   getSinglePost,
   deletePost,
-} from "../controllers/ForumController";
-import toastOptions from "./constants";
-import { fetchRooms } from "../controllers/ChatController";
-import { host } from "../utils/ApiRoutes";
-import Loader from "../components/common/Loader";
-import { useSocket } from "./SocketContext";
+} from '../controllers/ForumController';
+import toastOptions from './constants';
+import { fetchRooms } from '../controllers/ChatController';
+import { host } from '../utils/ApiRoutes';
+import Loader from '../components/common/Loader';
+import { useSocket } from './SocketContext';
 
 const ForumContext = createContext();
 
@@ -27,16 +27,17 @@ export const ForumProvider = ({ children }) => {
   const [isLiked, setIsLiked] = useState({});
   const [commentCounts, setCommentCounts] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
-  const [newPost, setNewPost] = useState({ title: "", content: "" });
+  const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [postComments, setPostComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
   const [messageNotification, setMessageNotification] = useState({});
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   const { token } = useContext(UserAuthContext);
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(localStorage.getItem('currentUser'));
   const socket = useSocket();
 
   // console.log("socket ", socket);
@@ -49,10 +50,10 @@ export const ForumProvider = ({ children }) => {
       if (response && response.data) {
         setThreads(response.data);
       } else {
-        return "No Data found";
+        return 'No Data found';
       }
     } catch (err) {
-      toast.error("Failed to fetch posts", toastOptions);
+      toast.error('Failed to fetch posts', toastOptions);
     } finally {
       setPostLoading(false);
     }
@@ -64,7 +65,7 @@ export const ForumProvider = ({ children }) => {
     if (response?.data) {
       return response?.data;
     } else {
-      toast.error("No Data Found");
+      toast.error('No Data Found');
     }
   };
 
@@ -72,8 +73,8 @@ export const ForumProvider = ({ children }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (newPost.title === "" || newPost.content === "") {
-        toast.error("Title and Content cannot be empty", toastOptions);
+      if (newPost.title === '' || newPost.content === '') {
+        toast.error('Title and Content cannot be empty', toastOptions);
         return;
       }
       const response = await createPost(newPost, token);
@@ -81,9 +82,9 @@ export const ForumProvider = ({ children }) => {
         setThreads([...threads, response.data]);
       }
     } catch (err) {
-      toast.error("Failed to create post", toastOptions);
+      toast.error('Failed to create post', toastOptions);
     } finally {
-      setNewPost({ title: "", content: "" });
+      setNewPost({ title: '', content: '' });
       setLoading(false);
     }
   };
@@ -96,11 +97,7 @@ export const ForumProvider = ({ children }) => {
         author: { userName: user.userName, _id: user._id },
       };
       setThreads((prevThreads) =>
-        prevThreads.map((p) =>
-          p._id === post._id
-            ? { ...p, comments: [...p.comments, newComment] }
-            : p
-        )
+        prevThreads.map((p) => (p._id === post._id ? { ...p, comments: [...p.comments, newComment] } : p))
       );
       setCommentCounts((prev) => ({
         ...prev,
@@ -108,17 +105,15 @@ export const ForumProvider = ({ children }) => {
       }));
       return newComment;
     } catch (err) {
-      toast.error("Failed to add comment", toastOptions);
+      toast.error('Failed to add comment', toastOptions);
     }
   };
 
   const handleLikePost = async (id) => {
     const response = await likePost(id, token);
-    console.log("response ", response);
+    console.log('response ', response);
     setThreads((prevThreads) =>
-      prevThreads.map((pst) =>
-        pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
-      )
+      prevThreads.map((pst) => (pst._id === id ? { ...pst, likes: response?.data?.likes } : pst))
     );
     return response?.data;
   };
@@ -127,23 +122,23 @@ export const ForumProvider = ({ children }) => {
     // setPostLoading(true);
     try {
       if (post.author._id !== user._id) {
-        toast.error("You are not authorized to delete this post", toastOptions);
+        toast.error('You are not authorized to delete this post', toastOptions);
         return;
       }
       await deletePost(post._id, token);
       setThreads(threads.filter((t) => t._id !== post._id));
     } catch (error) {
-      console.log("Error Delete: ", error);
-      toast.error("Failed to delete post", toastOptions);
+      console.log('Error Delete: ', error);
+      toast.error('Failed to delete post', toastOptions);
     }
     // setPostLoading(false);
   };
 
   useEffect(() => {
     if (!socket) return;
-    socket.emit("user connected", user?._id);
+    socket.emit('user connected', user?._id);
 
-    socket.on("update user list", (users) => {
+    socket.on('update user list', (users) => {
       setOnlineUsers(users);
     });
 
@@ -154,16 +149,25 @@ export const ForumProvider = ({ children }) => {
       }));
     };
 
-    socket.on("new comment", handleNewComment);
+    socket.on('new comment', handleNewComment);
 
     return () => {
-      socket.off("new comment", handleNewComment);
+      socket.off('new comment', handleNewComment);
     };
     // }
   }, [socket]);
 
   useEffect(() => {
-    console.log("new notification: ", messageNotification);
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    console.log('new notification: ', messageNotification);
   }, [messageNotification]);
 
   const handleFetchRooms = async () => {
@@ -194,6 +198,8 @@ export const ForumProvider = ({ children }) => {
         onlineUsers,
         postLoading,
         messageNotification,
+        dimensions,
+        setDimensions,
         setMessageNotification,
         setPostComments,
         setNewPost,
