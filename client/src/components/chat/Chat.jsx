@@ -63,7 +63,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="fixed bottom-24 left-5 z-50 flex items-end">
+    <div className=" fixed bottom-24 left-5 z-50 hidden md:flex items-end">
       <div className="flex flex-col gap-y-4">
         <button
           className={`${

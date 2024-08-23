@@ -6,12 +6,16 @@ import { UserAuthContext } from "../../utils/UserAuthenticationProvider";
 import { useForum } from "../../utils/PostContext";
 import TagsGroupsTile from "./TagsGroupsTile";
 import { handleLogout } from "../../controllers/AuthController";
+import Room from "../chat/RoomComponent";
+import JoinRoom from "../chat/JoinRoom";
 
 const UserMenus = ({ userMenuRef }) => {
   const navigate = useNavigate();
   const { user, handleFetchRooms, chatRooms } = useForum();
   const { setUserAuth } = useContext(UserAuthContext);
   const [showWarningModal, setShowWarningModal] = useState(true);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   useEffect(() => {
     getRooms();
@@ -30,6 +34,13 @@ const UserMenus = ({ userMenuRef }) => {
     navigate(`/rooms/${roomId}`);
   };
 
+  const handleOpenJoinModal = () => {
+    setJoinModalOpen(!joinModalOpen);
+  };
+  const handleOpenCreateModal = () => {
+    setCreateModalOpen(!createModalOpen);
+  };
+
   const signOut = async () => {
     await handleLogout({ navigate });
     setUserAuth({ newToken: "" });
@@ -38,7 +49,7 @@ const UserMenus = ({ userMenuRef }) => {
   return (
     <>
       <div
-        ref={userMenuRef}
+        // ref={userMenuRef}
         className="flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 light-navbar rounded shadow-xl border border-gray-300"
       >
         <div className="p-2">
@@ -47,13 +58,16 @@ const UserMenus = ({ userMenuRef }) => {
         <div className="w-full border border-gray-300 m-3" />
         <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
           <p
-            className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 cursor-pointer "
+            className="border border-gray-300 rounded drop-shadow-xl light-navbar opacity-65 w-full p-1 cursor-pointer "
             onClick={() => navigate("/user-profile")}
           >
             Profile
           </p>
-          <div className="my-2">
+
+          <div className="my-2 w-full">
             <h1>Chat Rooms</h1>
+            <div className="border border-b w-full border-gray-300" />
+
             {chatRooms &&
               chatRooms.map((room) => (
                 <TagsGroupsTile
@@ -66,8 +80,21 @@ const UserMenus = ({ userMenuRef }) => {
                 />
               ))}
           </div>
+
+          <div
+            className="flex items-center border border-gray-300 rounded shadow-xl p-1 h-18 w-full light-navbar cursor-pointer "
+            onClick={handleOpenCreateModal}
+          >
+            Create Chat Room
+          </div>
+          <div
+            className="flex items-center border border-gray-300 rounded shadow-xl p-1 h-18 w-full light-navbar cursor-pointer "
+            onClick={handleOpenJoinModal}
+          >
+            Join Chat Room
+          </div>
           <button
-            className="bg-red-600 text-white rounded-lg px-1 text-sm"
+            className="bg-red-600 text-white rounded p-1 text-sm mt-3"
             onClick={signOut}
           >
             Sign out
@@ -90,6 +117,8 @@ const UserMenus = ({ userMenuRef }) => {
           </div>
         </div>
       )}
+      {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
+      {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
     </>
   );
 };

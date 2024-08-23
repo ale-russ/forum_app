@@ -51,7 +51,7 @@ export const ForumProvider = ({ children }) => {
     setPostLoading(true);
     try {
       const response = await fetchPosts();
-      // console.log("REsponse: ", response);
+
       if (response && response.data) {
         setThreads(response.data);
       } else {
@@ -120,7 +120,7 @@ export const ForumProvider = ({ children }) => {
 
   const handleLikePost = async (id) => {
     const response = await likePost(id, token);
-    console.log("response ", response);
+    // console.log("response ", response);
     setThreads((prevThreads) =>
       prevThreads.map((pst) =>
         pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
@@ -139,7 +139,7 @@ export const ForumProvider = ({ children }) => {
       await deletePost(post._id, token);
       setThreads(threads.filter((t) => t._id !== post._id));
     } catch (error) {
-      console.log("Error Delete: ", error);
+      // console.log("Error Delete: ", error);
       toast.error("Failed to delete post", toastOptions);
     }
     // setPostLoading(false);
@@ -175,12 +175,11 @@ export const ForumProvider = ({ children }) => {
     return () => {
       socket.off("new comment", handleNewComment);
     };
-    // }
   }, [socket]);
 
   useEffect(() => {
     handleFetchRooms();
-    console.log("Chatrooms: ", chatRooms);
+    // console.log("Chatrooms: ", chatRooms);
     // chatRooms[0].users.some((usr) => usr._id === user._id);
 
     // socket.emit("join chat room", {
@@ -199,7 +198,7 @@ export const ForumProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    console.log("new notification: ", messageNotification);
+    // console.log("new notification: ", messageNotification);
   }, [messageNotification]);
 
   const handleFetchRooms = async () => {

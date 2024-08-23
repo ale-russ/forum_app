@@ -7,10 +7,11 @@ import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
 
 import LeftSide from "../components/LeftSideBar";
-import { ReactComponent as Profile } from "../assets/ProfileImage.svg";
+// import { ReactComponent as Profile } from "../assets/ProfileImage.svg";
 import { useForum } from "../utils/PostContext";
 import { host } from "../utils/ApiRoutes";
 import HomeWrapper from "../components/common/HomeWrapper";
+import ProfileImage from "../components/common/ProfileImage";
 
 const socket = io(host);
 
@@ -19,7 +20,14 @@ const PostPage = () => {
   const { post } = location.state || {};
   const [showPicker, setShowPicker] = useState(false);
   const [commentInput, setCommentInput] = useState("");
-  const { postComments, setPostComments, user, handleLikePost } = useForum();
+  const {
+    postComments,
+    setPostComments,
+    user,
+    handleLikePost,
+    handleFetchPosts,
+    threads,
+  } = useForum();
   const [localCommentCount, setLocalCommentCount] = useState(
     post.comments?.length || 0
   );
@@ -42,11 +50,10 @@ const PostPage = () => {
     }
   };
 
-  const handleLocalAddComment = async (comment) => {
-    const content = comment;
-    console.log("new comment is ", comment);
+  const handleLocalAddComment = async () => {
+    const content = commentInput.trim();
     if (!content) return;
-    if (commentInput.trim()) {
+    if (content) {
       const newComment = {
         postId: post._id,
         author: user._id,
@@ -56,8 +63,8 @@ const PostPage = () => {
       if (newComment) {
         socket.emit("new comment", newComment);
         setLocalCommentCount((prevCount) => prevCount + 1);
+        setCommentInput("");
       }
-      setCommentInput("");
     }
   };
 
@@ -81,6 +88,7 @@ const PostPage = () => {
 
   useEffect(() => {
     socket.on("new comment", ({ comment, id }) => {
+      console.log("new comment: ", comment);
       setPostComments((prevComments) => {
         if (post._id === id) {
           return [...prevComments, comment];
@@ -88,6 +96,8 @@ const PostPage = () => {
         return prevComments;
       });
     });
+
+    handleFetchPosts();
 
     return () => {
       socket.off("new comment");
@@ -99,7 +109,7 @@ const PostPage = () => {
       children={
         <div className="flex py-2 h-full w-full">
           <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full lg:w-[80%] xl:w-[50%] max-h-[70%] m-x-auto rounded-3xl overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar px-4 m-auto">
-            <div className="flex items-center justify-center w-full h-10">
+            <div className="flex items-center justify-center w-full h-10 font-bold uppercase">
               {post?.title}
             </div>
             <div className="flex py-3 text-justify">
@@ -117,10 +127,10 @@ const PostPage = () => {
             </div>
             <div className="flex items-center justify-between mb-3 w-full">
               <div className="light-search flex flex-col md:flex-row lg:flex-row xl:flex-row items-center p-2 rounded-lg shadow-xl">
-                <Profile className="rounded-full h-auto object-fill mr-4 shadow-xl" />
-                <p className="ml-2">{post.author.userName}</p>
+                <ProfileImage author={post.author} />
+                <p>{post.author.userName}</p>
               </div>
-              <div className="flex items-center justify-between w-[50%] flex-wrap">
+              <div className="flex items-center justify-between w-[50%] flex-wrap  text-sm">
                 <div className="flex flex-col items-center">
                   {post.views?.length > 0 ? (
                     <p> {post?.views?.length} </p>
@@ -164,11 +174,12 @@ const PostPage = () => {
                 className="flex items-center light-search h-10 focus:outline-none  outline-none border-0 w-full my-2"
                 type="text"
                 placeholder="Add a comment"
+                value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
               />
               <IoMdSend
                 className="w-5 h-5 cursor-pointer ml-3"
-                onClick={() => handleLocalAddComment(commentInput)}
+                onClick={handleLocalAddComment}
               />
             </div>
             <div className="w-full my-2 flex-col gap-y-2">

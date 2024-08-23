@@ -1,18 +1,16 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useForum } from "../../utils/PostContext";
-import UploadImage from "../common/UploadImage";
-import ModalWrapper from "../common/ModalWrapper";
 import ProfileImage from "../common/ProfileImage";
 
 const CreatePost = () => {
-  const { newPost, setNewPost, handleCreatePost, user } = useForum();
+  const { user } = useForum();
   const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg">
       <ProfileImage author={user} />
-      <div className="flex items-center gap-x-4  w-full">
+      <div className="flex items-center gap-x-4  w-[90%]">
         <button
           className="rounded bg-[#FF571A] h-10 text-sm px-3 shadow-lg text-white drop-shadow-lg w-full"
           // onClick={handleCreatePost}
