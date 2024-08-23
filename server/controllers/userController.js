@@ -148,13 +148,22 @@ router.post("/login", async (req, res) => {
         roomsCreatedCount,
       });
     } else {
-      console.log("Error in login route", err);
       return res.status(401).json({ msg: "Internal Server Error" });
     }
   } catch (err) {
     return res
       .status(500)
       .json({ msg: "Internal Server Error", error: err.message });
+  }
+});
+
+//fetch all users
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 });
 

@@ -4,8 +4,7 @@ import io from "socket.io-client";
 
 import toastOptions from "../utils/constants";
 
-import { chatRoute, privateChatRoute } from "../utils/ApiRoutes";
-import { host } from "../utils/ApiRoutes";
+import { chatRoute, privateChatRoute, host } from "../utils/ApiRoutes";
 
 const socket = io(host);
 

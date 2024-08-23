@@ -1,10 +1,14 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// import toastOptions from "../utils/constants";
 import toastOptions from "../utils/constants";
 
-import { host, loginRoute, registerRoute } from "../utils/ApiRoutes";
+import {
+  getAllUsersRoute,
+  host,
+  loginRoute,
+  registerRoute,
+} from "../utils/ApiRoutes";
 
 export function handleValidation({ values, isRegister = false }) {
   const { username, email, password, confirm_password } = values;
@@ -83,10 +87,6 @@ export async function login({ values }) {
       if (data.token != null) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("currentUser", JSON.stringify(data));
-        // socket.emit("join chat room", {
-        //   roomId: roomId,
-        //   userId: data._id,
-        // });
         return data;
       } else {
         toast.error(`${data.msg}`, toastOptions);
@@ -98,6 +98,25 @@ export async function login({ values }) {
     return;
   }
 }
+
+export const fetchAllUsers = async (token) => {
+  try {
+    const { data } = await axios.get(
+      `${getAllUsersRoute}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return data;
+  } catch (error) {
+    console.log("ERROR FETCHING USERS: ", error);
+    toast.error(error, toastOptions);
+    return [];
+  }
+};
 
 export const handleLogout = async ({ navigate }) => {
   // var logoutRoute = `${host}/${endPoint}/`;

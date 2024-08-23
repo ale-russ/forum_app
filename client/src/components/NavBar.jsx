@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { MdHomeFilled } from "react-icons/md";
 import { BsCalendar4 } from "react-icons/bs";
@@ -9,11 +15,11 @@ import { TbBellFilled } from "react-icons/tb";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 import { ReactComponent as Logo } from "../assets/Logo.svg";
-import { UserAuthContext } from "../utils/UserAuthenticationProvider";
-import { handleLogout } from "../controllers/AuthController";
 import { handleSearch } from "../controllers/ForumController";
 import { useForum } from "../utils/PostContext";
 import ProfileImage from "./common/ProfileImage";
+import UserMenus from "./common/UserMenus";
+import DisplayContactsModal from "./common/DisplayContactsModal";
 
 const NavBar = () => {
   const { token, user, messageNotification } = useForum();
@@ -22,7 +28,37 @@ const NavBar = () => {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
+  const userMenuRef = useRef();
+  const contactsModalRef = useRef();
+  const [showContacts, setShowContacts] = useState(false);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        userMenuRef?.current &&
+        !userMenuRef?.current?.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+
+    function handleOutsideClick(event) {
+      if (
+        contactsModalRef?.current &&
+        !contactsModalRef?.current?.contains(event.target)
+      ) {
+        setShowContacts(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
     setSearchResult(searchRes);
@@ -73,7 +109,10 @@ const NavBar = () => {
 
       <div className="flex items-center">
         <div className="flex items-center mx-2 text-gray-700">
-          <div className="flex items-center mx-1 rounded-lg light-search">
+          <div
+            className="flex items-center mx-1 rounded-lg light-search cursor-pointer"
+            onClick={() => setShowContacts(!showContacts)}
+          >
             <AiFillMessage className="w-9 h-9  px-2  rounded-lg" />
           </div>
           <div className="flex items-center mx-auto rounded-lg light-search">
@@ -90,7 +129,10 @@ const NavBar = () => {
           className="relative mx-2 w-4 h-4 cursor-pointer"
           onClick={() => setShowDropdown(!showDropdown)}
         />
-        {showDropdown ? <UserMenus /> : null}
+        {showContacts ? (
+          <DisplayContactsModal contactsModalRef={contactsModalRef} />
+        ) : null}
+        {showDropdown ? <UserMenus userMenuRef={userMenuRef} /> : null}
       </div>
     </div>
   );
@@ -140,40 +182,6 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
             Nothing Found
           </div>
         )}
-      </div>
-    </div>
-  );
-};
-
-const UserMenus = () => {
-  const { user } = useForum();
-  const navigate = useNavigate();
-  const { setUserAuth } = useContext(UserAuthContext);
-
-  const signOut = async () => {
-    await handleLogout({ navigate });
-    setUserAuth({ newToken: "" });
-    navigate("/");
-  };
-  return (
-    <div className="flex flex-col items-center justify-start fixed right-4 top-16 z-50 h-40 w-36 light-navbar rounded shadow-xl border border-gray-300">
-      <div className="p-2">
-        <strong>{user.userName}</strong>
-      </div>
-      <div className="w-full border border-gray-300 m-3" />
-      <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
-        <p
-          className="border border-gray-300 rounded-sm drop-shadow-xl light-search opacity-65 w-full p-1 cursor-pointer "
-          onClick={() => navigate("/user-profile")}
-        >
-          Profile
-        </p>
-        <button
-          className="bg-red-600 text-white rounded-lg px-1 text-sm"
-          onClick={signOut}
-        >
-          Sign out
-        </button>
       </div>
     </div>
   );
