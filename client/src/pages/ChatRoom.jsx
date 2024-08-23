@@ -110,11 +110,15 @@ const ChatRoom = () => {
     <HomeWrapper
       children={
         <div className="flex flex-col md:flex-row w-full h-[90vh] shadow-xl border rounded-lg overflow-hidden">
-          <div className=" bg-zinc-800 w-full md:w-[20%] h-28 md:h-full py-4 px-2 border-r text-white">
+          <div
+            className={`${
+              smallScreen ? "bg-zinc-800 text-white" : "light-search"
+            } w-full md:w-[30%] h-28 md:h-full py-4 px-2 border-r`}
+          >
             <h2 className="text-lg font-bold md:mb-4 flex items-center justify-center">
               Users
             </h2>
-            <ul className="flex flex-row md:flex-col md:justify-start  overflow-x-auto md:overflow-x-hidden md:overflow-y-auto space-x-2 md:space-x-0">
+            <ul className="flex flex-row md:flex-col md:justify-start  overflow-x-auto md:overflow-x-hidden md:overflow-y-auto space-x-2 md:space-x-0 py-2">
               {chatRoom?.users &&
                 chatRoom?.users
                   .filter((usr) => {

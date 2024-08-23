@@ -5,6 +5,7 @@ import { IoLogoJavascript } from "react-icons/io";
 import { UserAuthContext } from "../../utils/UserAuthenticationProvider";
 import { useForum } from "../../utils/PostContext";
 import TagsGroupsTile from "./TagsGroupsTile";
+import { handleLogout } from "../../controllers/AuthController";
 
 const UserMenus = ({ userMenuRef }) => {
   const navigate = useNavigate();
