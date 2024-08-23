@@ -37,7 +37,7 @@ app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
 //Serve static files from the React app
-// app.use(express.static(path.join(__dirname, "client", "build")));
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 const mongoUrl = process.env.MONGODB_URL;
 
@@ -53,9 +53,9 @@ app.use("/chat", chatRoute);
 app.use("/image", upload);
 app.use("/chat", chat);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
