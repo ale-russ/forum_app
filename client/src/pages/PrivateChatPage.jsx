@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 import toastOptions from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
+import ProfileImage from "../components/common/ProfileImage";
 
 const PrivateChatPage = () => {
   const navigate = useNavigate();
@@ -18,7 +19,12 @@ const PrivateChatPage = () => {
     onlineUsers,
     messageNotification,
     setMessageNotification,
+    dimensions,
+    handleFetchUsers,
+    userList,
   } = useForum();
+
+  const smallScreen = dimensions.width < 768;
   const socket = useSocket();
 
   const [messages, setMessages] = useState([]);
@@ -47,6 +53,7 @@ const PrivateChatPage = () => {
 
   useEffect(() => {
     handleChatMessages();
+    handleFetchUsers();
 
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
@@ -96,28 +103,27 @@ const PrivateChatPage = () => {
 
   return (
     <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
-      <div className="light-search w-[30%] px-2 border-r h-full">
+      <div className="hidden md:flex flex-col light-search w-[30%] px-2 border-r h-full">
         <p className="font-bold flex justify-center items-center">Contacts</p>
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
-          {onlineUsers
-            ?.filter((onlineUser) => onlineUser.user._id !== user._id)
-            .map((onlineUser) => {
-              // const isOnline = onlineUsers?.some(
-              //   (onlineUser) => onlineUser.user._id === usr._id
-              // );
-              // console.log("online user: ", onlineUser);
+          {userList
+            ?.filter((usr) => usr._id !== user._id && usr._id !== recipient._id)
+            .map((usr) => {
+              const isOnline = onlineUsers?.some(
+                (onlineUser) => onlineUser.user._id === usr._id
+              );
               return (
                 <div
-                  className="flex flex-col items-center cursor-pointer"
-                  key={onlineUser.user._id}
+                  className="flex flex-col items-start justify-start cursor-pointer w-full"
+                  key={usr._id}
                   onClick={() => {
-                    navigate(`/chat/private-chat/${onlineUser.user._id}`, {
-                      state: { recipient: onlineUser.user },
+                    navigate(`/chat/private-chat/${usr._id}`, {
+                      state: { recipient: usr },
                     });
                   }}
                 >
-                  <p className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
-                    {onlineUser.user.userName}
+                  <p className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold w-full">
+                    {usr.userName}
                   </p>
                 </div>
               );
@@ -125,10 +131,43 @@ const PrivateChatPage = () => {
         </div>
       </div>
       <div className="w-full flex flex-col justify-between rounded-lg">
-        <div className="w-full bg-zinc-800 h-16 rounded-t-lg text-white flex justify-center items-center">
+        <div className="w-full bg-zinc-800 h-28 rounded-t-lg text-white flex flex-col justify-center items-center py-4">
           <h2>{recipient?.userName}</h2>
+          {smallScreen && (
+            <div className="flex items-center justify-start px-2 w-full ">
+              {userList
+                ?.filter(
+                  (usr) => usr._id !== user._id && usr._id !== recipient._id
+                )
+                .map((usr) => {
+                  const isOnline = onlineUsers?.some(
+                    (onlineUser) => onlineUser.user._id === usr._id
+                  );
+                  return (
+                    <div
+                      className="flex items-center mx-2 cursor-pointer"
+                      key={usr._id}
+                      onClick={() => {
+                        navigate(`/chat/private-chat/${usr._id}`, {
+                          state: { recipient: usr },
+                        });
+                      }}
+                    >
+                      <div className="flex flex-col items-center ">
+                        <ProfileImage author={usr} />
+                        {usr.userName}
+                      </div>
+
+                      {isOnline && (
+                        <div className="rounded-full h-3 w-3 bg-green-500 relative -top-[24px] right-5 md:right-1" />
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
-        <div className="w-full p-4 flex flex-col justify-between light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
           {messages?.map((msg) => {
             const isCurrentUser = msg?.author === user?._id;
             const key = `${msg?.timestamp}-${Math.random()}`;
