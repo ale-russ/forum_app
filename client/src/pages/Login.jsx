@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { login } from "../controllers/AuthController";
-import Loader from "../components/common/Loader";
-import { ToastContainer } from "react-toastify";
-import { UserAuthContext } from "../utils/UserAuthenticationProvider";
-import { useSocket } from "../utils/SocketContext";
-import { useForum } from "../utils/PostContext";
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../controllers/AuthController';
+import Loader from '../components/common/Loader';
+import { ToastContainer } from 'react-toastify';
+import { UserAuthContext } from '../utils/UserAuthenticationProvider';
+import { useSocket } from '../utils/SocketContext';
+import { useForum } from '../utils/PostContext';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,13 +15,13 @@ const Login = () => {
   const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   useEffect(() => {
     if (token) {
-      navigate("/home");
+      navigate('/home');
     }
   }, [token]);
 
@@ -30,16 +30,16 @@ const Login = () => {
     try {
       setLoading(true);
       const data = await login({ values });
-      setUserAuth({ newToken: localStorage.getItem("token") });
-      socket.emit("join chat room", {
+      setUserAuth({ newToken: localStorage.getItem('token') });
+      /*  socket.emit("join chat room", {
         roomId: chatRooms[0].roomId,
         userId: data._id,
-      });
-      navigate("/home");
+      }); */
+      navigate('/home');
     } finally {
       setValues({
-        email: "",
-        password: "",
+        email: '',
+        password: '',
       });
       setLoading(false);
     }
@@ -59,10 +59,7 @@ const Login = () => {
             Log in to your account
           </h1>
 
-          <form
-            className="flex flex-col items-start justify-center px-4 gap-y-4 "
-            onSubmit={handleSubmit}
-          >
+          <form className="flex flex-col items-start justify-center px-4 gap-y-4 " onSubmit={handleSubmit}>
             <label htmlFor="email">Email:</label>
             <input
               className="light-search border-0 h-10 text-[#858EAD] outline-none w-full px-2"
@@ -91,7 +88,7 @@ const Login = () => {
 
             <div className="flex items-center justify-center mx-auto">
               <p>
-                Don't have an account ?{" "}
+                Don't have an account ?{' '}
                 <Link className="underline" to="/register">
                   Register
                 </Link>

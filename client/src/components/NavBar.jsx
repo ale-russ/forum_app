@@ -81,7 +81,9 @@ const NavBar = () => {
           </div>
         </div>
 
-        <ProfileImage author={user} />
+        <div className="hidden md:flex">
+          <ProfileImage author={user} />
+        </div>
 
         <p className="font-bold text-[16px] text-ellipsis">{user.userName}</p>
         <TiArrowSortedDown

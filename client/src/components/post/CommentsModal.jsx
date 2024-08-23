@@ -5,10 +5,11 @@ import { IoMdSend } from "react-icons/io";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
 
-import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
+// import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
 import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
 import { useForum } from "../../utils/PostContext";
+import ProfileImage from "../common/ProfileImage";
 
 const socket = io(host);
 
@@ -121,7 +122,8 @@ const CommentsModal = ({
             <div ref={commentEndRef} />
           </div>
           <div className=" relative flex items-center w-full p-4 border-t border-gray-700">
-            <ProfileImage className="rounded-full object-fill mx-4" />
+            {/* <ProfileImage className="rounded-full object-fill mx-4" /> */}
+            <ProfileImage author={user} />
             <span
               className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
               onClick={() => setShowPicker((val) => !val)}

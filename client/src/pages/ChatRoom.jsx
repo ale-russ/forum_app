@@ -1,24 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
-import io from "socket.io-client";
-import { useNavigate, useParams } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import React, { useEffect, useState, useRef } from 'react';
+import io from 'socket.io-client';
+import { useNavigate, useParams } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
 
-import { host } from "../utils/ApiRoutes";
-import Chat from "../components/chat/Chat";
-import { useForum } from "../utils/PostContext";
-import HomeWrapper from "../components/common/HomeWrapper";
-import { InputComponent } from "../components/common/InputComponent";
-import { useSocket } from "../utils/SocketContext";
+import { host } from '../utils/ApiRoutes';
+import Chat from '../components/chat/Chat';
+import { useForum } from '../utils/PostContext';
+import HomeWrapper from '../components/common/HomeWrapper';
+import { InputComponent } from '../components/common/InputComponent';
+import { useSocket } from '../utils/SocketContext';
+import ProfileImage from '../components/common/ProfileImage';
 
 // const socket = io(host);
 
 const ChatRoom = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { chatRooms, user, handleFetchRooms, onlineUsers } = useForum();
+  const { chatRooms, user, handleFetchRooms, onlineUsers, dimensions, setDimensions } = useForum();
   const socket = useSocket();
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(roomId);
   const [chatRoom, setChatRoom] = useState();
@@ -26,14 +27,16 @@ const ChatRoom = () => {
 
   const [showPicker, setShowPicker] = useState(false);
 
+  const screenSize = dimensions.width < 768;
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    if (roomId) socket?.emit("join room", roomId);
+    if (roomId) socket?.emit('join room', roomId);
 
-    socket?.on("chat room message", (message) => {
+    socket?.on('chat room message', (message) => {
       setMessages((prevMessages) => {
         if (message.room === currentRoom) {
           return [...prevMessages, message];
@@ -42,21 +45,21 @@ const ChatRoom = () => {
       scrollToBottom();
     });
 
-    socket?.on("user join", (user) => {
+    socket?.on('user join', (user) => {
       setUsers((prevUsers) => [...prevUsers, user]);
     });
 
-    socket?.on("user left", (user) => {
+    socket?.on('user left', (user) => {
       setUsers((prevUsers) => prevUsers.filter((u) => u.name !== user));
     });
 
     return () => {
       if (roomId) {
-        socket?.emit("leave room", roomId);
+        socket?.emit('leave room', roomId);
       }
-      socket?.off("chat room message");
-      socket?.off("user join");
-      socket?.off("user left");
+      socket?.off('chat room message');
+      socket?.off('user join');
+      socket?.off('user left');
     };
   }, [roomId]);
 
@@ -87,11 +90,11 @@ const ChatRoom = () => {
         author: user._id,
         userName: user.userName,
       };
-      socket?.emit("chat room message", {
+      socket?.emit('chat room message', {
         room: roomId,
         message,
       });
-      setInput("");
+      setInput('');
       setShowPicker(false);
     }
   };
@@ -99,19 +102,17 @@ const ChatRoom = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex w-full h-[90vh] shadow-xl border rounded-lg">
-          <div className="light-search w-[20%] py-4 px-2 border-r">
-            <h2 className="text-lg font-bold mb-4">Users</h2>
-            <ul>
+        <div className="flex flex-col md:flex-row w-full h-[90vh] shadow-xl border rounded-lg overflow-hidden">
+          <div className="light-search w-full md:w-[20%] h-24 md:h-full py-4 px-2 border-r">
+            <h2 className="text-lg font-bold md:mb-4 flex items-center justify-center">Users</h2>
+            <ul className="flex flex-row md:flex-col md:justify-start  overflow-x-auto md:overflow-x-hidden md:overflow-y-auto space-x-2 md:space-x-0">
               {chatRoom?.users &&
                 chatRoom?.users
                   .filter((usr) => {
                     return usr._id !== user._id;
                   })
                   .map((usr) => {
-                    const isOnline = onlineUsers?.some(
-                      (onlineUser) => onlineUser.user._id === usr._id
-                    );
+                    const isOnline = onlineUsers?.some((onlineUser) => onlineUser.user._id === usr._id);
 
                     return (
                       <div
@@ -123,42 +124,35 @@ const ChatRoom = () => {
                           });
                         }}
                       >
-                        <li className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
-                          {usr.userName}
-                        </li>
+                        {screenSize ? (
+                          <ProfileImage author={usr} />
+                        ) : (
+                          <li className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold">
+                            {usr.userName}
+                          </li>
+                        )}
+
                         {isOnline && (
-                          <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-1" />
+                          <div className="rounded-full h-2 w-2 bg-green-500 relative -top-4 right-5 md:right-1" />
                         )}
                       </div>
                     );
                   })}
             </ul>
           </div>
-          <div className="w-full p-4 flex flex-col justify-between light-navbar">
-            <div className="flex items-center justify-center font-bold w-full border-b-2">
-              {chatRoom?.name}
-            </div>
+          <div className="w-full p-4 flex flex-col justify-between light-navbar h-[calc(90vh-6rem)] md:h-full">
+            <div className="flex items-center justify-center font-bold w-full border-b-2">{chatRoom?.name}</div>
             <div className="w-full p-4 flex flex-col justify-between light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
               {messages.map((msg, index) => {
                 return (
                   <div
                     key={index}
-                    className={`flex flex-col ${
-                      msg.author._id === user._id ? "items-end" : "items-start"
-                    }`}
+                    className={`flex flex-col ${msg.author._id === user._id ? 'items-end' : 'items-start'}`}
                   >
-                    {msg.author._id !== user._id && (
-                      <p className="text-xs italic mb-1">
-                        {msg.author.userName}
-                      </p>
-                    )}
+                    {msg.author._id !== user._id && <p className="text-xs italic mb-1">{msg.author.userName}</p>}
                     <div
                       className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
-             ${
-               msg.author._id === user._id
-                 ? "bg-blue-600 text-right"
-                 : "bg-zinc-600 text-left"
-             }`}
+             ${msg.author._id === user._id ? 'bg-blue-600 text-right' : 'bg-zinc-600 text-left'}`}
                     >
                       <span
                         className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
@@ -168,13 +162,11 @@ const ChatRoom = () => {
                         {msg.content}
                       </span>
                     </div>
-                    <p className="text-[10px] italic">
-                      {formatDistanceToNow(msg.createdAt)} ago
-                    </p>
+                    <p className="text-[10px] italic">{formatDistanceToNow(msg.createdAt)} ago</p>
                   </div>
                 );
               })}
-              {/* <div ref={messagesEndRef} /> */}
+              <div ref={messagesEndRef} />
             </div>
             <InputComponent
               input={input}
@@ -183,7 +175,6 @@ const ChatRoom = () => {
               setShowPicker={setShowPicker}
               handleSendMessage={handleSendMessage}
             />
-            {/* <Chat /> */}
           </div>
         </div>
       }
