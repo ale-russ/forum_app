@@ -1,10 +1,13 @@
-import axios from "axios";
-import { toast } from "react-toastify";
+// import axios from "axios";
+// import { toast } from "react-toastify";
+const axios = require("axios");
+const { toast } = require("react-toastify");
 
+const toastOptions = require("../utils/constants");
 // import toastOptions from "../utils/constants";
-import toastOptions from "../utils/constants";
 
-import { host, loginRoute, registerRoute } from "../utils/ApiRoutes";
+// import { host, loginRoute, registerRoute } from "../utils/ApiRoutes";
+const { host, loginRoute, registerRoute } = require("../utils/ApiRoutes");
 
 export function handleValidation({ values, isRegister = false }) {
   const { username, email, password, confirm_password } = values;
