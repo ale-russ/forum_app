@@ -20,6 +20,7 @@ import { useForum } from "../utils/PostContext";
 import ProfileImage from "./common/ProfileImage";
 import UserMenus from "./common/UserMenus";
 import DisplayContactsModal from "./common/DisplayContactsModal";
+import useCloseModal from "../hooks/useCloseModal.js";
 
 const NavBar = () => {
   const { token, user, messageNotification } = useForum();
@@ -32,33 +33,8 @@ const NavBar = () => {
   const contactsModalRef = useRef();
   const [showContacts, setShowContacts] = useState(false);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        userMenuRef?.current &&
-        !userMenuRef?.current?.contains(event.target)
-      ) {
-        setShowDropdown(false);
-      }
-    }
+  useCloseModal(contactsModalRef, () => setShowContacts(false));
 
-    function handleOutsideClick(event) {
-      if (
-        contactsModalRef?.current &&
-        !contactsModalRef?.current?.contains(event.target)
-      ) {
-        setShowContacts(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleOutsideClick);
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, []);
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
     setSearchResult(searchRes);

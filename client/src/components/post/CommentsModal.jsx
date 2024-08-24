@@ -10,6 +10,8 @@ import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
 import { useForum } from "../../utils/PostContext";
 import ProfileImage from "../common/ProfileImage";
+import EmojiPickerComponent from "../common/EmojiPicker";
+import useCloseModal from "../../hooks/useCloseModal";
 
 const socket = io(host);
 
@@ -24,6 +26,7 @@ const CommentsModal = ({
   const [showPicker, setShowPicker] = useState(false);
   const [localPostComments, setLocalPostComments] = useState([]);
   const commentEndRef = useRef(null);
+  const commentModalRef = useRef(null);
 
   const scrollToBottom = () => {
     commentEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,17 +63,7 @@ const CommentsModal = ({
     }
   };
 
-  useEffect(() => {
-    if (post?._id) {
-      socket.emit("join room", post._id);
-    }
-
-    return () => {
-      if (post?._id) {
-        socket.emit("leave room", post._id);
-      }
-    };
-  }, [post?._id]);
+  useCloseModal(commentModalRef, () => setShowPicker(false));
 
   useEffect(() => {
     if (post?.comments) {
@@ -79,6 +72,10 @@ const CommentsModal = ({
   }, [post?.comments]);
 
   useEffect(() => {
+    if (post?._id) {
+      socket.emit("join room", post._id);
+    }
+
     socket.on("new comment", ({ comment, id }) => {
       setPostComments((prevComments) => {
         if (post._id === id) {
@@ -88,9 +85,10 @@ const CommentsModal = ({
       });
     });
 
-    // handleSinglePost(post._id);
-
     return () => {
+      if (post?._id) {
+        socket.emit("leave room", post._id);
+      }
       socket.off("new comment");
     };
   }, [post._id]);
@@ -108,38 +106,25 @@ const CommentsModal = ({
                 className="flex flex-row items-start my-2 w-full"
               >
                 <div className="light-search text-[13px] rounded-lg shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                  {/* {comment.author._id !== user._id && ( */}
                   <h1 className="text-sm italic font-bold">
                     {comment.author?.userName}
                   </h1>
-                  {/* )} */}
-                  {/* {comment.map((comment, commentIndex) => ( */}
+
                   <p className="w-full">{comment?.content}</p>
-                  {/* ))} */}
                 </div>
               </div>
             ))}
             <div ref={commentEndRef} />
           </div>
           <div className=" relative flex items-center w-full p-4 border-t border-gray-700">
-            {/* <ProfileImage className="rounded-full object-fill mx-4" /> */}
             <ProfileImage author={user} />
-            <span
-              className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
-              onClick={() => setShowPicker((val) => !val)}
-            >
-              <BsEmojiSmile />
-            </span>
-            {showPicker && (
-              <div className="absolute bottom-full left-0 mb-2">
-                <Picker
-                  onEmojiClick={addEmoji}
-                  className={` transition ease-in-out duration-300 ${
-                    showPicker ? "open-animation" : "close-animation"
-                  }`}
-                />
-              </div>
-            )}
+
+            <EmojiPickerComponent
+              showPicker={showPicker}
+              setShowPicker={setShowPicker}
+              pickerRef={commentModalRef}
+              setInput={setCommentInput}
+            />
             <textarea
               className="flex items-center light-search h-16 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-[70%] md:w-[80%] lg:w-[80%] my-2"
               type="text"

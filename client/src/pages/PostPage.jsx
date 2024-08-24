@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { IoMdSend } from "react-icons/io";
 import { toast } from "react-toastify";
@@ -12,6 +12,8 @@ import { useForum } from "../utils/PostContext";
 import { host } from "../utils/ApiRoutes";
 import HomeWrapper from "../components/common/HomeWrapper";
 import ProfileImage from "../components/common/ProfileImage";
+import useCloseModal from "../hooks/useCloseModal.js";
+import EmojiPickerComponent from "../components/common/EmojiPicker.jsx";
 
 const socket = io(host);
 
@@ -33,11 +35,7 @@ const PostPage = () => {
   );
   const [likeCount, setLikeCount] = useState(post?.likes?.length);
   const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
-
-  const addEmoji = (e) => {
-    const emoji = e.emoji;
-    setCommentInput((prevInput) => prevInput + emoji);
-  };
+  const pickerRef = useRef(null);
 
   const handleLike = async () => {
     try {
@@ -68,17 +66,7 @@ const PostPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (post?._id) {
-      socket.emit("join room", post._id);
-    }
-
-    return () => {
-      if (post?._id) {
-        socket.emit("leave room", post._id);
-      }
-    };
-  }, [post?._id]);
+  useCloseModal(pickerRef, () => setShowPicker(false));
 
   useEffect(() => {
     if (post?.comments) {
@@ -87,6 +75,10 @@ const PostPage = () => {
   }, [post?.comments]);
 
   useEffect(() => {
+    if (post?._id) {
+      socket.emit("join room", post._id);
+    }
+
     socket.on("new comment", ({ comment, id }) => {
       console.log("new comment: ", comment);
       setPostComments((prevComments) => {
@@ -100,6 +92,9 @@ const PostPage = () => {
     handleFetchPosts();
 
     return () => {
+      if (post?._id) {
+        socket.emit("leave room", post._id);
+      }
       socket.off("new comment");
     };
   }, [post._id]);
@@ -154,22 +149,12 @@ const PostPage = () => {
               </div>
             </div>
             <div className="relative flex items-center light-search my-2 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg w-full px-3">
-              <span
-                className="cursor-pointer m-auto hover:text-[#FF571A] mr-1"
-                onClick={() => setShowPicker((val) => !val)}
-              >
-                <BsEmojiSmile />
-              </span>
-              {showPicker && (
-                <div className="absolute bottom-full left-0 mb-2 z-50 inset-auto">
-                  <Picker
-                    onEmojiClick={addEmoji}
-                    className={` transition ease-in-out duration-300 ${
-                      showPicker ? "open-animation" : "close-animation"
-                    }`}
-                  />
-                </div>
-              )}
+              <EmojiPickerComponent
+                pickerRef={pickerRef}
+                showPicker={showPicker}
+                setShowPicker={setShowPicker}
+                setInput={setCommentInput}
+              />
               <textarea
                 className="flex items-center light-search h-10 focus:outline-none  outline-none border-0 w-full my-2"
                 type="text"

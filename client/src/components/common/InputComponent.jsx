@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useRef } from "react";
 import { IoMdSend } from "react-icons/io";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
 import { useForum } from "../../utils/PostContext";
+import useCloseModal from "../../hooks/useCloseModal";
 
 export const InputComponent = ({
   setInput,
@@ -13,10 +14,13 @@ export const InputComponent = ({
   socket,
 }) => {
   const { user } = useForum();
+  const chatRef = useRef(null);
   const addEmoji = (e) => {
     const emoji = e.emoji;
     setInput((prevInput) => prevInput + emoji);
   };
+
+  useCloseModal(chatRef, () => setShowPicker(false));
 
   const handleTyping = () =>
     socket.emit("typing", `${user.userName} is typing`);
@@ -30,8 +34,10 @@ export const InputComponent = ({
         <BsEmojiSmile />
       </span>
       {showPicker && (
-        <div className="absolute bottom-full left-0 mb-2">
+        <div ref={chatRef} className="absolute bottom-full left-0 mb-2">
           <Picker
+            height={350}
+            width={300}
             onEmojiClick={addEmoji}
             className={` transition ease-in-out duration-300 ${
               showPicker ? "open-animation" : "close-animation"
