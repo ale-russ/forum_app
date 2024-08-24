@@ -7,9 +7,10 @@ const TagsGroupsTile = ({ image, label, caption, color, onRoomClicked }) => {
       onClick={onRoomClicked}
     >
       <div
-        className={`${color} flex items-center justify-center h-8 w-8 rounded-lg mr-2`}
+        className={`${color} flex items-center justify-center h-8 w-8 rounded-lg mr-2 font-bold`}
       >
-        {image}
+        {/* {image} */}
+        {label[0]} R
       </div>
       <div className="flex flex-col items-start">
         <p className="font-bold text-lg">#{label}</p>

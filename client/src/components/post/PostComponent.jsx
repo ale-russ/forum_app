@@ -116,9 +116,9 @@ const PostComponent = ({ post }) => {
                     ref={deleteModalRef}
                     className="absolute top-full right-0 z-50 flex flex-col items-center w-28 p-2 space-y-2 light-search rounded-lg"
                   >
-                    <div className="rounded-lg light-navbar w-full p-1 light-navbar text-sm cursor-pointer">
+                    {/* <div className="rounded-lg light-navbar w-full p-1 light-navbar text-sm cursor-pointer">
                       Update post
-                    </div>
+                    </div> */}
                     <div
                       className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm"
                       onClick={handleDelete}
@@ -144,7 +144,7 @@ const PostComponent = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center justify-between w-full">
-            <div className="flex flex-col md:flex-row items-center w-20 md:w-[30%] ">
+            <div className="flex flex-col md:flex-row items-center w-20 md:w-[20%] ">
               <ProfileImage author={post?.author} />
               <div className="flex flex-col items-start">
                 <div className="font-bold text-sm">{post?.author.userName}</div>
