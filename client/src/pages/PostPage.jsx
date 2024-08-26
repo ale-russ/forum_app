@@ -14,28 +14,32 @@ import HomeWrapper from "../components/common/HomeWrapper";
 import ProfileImage from "../components/common/ProfileImage";
 import useCloseModal from "../hooks/useCloseModal.js";
 import EmojiPickerComponent from "../components/common/EmojiPicker.jsx";
+import { useSocket } from "../utils/SocketContext.jsx";
 
-const socket = io(host);
+// const socket = io(host);
 
 const PostPage = () => {
   const location = useLocation();
   const { post } = location.state || {};
-  const [showPicker, setShowPicker] = useState(false);
-  const [commentInput, setCommentInput] = useState("");
+  const socket = useSocket();
   const {
     postComments,
     setPostComments,
     user,
     handleLikePost,
     handleFetchPosts,
-    threads,
   } = useForum();
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [commentInput, setCommentInput] = useState("");
   const [localCommentCount, setLocalCommentCount] = useState(
-    post.comments?.length || 0
+    post?.comments?.length || 0
   );
   const [likeCount, setLikeCount] = useState(post?.likes?.length);
-  const [isLiked, setIsLiked] = useState(post.likes.includes(user._id));
+  const [isLiked, setIsLiked] = useState(post?.likes?.includes(user._id));
   const pickerRef = useRef(null);
+
+  const [localPost, setLocalPost] = useState(post);
 
   const handleLike = async () => {
     try {
@@ -53,7 +57,7 @@ const PostPage = () => {
     if (!content) return;
     if (content) {
       const newComment = {
-        postId: post._id,
+        postId: localPost?._id,
         author: user._id,
         content: commentInput,
       };
@@ -69,35 +73,32 @@ const PostPage = () => {
   useCloseModal(pickerRef, () => setShowPicker(false));
 
   useEffect(() => {
-    if (post?.comments) {
-      setPostComments(post.comments);
+    if (localPost?.comments) {
+      setPostComments(localPost?.comments);
     }
-  }, [post?.comments]);
+  }, [localPost?.comments]);
 
   useEffect(() => {
-    if (post?._id) {
-      socket.emit("join room", post._id);
+    if (localPost?._id) {
+      socket.emit("join room", localPost?._id);
     }
 
-    socket.on("new comment", ({ comment, id }) => {
-      console.log("new comment: ", comment);
-      setPostComments((prevComments) => {
-        if (post._id === id) {
-          return [...prevComments, comment];
-        }
-        return prevComments;
-      });
+    socket.on("new comment", ({ updatedPost }) => {
+      console.log("updatedPost: ", updatedPost);
+      if (localPost?._id === updatedPost._id) {
+        setLocalPost({ ...updatedPost });
+      }
     });
 
     handleFetchPosts();
 
     return () => {
-      if (post?._id) {
-        socket.emit("leave room", post._id);
+      if (localPost?._id) {
+        socket.emit("leave room", localPost?._id);
       }
       socket.off("new comment");
     };
-  }, [post._id]);
+  }, [localPost?._id]);
 
   return (
     <HomeWrapper
@@ -105,10 +106,10 @@ const PostPage = () => {
         <div className="flex py-2 h-full w-full">
           <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full lg:w-[80%] xl:w-[50%] max-h-[70%] m-x-auto rounded-3xl overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar px-4 m-auto">
             <div className="flex items-center justify-center w-full h-10 font-bold uppercase">
-              {post?.title}
+              {localPost?.title}
             </div>
             <div className="flex py-3 text-justify">
-              {post?.content}
+              {localPost?.content}
               Lorem Ipsum is simply dummy text of the printing and typesetting
               industry. Lorem Ipsum has been the industry's standard dummy text
               ever since the 1500s, when an unknown printer took a galley of
@@ -122,13 +123,13 @@ const PostPage = () => {
             </div>
             <div className="flex items-center justify-between mb-3 w-full">
               <div className="light-search flex flex-col md:flex-row lg:flex-row xl:flex-row items-center p-2 rounded-lg shadow-xl">
-                <ProfileImage author={post.author} />
-                <p>{post.author.userName}</p>
+                <ProfileImage author={localPost?.author} />
+                <p>{localPost?.author.userName}</p>
               </div>
               <div className="flex items-center justify-between w-[50%] flex-wrap  text-sm">
                 <div className="flex flex-col items-center">
-                  {post.views?.length > 0 ? (
-                    <p> {post?.views?.length} </p>
+                  {localPost?.views?.length > 0 ? (
+                    <p> {localPost?.views?.length} </p>
                   ) : (
                     <p>0 </p>
                   )}
@@ -139,8 +140,8 @@ const PostPage = () => {
                   likes
                 </div>
                 <div className="flex flex-col items-center">
-                  {post.comments?.length > 0 ? (
-                    <p> {post?.comments?.length} </p>
+                  {localPost?.comments?.length > 0 ? (
+                    <p> {localPost?.comments?.length} </p>
                   ) : (
                     <p>0 </p>
                   )}
@@ -171,11 +172,11 @@ const PostPage = () => {
               {postComments &&
                 postComments?.map((comment) => (
                   <div
-                    key={comment._id}
+                    key={comment?._id}
                     className="rounded shadow-lg light-search my-3 px-3"
                   >
                     <div className="italic">{comment?.author?.userName}</div>
-                    {comment.content}
+                    {comment?.content}
                   </div>
                 ))}
             </div>
