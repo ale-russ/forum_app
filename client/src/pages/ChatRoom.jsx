@@ -37,8 +37,10 @@ const ChatRoom = () => {
   const smallScreen = dimensions.width < 768;
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
+
+  useEffect(() => scrollToBottom());
 
   useEffect(() => {
     if (roomId) socket?.emit("join room", roomId);
@@ -90,6 +92,8 @@ const ChatRoom = () => {
     }
   }, [roomId, chatRooms, handleFetchRooms]);
 
+
+
   const handleSendMessage = () => {
     if (input) {
       const message = {
@@ -109,7 +113,7 @@ const ChatRoom = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex flex-col md:flex-row w-full h-[90vh] shadow-xl border rounded-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row w-full h-[88vh] shadow-xl border rounded-lg overflow-hidden">
           <div
             className={`${
               smallScreen ? "bg-zinc-800 text-white" : "light-search"
