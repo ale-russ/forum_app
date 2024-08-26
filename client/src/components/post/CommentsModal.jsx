@@ -1,35 +1,29 @@
-import React, { useEffect, useRef, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import io from "socket.io-client";
-import { IoMdSend } from "react-icons/io";
-import Picker from "emoji-picker-react";
-import { BsEmojiSmile } from "react-icons/bs";
+import React, { useEffect, useRef, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import io from 'socket.io-client';
+import { IoMdSend } from 'react-icons/io';
+import Picker from 'emoji-picker-react';
+import { BsEmojiSmile } from 'react-icons/bs';
 
 // import { ReactComponent as ProfileImage } from "../../assets/ProfileImage.svg";
-import { host } from "../../utils/ApiRoutes";
-import ModalWrapper from "../common/ModalWrapper";
-import { useForum } from "../../utils/PostContext";
-import ProfileImage from "../common/ProfileImage";
-import EmojiPickerComponent from "../common/EmojiPicker";
-import useCloseModal from "../../hooks/useCloseModal";
+import { host } from '../../utils/ApiRoutes';
+import ModalWrapper from '../common/ModalWrapper';
+import { useForum } from '../../utils/PostContext';
+import ProfileImage from '../common/ProfileImage';
+import EmojiPickerComponent from '../common/EmojiPicker';
+import useCloseModal from '../../hooks/useCloseModal';
 
 const socket = io(host);
 
-const CommentsModal = ({
-  setShowModal,
-  post,
-  localCommentCount,
-  setLocalCommentCount,
-}) => {
-  const [commentInput, setCommentInput] = useState("");
+const CommentsModal = ({ setShowModal, localPost, setLocalPost, localCommentCount, setLocalCommentCount }) => {
+  const [commentInput, setCommentInput] = useState('');
   const { postComments, setPostComments, user, handleSinglePost } = useForum();
   const [showPicker, setShowPicker] = useState(false);
   const [localPostComments, setLocalPostComments] = useState([]);
   const commentEndRef = useRef(null);
   const commentModalRef = useRef(null);
-
   const scrollToBottom = () => {
-    commentEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    commentEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const addEmoji = (e) => {
@@ -51,64 +45,58 @@ const CommentsModal = ({
     if (!content) return;
     if (commentInput.trim()) {
       const newComment = {
-        postId: post._id,
+        postId: localPost._id,
         author: user._id,
         content: commentInput,
       };
       if (newComment) {
-        socket.emit("new comment", newComment);
+        socket.emit('new comment', newComment);
         setLocalCommentCount((prevCount) => prevCount + 1);
       }
-      setCommentInput("");
+      setCommentInput('');
     }
   };
 
   useCloseModal(commentModalRef, () => setShowPicker(false));
 
   useEffect(() => {
-    if (post?.comments) {
-      setPostComments(post.comments);
+    if (localPost?.comments) {
+      setPostComments(localPost.comments);
     }
-  }, [post?.comments]);
+  }, [localPost?.comments]);
 
   useEffect(() => {
-    if (post?._id) {
-      socket.emit("join room", post._id);
+    if (localPost?._id) {
+      socket.emit('join room', localPost._id);
     }
 
-    socket.on("new comment", ({ comment, id }) => {
-      setPostComments((prevComments) => {
-        if (post._id === id) {
-          return [...prevComments, comment];
-        }
-        return prevComments;
-      });
+    socket.on('new comment', ({ updatedPost }) => {
+      if (localPost._id === updatedPost._id) {
+        setLocalPost({ ...updatedPost });
+      }
     });
 
     return () => {
-      if (post?._id) {
-        socket.emit("leave room", post._id);
+      if (localPost?._id) {
+        socket.emit('leave room', localPost._id);
       }
-      socket.off("new comment");
+      socket.off('new comment');
     };
-  }, [post._id]);
+  }, [localPost]);
+
+  // console.log('new post: ', post);
 
   return (
     <ModalWrapper
-      post={post}
+      post={localPost}
       setShowModal={setShowModal}
       children={
         <>
           <div className="flex flex-col items-start overflow-y-auto scrollbar custom-scrollbar mx-1 flex-grow w-full">
-            {postComments?.map((comment, index) => (
-              <div
-                key={index}
-                className="flex flex-row items-start my-2 w-full"
-              >
+            {localPost?.comments?.map((comment, index) => (
+              <div key={index} className="flex flex-row items-start my-2 w-full">
                 <div className="light-search text-[13px] rounded-lg shadow-lg py-1 px-3 ml-8 mr-5 w-[90%]">
-                  <h1 className="text-sm italic font-bold">
-                    {comment.author?.userName}
-                  </h1>
+                  <h1 className="text-sm italic font-bold">{comment.author?.userName}</h1>
 
                   <p className="w-full">{comment?.content}</p>
                 </div>
@@ -132,17 +120,13 @@ const CommentsModal = ({
               value={commentInput}
               onChange={(e) => setCommentInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === 'Enter') {
                   e.preventDefault();
-                  if (e.target.value.trim())
-                    handleLocalAddComment(commentInput);
+                  if (e.target.value.trim()) handleLocalAddComment(commentInput);
                 }
               }}
             />
-            <IoMdSend
-              className="w-5 h-5 cursor-pointer ml-3"
-              onClick={() => handleLocalAddComment(commentInput)}
-            />
+            <IoMdSend className="w-5 h-5 cursor-pointer ml-3" onClick={() => handleLocalAddComment(commentInput)} />
           </div>
         </>
       }

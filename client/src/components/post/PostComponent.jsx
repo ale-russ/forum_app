@@ -1,90 +1,86 @@
-import React, { useEffect, useRef, useState } from "react";
-import { CiHeart } from "react-icons/ci";
-import { FaHeart } from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
-import io from "socket.io-client";
-import { useNavigate } from "react-router-dom";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import React, { useEffect, useRef, useState } from 'react';
+import { CiHeart } from 'react-icons/ci';
+import { FaHeart } from 'react-icons/fa';
+import { formatDistanceToNow } from 'date-fns';
+import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 
-import { useForum } from "../../utils/PostContext";
-import CommentsModal from "./CommentsModal";
-import { host } from "../../utils/ApiRoutes";
-import { updatePost, updateViewCount } from "../../controllers/ForumController";
-import ProfileImage from "../common/ProfileImage";
-import Loader from "../common/Loader";
-import PulseAnimationLoader from "../common/PulseAnimationLoader";
-import useCloseModal from "../../hooks/useCloseModal";
+import { useForum } from '../../utils/PostContext';
+import CommentsModal from './CommentsModal';
+import { host } from '../../utils/ApiRoutes';
+import { updatePost, updateViewCount } from '../../controllers/ForumController';
+import ProfileImage from '../common/ProfileImage';
+import Loader from '../common/Loader';
+import PulseAnimationLoader from '../common/PulseAnimationLoader';
+import useCloseModal from '../../hooks/useCloseModal';
 
 const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const { handleLikePost, user, token, handleDeletePost, postLoading } =
-    useForum();
-  const [likeCount, setLikeCount] = useState(post?.likes?.length);
-  const [isLiked, setIsLiked] = useState(post.likes?.includes(user._id));
-  const [viewCount, setViewCount] = useState(post.views.length || 0);
+  const { handleLikePost, user, token, handleDeletePost, postLoading } = useForum();
+
+  const [localPost, setLocalPost] = useState(post);
+  const [likeCount, setLikeCount] = useState(localPost?.likes?.length);
+  const [isLiked, setIsLiked] = useState(localPost?.likes?.includes(user._id));
+  const [viewCount, setViewCount] = useState(localPost?.views.length || 0);
   const [showMenu, setShowMenu] = useState(false);
   const deleteModalRef = useRef();
 
-  const [localCommentCount, setLocalCommentCount] = useState(
-    post.comments?.length || 0
-  );
+  const [localCommentCount, setLocalCommentCount] = useState(localPost.comments?.length || 0);
 
   const handleDelete = async () => {
-    await handleDeletePost(post);
+    await handleDeletePost(localPost);
   };
 
   const handleLike = async () => {
     try {
-      const updatedPost = await handleLikePost(post._id);
+      const updatedPost = await handleLikePost(localPost._id);
       setIsLiked(updatedPost?.likes.includes(user._id));
       setLikeCount(updatedPost?.likes?.length);
     } catch (err) {
-      console.error("Error updating like:", err);
+      console.error('Error updating like:', err);
     }
   };
 
   const handleViewPost = async () => {
-    if (post.views.includes(user._id)) return;
+    if (localPost.views.includes(user._id)) return;
 
     setViewCount((prevCount) => prevCount + 1);
 
     await updateViewCount({
-      postId: post._id,
+      postId: localPost._id,
       token,
     });
   };
 
   useEffect(() => {
     const handleNewComment = ({ id }) => {
-      if (id === post._id) {
+      if (id === localPost._id) {
         setLocalCommentCount((prevCount) => prevCount + 1);
       }
     };
 
-    socket.on("new comment", handleNewComment);
+    socket.on('new comment', handleNewComment);
 
     return () => {
-      socket.off("new comment", handleNewComment);
+      socket.off('new comment', handleNewComment);
     };
-  }, [post._id]);
+  }, [localPost._id]);
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        deleteModalRef?.current &&
-        !deleteModalRef?.current?.contains(event.target)
-      ) {
+      if (deleteModalRef?.current && !deleteModalRef?.current?.contains(event.target)) {
         setShowMenu(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -97,20 +93,13 @@ const PostComponent = ({ post }) => {
           <div className="flex flex-col w-full gap-y-3">
             <div className="flex items-center justify-between w-full">
               <div className="line-clamp-2 font-bold w-[90%]">
-                {post?.title} : {post?.content}
+                {localPost?.title} : {localPost?.content}
               </div>
               <div className="relative flex items-center">
                 <div className=" block cursor-pointer" onClick={handleLike}>
-                  {isLiked ? (
-                    <FaHeart className={`text-red-500`} />
-                  ) : (
-                    <CiHeart />
-                  )}
+                  {isLiked ? <FaHeart className={`text-red-500`} /> : <CiHeart />}
                 </div>
-                <BsThreeDotsVertical
-                  className="cursor-pointer"
-                  onClick={() => setShowMenu(!showMenu)}
-                />
+                <BsThreeDotsVertical className="cursor-pointer" onClick={() => setShowMenu(!showMenu)} />
                 {showMenu && (
                   <div
                     ref={deleteModalRef}
@@ -119,10 +108,7 @@ const PostComponent = ({ post }) => {
                     {/* <div className="rounded-lg light-navbar w-full p-1 light-navbar text-sm cursor-pointer">
                       Update post
                     </div> */}
-                    <div
-                      className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm"
-                      onClick={handleDelete}
-                    >
+                    <div className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm" onClick={handleDelete}>
                       Delete post
                     </div>
                   </div>
@@ -130,13 +116,10 @@ const PostComponent = ({ post }) => {
               </div>
             </div>
             <div className="flex items-center gap-x-2 mb-3">
-              {post?.tags &&
-                post.tags.map((tag, index) => {
+              {localPost?.tags &&
+                localPost.tags.map((tag, index) => {
                   return (
-                    <div
-                      key={index}
-                      className="rounded-lg shadow-lg text-[10px] p-2 light-search"
-                    >
+                    <div key={index} className="rounded-lg shadow-lg text-[10px] p-2 light-search">
                       {tag}
                     </div>
                   );
@@ -145,23 +128,18 @@ const PostComponent = ({ post }) => {
           </div>
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col md:flex-row items-center w-20 md:w-[20%] ">
-              <ProfileImage author={post?.author} />
+              <ProfileImage author={localPost?.author} />
               <div className="flex flex-col items-start">
-                <div className="font-bold text-sm">{post?.author.userName}</div>
+                <div className="font-bold text-sm">{localPost?.author.userName}</div>
                 <div className="text-[10px] text-[#48494e] text-ellipsis truncate">
-                  {formatDistanceToNow(new Date(post?.createdAt))} ago
+                  {formatDistanceToNow(new Date(localPost?.createdAt))} ago
                 </div>
               </div>
             </div>
             <div className="flex items-center justify-end md:justify-between  space-x-2 md:space-x-0 mr-1 text-[10px] text-[#48494e] w-full md:w-[70%] ">
               <div className="flex items-center justify-between text-sm  w-[60%] md:w-full mx-1">
-                <div className="flex flex-wrap cursor-pointer">
-                  {viewCount} View
-                </div>
-                <div
-                  className="flex flex-wrap cursor-pointer"
-                  onClick={handleLike}
-                >
+                <div className="flex flex-wrap cursor-pointer">{viewCount} View</div>
+                <div className="flex flex-wrap cursor-pointer" onClick={handleLike}>
                   {likeCount} Likes
                 </div>
                 <div
@@ -177,7 +155,7 @@ const PostComponent = ({ post }) => {
                 className="primary text-white rounded-lg px-2 py-1 text-[13px] cursor-pointer"
                 onClick={() => {
                   handleViewPost();
-                  navigate(`/post/:${post._id}`, { state: { post } });
+                  navigate(`/post/:${localPost._id}`, { state: { localPost } });
                 }}
               >
                 Read
@@ -190,7 +168,8 @@ const PostComponent = ({ post }) => {
       {showModal && (
         <CommentsModal
           setShowModal={setShowModal}
-          post={post}
+          localPost={localPost}
+          setLocalPost={setLocalPost}
           localCommentCount={localCommentCount}
           setLocalCommentCount={setLocalCommentCount}
         />
