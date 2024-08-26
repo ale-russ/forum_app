@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { useForum } from "../../utils/PostContext";
 import ProfileImage from "../common/ProfileImage";
+import useCloseModal from "../../hooks/useCloseModal";
 
 const CreatePost = () => {
   const { user } = useForum();
   const [showModal, setShowModal] = useState(false);
+  const modalRef = useRef();
+
+  useCloseModal(modalRef, () => setShowModal(false));
 
   return (
-    <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg">
+    <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg z-40">
       <ProfileImage author={user} />
       <div className="flex items-center gap-x-4  w-[90%]">
         <button
@@ -22,14 +26,16 @@ const CreatePost = () => {
           Create Post
         </button>
       </div>
-      {showModal && <CreatePostModal setShowModal={setShowModal} />}
+      {showModal && (
+        <CreatePostModal setShowModal={setShowModal} modalRef={modalRef} />
+      )}
     </div>
   );
 };
 
 export default CreatePost;
 
-const CreatePostModal = ({ setShowModal }) => {
+const CreatePostModal = ({ setShowModal, modalRef }) => {
   const { newPost, setNewPost, handleCreatePost, user } = useForum();
   const [tags, setTags] = useState([]);
   const [image, setImage] = useState();
@@ -68,7 +74,10 @@ const CreatePostModal = ({ setShowModal }) => {
   }, [tags]);
 
   return (
-    <div className="flex flex-col items-center justify-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-300 opacity-[96%] shadow-2xl h-[100vh]">
+    <div
+      ref={modalRef}
+      className="flex flex-col items-center justify-center fixed inset-0 z-50 outline-none focus:outline-none bg-gray-300 opacity-[96%] shadow-2xl h-[100vh]"
+    >
       <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full lg:w-[70%] h-[70%] m-auto rounded-3xl overflow-hidden">
         <div className="w-full flex items-center justify-between px-4 my-3">
           <div className="w-full flex justify-center items-center">
@@ -82,11 +91,8 @@ const CreatePostModal = ({ setShowModal }) => {
           </div>
         </div>
         <div className=" flex flex-col items-center md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg space-y-4">
-          <img
-            src={user.profileImage}
-            className="mr-2 h-10 w-10 rounded-full border border-stone-600 border-opacity-30 object-fill"
-            alt="User Profile"
-          />
+          <ProfileImage author={user} />
+          {user.userName}
           <div className="flex flex-col px-2 py-8 items-center gap-x-4 w-full space-y-4 border border-gray-300 rounded-lg shadow-xl">
             <div className="flex flex-col gap-y-4 w-full">
               <input

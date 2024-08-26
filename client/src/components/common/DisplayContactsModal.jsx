@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { useForum } from "../../utils/PostContext";
-import ProfileImage from "./ProfileImage";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useForum } from '../../utils/PostContext';
+import ProfileImage from './ProfileImage';
+import { useNavigate } from 'react-router-dom';
 
 const DisplayContactsModal = ({ contactsModalRef }) => {
   const navigate = useNavigate();
@@ -22,13 +22,11 @@ const DisplayContactsModal = ({ contactsModalRef }) => {
         {userList
           ?.filter((usr) => usr._id !== user._id)
           .map((usr) => {
-            const isOnline = onlineUsers?.some(
-              (onlineUser) => onlineUser.user._id === usr._id
-            );
+            const isOnline = onlineUsers?.some((onlineUser) => onlineUser.user._id === usr._id);
             return (
               <div
                 key={usr._id}
-                className="flex items-center border border-gray-300 rounded-lg shadow-xl p-1 h-18 w-full light-navbar "
+                className="flex items-center border border-gray-300 rounded-lg shadow-xl p-1 h-18 w-full light-navbar cursor-pointer"
                 onClick={() => {
                   navigate(`/chat/private-chat/${usr._id}`, {
                     state: { recipient: usr },
@@ -37,9 +35,7 @@ const DisplayContactsModal = ({ contactsModalRef }) => {
               >
                 <ProfileImage author={usr} />
                 <p>{usr.userName}</p>
-                {isOnline && (
-                  <div className="rounded-full h-3 w-3 bg-green-500 absolute top-1 left-10" />
-                )}
+                {isOnline && <div className="rounded-full h-3 w-3 bg-green-500 absolute top-1 left-10" />}
               </div>
             );
           })}

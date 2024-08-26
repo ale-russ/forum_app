@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
@@ -113,6 +113,7 @@ const Room = ({ setCrateModalOpen }) => {
               Create
             </button>
           </div>
+          <ToastContainer />
         </div>
       }
     />

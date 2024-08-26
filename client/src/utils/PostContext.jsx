@@ -6,15 +6,11 @@ import { UserAuthContext } from "./UserAuthenticationProvider";
 import {
   createPost,
   fetchPosts,
-  addComment,
   likePost,
-  getSinglePost,
   deletePost,
 } from "../controllers/ForumController";
 import toastOptions from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
-import { host } from "../utils/ApiRoutes";
-import Loader from "../components/common/Loader";
 import { useSocket } from "./SocketContext";
 import { fetchAllUsers } from "../controllers/AuthController";
 
@@ -35,6 +31,7 @@ export const ForumProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
   const [messageNotification, setMessageNotification] = useState({});
+
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -44,8 +41,6 @@ export const ForumProvider = ({ children }) => {
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const socket = useSocket();
-
-  // console.log("socket ", socket);
 
   const handleFetchPosts = async () => {
     setPostLoading(true);
@@ -64,15 +59,15 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  const handleSinglePost = async (id) => {
-    const response = await getSinglePost(id, token);
-    setCurrentPost(response?.data);
-    if (response?.data) {
-      return response?.data;
-    } else {
-      toast.error("No Data Found");
-    }
-  };
+  // const handleSinglePost = async (id) => {
+  //   const response = await getSinglePost(id, token);
+  //   setCurrentPost(response?.data);
+  //   if (response?.data) {
+  //     return response?.data;
+  //   } else {
+  //     toast.error("No Data Found");
+  //   }
+  // };
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -94,33 +89,8 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  const handleAddComment = async (post, content) => {
-    try {
-      const response = await addComment(post._id, { content }, token);
-      const newComment = {
-        ...response?.data,
-        author: { userName: user.userName, _id: user._id },
-      };
-      setThreads((prevThreads) =>
-        prevThreads.map((p) =>
-          p._id === post._id
-            ? { ...p, comments: [...p.comments, newComment] }
-            : p
-        )
-      );
-      setCommentCounts((prev) => ({
-        ...prev,
-        [post._id]: (prev[post._id] || post.comments?.length || 0) + 1,
-      }));
-      return newComment;
-    } catch (err) {
-      toast.error("Failed to add comment", toastOptions);
-    }
-  };
-
   const handleLikePost = async (id) => {
     const response = await likePost(id, token);
-    // console.log("response ", response);
     setThreads((prevThreads) =>
       prevThreads.map((pst) =>
         pst._id === id ? { ...pst, likes: response?.data?.likes } : pst
@@ -179,13 +149,17 @@ export const ForumProvider = ({ children }) => {
 
   useEffect(() => {
     handleFetchRooms();
-    // console.log("Chatrooms: ", chatRooms);
-    // chatRooms[0].users.some((usr) => usr._id === user._id);
 
-    // socket.emit("join chat room", {
-    //   roomId: chatRooms[0]._id,
-    //   userId: user._id,
-    // });
+    if (chatRooms && chatRooms?.[0]) {
+      const isUserInGeneralRoom =
+        chatRooms && chatRooms[0]?.users.some((usr) => usr._id === user._id);
+      if (!isUserInGeneralRoom) {
+        socket?.emit("join chat room", {
+          roomId: chatRooms[0]?.roomId,
+          userId: user._id,
+        });
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -202,16 +176,11 @@ export const ForumProvider = ({ children }) => {
   }, [messageNotification]);
 
   const handleFetchRooms = async () => {
-    const response = await fetchRooms();
-    setChatRooms(response?.data);
-    return response?.data;
+    await fetchRooms().then((value) => {
+      setChatRooms(value?.data);
+    });
+    return chatRooms;
   };
-
-  if (!socket) {
-    return <Loader />;
-  }
-
-  // console.log("message notification: ", messageNotification);
 
   return (
     <ForumContext.Provider
@@ -238,15 +207,14 @@ export const ForumProvider = ({ children }) => {
         setLikeCounts,
         handleFetchPosts,
         handleCreatePost,
-        handleAddComment,
         handleLikePost,
         handleFetchRooms,
-        handleSinglePost,
+        // handleSinglePost,
         handleDeletePost,
         handleFetchUsers,
       }}
     >
-      {loading ? <Loader /> : <>{children}</>}
+      {children}
     </ForumContext.Provider>
   );
 };
