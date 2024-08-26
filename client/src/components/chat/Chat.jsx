@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
-import ChatTile from "./ChatTile";
-import JoinRoom from "./JoinRoom";
-import Room from "./RoomComponent";
-import { useSocket } from "../../utils/SocketContext";
-import { useForum } from "../../utils/PostContext";
+import ChatTile from './ChatTile';
+import JoinRoom from './JoinRoom';
+import Room from './RoomComponent';
+import { useSocket } from '../../utils/SocketContext';
+import { useForum } from '../../utils/PostContext';
+import useCloseModal from '../../hooks/useCloseModal';
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,22 +14,21 @@ const Chat = () => {
   const [openModals, setOpenModals] = useState([]);
   const socket = useSocket();
   const { user, onlineUsers } = useForum();
+  const generalChatRef = useRef(null);
+
+  useCloseModal(generalChatRef, () => setIsOpen(false));
 
   useEffect(() => {
     if (socket && user) {
-      socket.emit("user connected", user._id);
+      socket.emit('user connected', user._id);
     }
   }, [socket, user]);
 
   const openChatModal = (recipient) => {
-    const isAlreadyOpen = openModals.some(
-      (modal) => modal.recipient === recipient
-    );
+    const isAlreadyOpen = openModals.some((modal) => modal.recipient === recipient);
 
     if (!isAlreadyOpen) {
-      const onlineRecipient = onlineUsers.find(
-        (user) => user.user._id === recipient._id
-      );
+      const onlineRecipient = onlineUsers.find((user) => user.user._id === recipient._id);
       setOpenModals((prevModals) => [
         ...prevModals,
         {
@@ -67,7 +67,7 @@ const Chat = () => {
       <div className="flex flex-col gap-y-4">
         <button
           className={`${
-            isOpen ? "visible" : "hidden"
+            isOpen ? 'visible' : 'hidden'
           } bg-blue-600 text-white h-14 w-14 rounded-full shadow-lg  transition-colors z-50 ease-in-out duration-300`}
           onClick={handleOpenCreateModal}
         >
@@ -75,7 +75,7 @@ const Chat = () => {
         </button>
         <button
           className={`${
-            isOpen ? "visible" : "hidden"
+            isOpen ? 'visible' : 'hidden'
           } bg-zinc-800 text-white h-14 w-14 rounded-full shadow-lg transition-colors z-50 ease-in-out duration-300`}
           onClick={handleOpenJoinModal}
         >
@@ -94,6 +94,7 @@ const Chat = () => {
             handleToggle={handleToggle}
             setIsOpen={setIsOpen}
             openChatModal={openChatModal}
+            generalChatRef={generalChatRef}
           />
         )}
         {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
