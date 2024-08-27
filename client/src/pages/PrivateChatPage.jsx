@@ -4,10 +4,14 @@ import { useSocket } from "../utils/SocketContext";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchPrivateMessages } from "../controllers/ChatController";
 import { toast } from "react-toastify";
+import { VariableSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import toastOptions from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
 import ProfileImage from "../components/common/ProfileImage";
+import { estimatedMessageHeight } from "../utils/MessageHeight";
+import { messageContainer } from "../components/chat/MessageContainer";
 
 const PrivateChatPage = () => {
   const navigate = useNavigate();
@@ -31,6 +35,37 @@ const PrivateChatPage = () => {
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const messageEndRef = useRef();
+
+  const [listHeight, setListHeight] = useState(500);
+  const containerRef = useRef(null);
+  const listRef = useRef(null);
+  const messageRef = useRef(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setListHeight(containerRef.current.clientHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
+  useEffect(() => {
+    if (listRef?.current) {
+      listRef?.current?.resetAfterIndex(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messageRef?.current) {
+      const { height } = messageRef?.current?.getBoundingClientRect();
+      setMessageHeight(height);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,7 +91,8 @@ const PrivateChatPage = () => {
     handleFetchUsers();
 
     if (socket) {
-      const handlePrivateMessage = ({ message }) => {
+      const handlePrivateMessage = (message) => {
+        console.log("private message: ", message);
         setMessages((prevMessages) => [...prevMessages, message]);
         setMessageNotification({ message });
       };
@@ -79,9 +115,9 @@ const PrivateChatPage = () => {
   //   console.log("new notification: ", messageNotification);
   // }, [messageNotification]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   const sendPrivateMessage = () => {
     if (input.trim()) {
@@ -100,6 +136,8 @@ const PrivateChatPage = () => {
       setShowPicker(false);
     }
   };
+
+  const getItemsSize = (index) => estimatedMessageHeight(messages[index]);
 
   return (
     <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
@@ -167,7 +205,7 @@ const PrivateChatPage = () => {
             </div>
           )}
         </div>
-        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+        {/* <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
           {messages?.map((msg) => {
             const isCurrentUser = msg?.author === user?._id;
             const key = `${msg?.timestamp}-${Math.random()}`;
@@ -194,6 +232,22 @@ const PrivateChatPage = () => {
             );
           })}
           <div ref={messageEndRef} />
+        </div> */}
+        <div ref={containerRef} className="flex-grow overflow-hidden">
+          <AutoSizer>
+            {({ width }) => (
+              <List
+                ref={listRef}
+                itemCount={messages.length}
+                height={listHeight}
+                itemSize={getItemsSize}
+                width={width}
+                className="scrollbar custom-scrollbar"
+              >
+                {messageContainer(messages, user)}
+              </List>
+            )}
+          </AutoSizer>
         </div>
         <InputComponent
           input={input}

@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import { VariableSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import { host } from "../utils/ApiRoutes";
 import Chat from "../components/chat/Chat";
@@ -10,37 +12,58 @@ import HomeWrapper from "../components/common/HomeWrapper";
 import { InputComponent } from "../components/common/InputComponent";
 import { useSocket } from "../utils/SocketContext";
 import ProfileImage from "../components/common/ProfileImage";
+import { estimatedMessageHeight } from "../utils/MessageHeight";
+import { messageContainer } from "../components/chat/MessageContainer";
 
 // const socket = io(host);
 
 const ChatRoom = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const {
-    chatRooms,
-    user,
-    handleFetchRooms,
-    onlineUsers,
-    dimensions,
-    setDimensions,
-  } = useForum();
+  const { chatRooms, user, handleFetchRooms, onlineUsers, dimensions } =
+    useForum();
   const socket = useSocket();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [users, setUsers] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(roomId);
   const [chatRoom, setChatRoom] = useState();
-  const messagesEndRef = useRef(null);
 
   const [showPicker, setShowPicker] = useState(false);
 
   const smallScreen = dimensions.width < 768;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-  };
+  const [listHeight, setListHeight] = useState(500);
+  const [messageHeight, setMessageHeight] = useState(0);
+  const containerRef = useRef(null);
+  const listRef = useRef(null);
+  const messageRef = useRef(null);
 
-  useEffect(() => scrollToBottom());
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setListHeight(containerRef.current.clientHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
+  useEffect(() => {
+    if (listRef?.current) {
+      listRef?.current?.resetAfterIndex(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messageRef?.current) {
+      const { height } = messageRef?.current?.getBoundingClientRect();
+      setMessageHeight(height);
+    }
+  }, []);
 
   useEffect(() => {
     if (roomId) socket?.emit("join room", roomId);
@@ -51,7 +74,7 @@ const ChatRoom = () => {
           return [...prevMessages, message];
         }
       });
-      scrollToBottom();
+      // scrollToBottom();
     });
 
     socket?.on("user join", (user) => {
@@ -92,8 +115,6 @@ const ChatRoom = () => {
     }
   }, [roomId, chatRooms, handleFetchRooms]);
 
-
-
   const handleSendMessage = () => {
     if (input) {
       const message = {
@@ -109,6 +130,8 @@ const ChatRoom = () => {
       setShowPicker(false);
     }
   };
+
+  const getItemSize = (index) => estimatedMessageHeight(messages[index]);
 
   return (
     <HomeWrapper
@@ -166,43 +189,21 @@ const ChatRoom = () => {
             <div className="flex items-center justify-center font-bold w-full border-b-2">
               {chatRoom?.name}
             </div>
-            <div className="w-full p-4 flex flex-col justify-between light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
-              {messages.map((msg, index) => {
-                return (
-                  <div
-                    key={index}
-                    className={`flex flex-col ${
-                      msg.author._id === user._id ? "items-end" : "items-start"
-                    }`}
+            <div ref={containerRef} className="flex-grow overflow-hidden">
+              <AutoSizer>
+                {({ width }) => (
+                  <List
+                    ref={listRef}
+                    height={listHeight}
+                    itemCount={messages.length}
+                    itemSize={getItemSize}
+                    width={width}
+                    className="scrollbar custom-scrollbar"
                   >
-                    {msg.author._id !== user._id && (
-                      <p className="text-xs italic mb-1">
-                        {msg.author.userName}
-                      </p>
-                    )}
-                    <div
-                      className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
-             ${
-               msg.author._id === user._id
-                 ? "bg-blue-600 text-right"
-                 : "bg-zinc-600 text-left"
-             }`}
-                    >
-                      <span
-                        className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
-                          msg.author._id === user._id
-                        } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
-                      >
-                        {msg.content}
-                      </span>
-                    </div>
-                    <p className="text-[10px] italic">
-                      {formatDistanceToNow(msg.createdAt)} ago
-                    </p>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
+                    {messageContainer(messages, user)}
+                  </List>
+                )}
+              </AutoSizer>
             </div>
             <InputComponent
               input={input}
