@@ -56,6 +56,8 @@ const socketControllers = (io) => {
             "_id userName"
           );
 
+          console.log("author: ", author);
+
           if (!author) {
             io.emit("error", "User not found");
             return;
@@ -70,7 +72,7 @@ const socketControllers = (io) => {
 
           io.to(recipientSocketId).emit("private message", {
             senderId: message.author,
-            message: newMessage,
+            message: message,
           });
         } else {
           io.emit("error", "Recipient not connected");
@@ -137,8 +139,9 @@ const socketControllers = (io) => {
         let targetRoom;
         targetRoom = await Room.findById({ _id: room });
         if (!targetRoom) {
-          io.emit("error", "No Room Found");
-          return;
+          await createGeneralRoom();
+          // io.emit("error", "No Room Found");
+          // return;
         }
 
         const author = await User.findById(message.author).select(
@@ -171,7 +174,38 @@ const socketControllers = (io) => {
       }
     });
 
+    socket.on("create room", async ({ roomName, userId }) => {
+      try {
+        let room = await Room.findOne({ name: roomName });
+        if (!room) {
+          const user = await User.findOne({ _id: userId });
+          delete user.password;
+          if (user) {
+            room = new Room({ name: roomName, users: [user._id] });
+            await room.save();
+
+            socket.join(roomName);
+            io.emit("create room", room);
+
+            user.roomsCreated.push(room);
+            await user.save();
+
+            // Emit the updated list of rooms to all connected clients
+            const rooms = await Room.find({}, { name: 1 });
+            io.emit("rooms update", rooms);
+          } else {
+            socket.emit("error", "User not found");
+          }
+        } else {
+          socket.emit("error", "Room already exists");
+        }
+      } catch (err) {
+        socket.emit("error", "Failed to create room");
+      }
+    });
+
     socket.on("join chat room", async ({ roomId, userId }) => {
+      console.log("RoomID: ", roomId, " userId: ", userId);
       try {
         const room = await Room.findById(roomId);
 
@@ -179,6 +213,7 @@ const socketControllers = (io) => {
           const user = await User.findById(userId);
           if (!user) {
             socket.emit("error", "User not found. Please check again");
+            return;
           }
           if (room.users.includes(userId)) {
             socket.emit("error", "User is already in the room");
@@ -188,8 +223,12 @@ const socketControllers = (io) => {
           await room.save();
           socket.join(roomId);
           const roomName = room.name;
+
+          user.roomsJoined.push(room);
+          await user.save();
+
           io.to(roomId).emit(
-            "user joined",
+            "join chat room",
             { userId: user._id, roomName },
             rooms
           );

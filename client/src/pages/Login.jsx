@@ -9,8 +9,6 @@ import { useForum } from "../utils/PostContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const socket = useSocket();
-  const { chatRooms, handleFetchRooms } = useForum();
   const { token } = useContext(UserAuthContext);
   const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);

@@ -72,7 +72,6 @@ const UserMenus = ({ userMenuRef }) => {
               chatRooms.map((room) => (
                 <TagsGroupsTile
                   key={room._id}
-                  image={<IoLogoJavascript />}
                   label={room.name}
                   color="bg-[#FF8F67]"
                   caption={`${room.users.length} Users`}

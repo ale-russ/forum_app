@@ -7,11 +7,12 @@ import { toast } from "react-toastify";
 import { VariableSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 
-import toastOptions from "../utils/constants";
+import { sendMessage, toastOptions } from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
 import ProfileImage from "../components/common/ProfileImage";
 import { estimatedMessageHeight } from "../utils/MessageHeight";
 import { messageContainer } from "../components/chat/MessageContainer";
+import { validDate } from "../utils/FormatDate";
 
 const PrivateChatPage = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const PrivateChatPage = () => {
     handleFetchUsers();
 
     if (socket) {
-      const handlePrivateMessage = (message) => {
+      const handlePrivateMessage = ({ message }) => {
         console.log("private message: ", message);
         setMessages((prevMessages) => [...prevMessages, message]);
         setMessageNotification({ message });
@@ -111,28 +112,18 @@ const PrivateChatPage = () => {
     }
   }, [socket, recipient?._id, setMessageNotification]);
 
-  // useEffect(() => {
-  //   console.log("new notification: ", messageNotification);
-  // }, [messageNotification]);
-
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
-
   const sendPrivateMessage = () => {
     if (input.trim()) {
-      const message = {
-        content: input,
-        author: user._id,
-        recipient: recipient._id,
-        userName: user.userName,
-        profileImage: user.profileImage,
-        timestamp: new Date().toISOString(),
-      };
+      sendMessage({
+        input,
+        user,
+        recipient,
+        socket,
+        socketEvent: "private message",
+        setMessage: setMessages,
+        setInput,
+      });
 
-      socket.emit("private message", { message, recipient });
-      setMessages((prevMessages) => [...prevMessages, message]);
-      setInput("");
       setShowPicker(false);
     }
   };
@@ -205,7 +196,7 @@ const PrivateChatPage = () => {
             </div>
           )}
         </div>
-        {/* <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
           {messages?.map((msg) => {
             const isCurrentUser = msg?.author === user?._id;
             const key = `${msg?.timestamp}-${Math.random()}`;
@@ -213,8 +204,8 @@ const PrivateChatPage = () => {
             return (
               <div
                 key={key}
-                className={`w-full flex ${
-                  isCurrentUser ? "justify-end" : "justify-start"
+                className={`w-full flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
                 }`}
               >
                 <div
@@ -228,12 +219,15 @@ const PrivateChatPage = () => {
                     {msg?.content}
                   </span>
                 </div>
+
+                <p className="text-[10px] italic">
+                  {validDate(msg?.timestamp)}
+                </p>
               </div>
             );
           })}
-          <div ref={messageEndRef} />
-        </div> */}
-        <div ref={containerRef} className="flex-grow overflow-hidden">
+        </div>
+        {/* <div ref={containerRef} className="flex-grow overflow-hidden">
           <AutoSizer>
             {({ width }) => (
               <List
@@ -248,7 +242,7 @@ const PrivateChatPage = () => {
               </List>
             )}
           </AutoSizer>
-        </div>
+        </div> */}
         <InputComponent
           input={input}
           setInput={setInput}

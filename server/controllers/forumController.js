@@ -3,11 +3,11 @@ const express = require("express");
 const { verifyToken } = require("../middleware/auth");
 const Post = require("../models/post_model");
 const Comment = require("../models/comments_model");
+const User = require("../models/user_models");
 
 const router = express.Router();
 // Create Post
 router.post("/post", verifyToken, async (req, res) => {
-  console.log("req.body: ", req.body);
   try {
     if (!req.user || !req.user.id)
       return res.status(400).json({ message: "User ID is missing" });
@@ -18,6 +18,10 @@ router.post("/post", verifyToken, async (req, res) => {
     });
 
     await post.save();
+
+    const user = await User.findById(req.user._id);
+    user.posts.push(post);
+    await user.save();
 
     res.status(201).json(post);
   } catch (err) {
@@ -111,8 +115,6 @@ router.delete("/post/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
-
-    console.log("Post ID: ", post);
 
     // if (req.body._id !== post.author._id)
     //   return res.status(401).json("You are not authorized to delete this post");

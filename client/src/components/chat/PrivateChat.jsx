@@ -5,7 +5,7 @@ import { useForum } from "../../utils/PostContext";
 import { useSocket } from "../../utils/SocketContext";
 import { fetchPrivateMessages } from "../../controllers/ChatController";
 import { toast } from "react-toastify";
-import toastOptions from "../../utils/constants";
+import { toastOptions } from "../../utils/constants";
 
 const PrivateChat = ({ recipient, onClose }) => {
   const { user, token } = useForum();

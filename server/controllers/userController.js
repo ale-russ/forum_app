@@ -5,9 +5,6 @@ const Joi = require("joi");
 const { ObjectId } = require("mongodb");
 const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
 
 const User = require("../models/user_models");
 const Post = require("../models/post_model");

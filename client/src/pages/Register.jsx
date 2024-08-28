@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 import { register } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
-import toastOptions from "../utils/constants";
+import { toastOptions } from "../utils/constants";
 import UploadImage from "../components/common/UploadImage";
 
 const Register = () => {

@@ -8,6 +8,7 @@ const RoomSchema = new mongoose.Schema({
       return this.name !== "" || this.name !== "General";
     },
   },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
 });

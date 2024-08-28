@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import io from "socket.io-client";
 
-import toastOptions from "../utils/constants";
+import { toastOptions } from "../utils/constants";
 
 import { chatRoute, privateChatRoute, host } from "../utils/ApiRoutes";
 

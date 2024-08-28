@@ -4,20 +4,24 @@ import { useLocation, Outlet, Navigate } from "react-router-dom";
 import Navbar from "../components/NavBar";
 import LeftSideBar from "../components/LeftSideBar";
 import Chat from "../components/chat/Chat";
+import { ForumProvider } from "../utils/PostContext";
+import { SocketProvider } from "../utils/SocketContext";
 
 const PrivateRoutes = ({ allowedRoutes }) => {
   const location = useLocation();
   const user = localStorage.getItem("token");
 
   return user ? (
-    <>
-      <Navbar />
-      <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full">
-        <LeftSideBar />
-        <Outlet replace />
-        <Chat />
-      </div>
-    </>
+    <SocketProvider>
+      <ForumProvider>
+        <Navbar />
+        <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full">
+          <LeftSideBar />
+          <Outlet replace />
+          {/* <Chat /> */}
+        </div>
+      </ForumProvider>
+    </SocketProvider>
   ) : (
     <Navigate to="/" state={{ from: location }} replace />
   );

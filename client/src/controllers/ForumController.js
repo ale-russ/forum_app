@@ -2,7 +2,7 @@ import axios from "axios";
 import { postsRoute, deletePostRoute } from "../utils/ApiRoutes";
 import { toast } from "react-toastify";
 
-import toastOptions from "../utils/constants";
+import { toastOptions } from "../utils/constants";
 
 export const fetchPosts = async () => {
   try {
@@ -74,7 +74,6 @@ export const handleSearch = async (searchQuery, token) => {
 };
 
 export const deletePost = async (id, token) => {
-  console.log("Token: ", token);
   try {
     const response = await axios.delete(
       `${deletePostRoute}/${id}`,
@@ -83,10 +82,8 @@ export const deletePost = async (id, token) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    console.log("RESPONSE in DELETE: ", response);
     toast.success("Post deleted successfully", toastOptions);
   } catch (error) {
-    console.log("Error in Delete: ", error);
     toast.error("Oops! Something Went wrong", toastOptions);
   }
 };

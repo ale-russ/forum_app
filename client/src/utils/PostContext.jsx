@@ -9,7 +9,7 @@ import {
   likePost,
   deletePost,
 } from "../controllers/ForumController";
-import toastOptions from "./constants";
+import { toastOptions } from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
 import { useSocket } from "./SocketContext";
 import { fetchAllUsers } from "../controllers/AuthController";
@@ -31,6 +31,7 @@ export const ForumProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
   const [messageNotification, setMessageNotification] = useState({});
+  const [isRoomFetched, setIsRoomFetched] = useState(false);
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -58,16 +59,6 @@ export const ForumProvider = ({ children }) => {
       setPostLoading(false);
     }
   };
-
-  // const handleSinglePost = async (id) => {
-  //   const response = await getSinglePost(id, token);
-  //   setCurrentPost(response?.data);
-  //   if (response?.data) {
-  //     return response?.data;
-  //   } else {
-  //     toast.error("No Data Found");
-  //   }
-  // };
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -109,7 +100,6 @@ export const ForumProvider = ({ children }) => {
       await deletePost(post._id, token);
       setThreads(threads.filter((t) => t._id !== post._id));
     } catch (error) {
-      // console.log("Error Delete: ", error);
       toast.error("Failed to delete post", toastOptions);
     }
     // setPostLoading(false);
@@ -149,18 +139,14 @@ export const ForumProvider = ({ children }) => {
 
   useEffect(() => {
     handleFetchRooms();
-
-    if (chatRooms && chatRooms?.[0]) {
-      const isUserInGeneralRoom =
-        chatRooms && chatRooms[0]?.users.some((usr) => usr._id === user._id);
-      if (!isUserInGeneralRoom) {
-        socket?.emit("join chat room", {
-          roomId: chatRooms[0]?.roomId,
-          userId: user._id,
-        });
-      }
-    }
+    // handleGeneralRoomUser();
   }, []);
+
+  useEffect(() => {
+    if (isRoomFetched) {
+      handleGeneralRoomUser();
+    }
+  }, [isRoomFetched]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -178,8 +164,24 @@ export const ForumProvider = ({ children }) => {
   const handleFetchRooms = async () => {
     await fetchRooms().then((value) => {
       setChatRooms(value?.data);
+      setIsRoomFetched(true);
     });
+
     return chatRooms;
+  };
+
+  const handleGeneralRoomUser = () => {
+    if (chatRooms && chatRooms?.[0]) {
+      const isUserInGeneralRoom = chatRooms[0]?.users?.some(
+        (usr) => usr?._id === user?._id
+      );
+      if (!isUserInGeneralRoom) {
+        socket?.emit("join chat room", {
+          roomId: chatRooms[0]?._id,
+          userId: user?._id,
+        });
+      }
+    }
   };
 
   return (

@@ -25,31 +25,27 @@ function App() {
 
   return (
     <div className="light w-full h-full overflow-x-hidden">
-      <SocketProvider>
-        <ForumProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<AuthWrapper />}>
-                <Route path="/" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Route>
-              <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
-                <Route path="/home" element={<Home />} />
-                <Route path="/rooms/:roomId" element={<ChatRoom />} />
-                <Route path="/:id/replies" element={<Replies />} />
-                <Route path="/post/:id" element={<PostPage />} />
-                <Route path="/user-profile" element={<ProfilePage />} />
-                <Route
-                  path="/chat/private-chat/:userId"
-                  element={<PrivateChatPage />}
-                />
-              </Route>
-              <Route path="/unauthorized" element={<Unauthorized />} />
-              <Route path="/not-found" element={<NoPageFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ForumProvider>
-      </SocketProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AuthWrapper />}>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+          <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/rooms/:roomId" element={<ChatRoom />} />
+            <Route path="/:id/replies" element={<Replies />} />
+            <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/user-profile" element={<ProfilePage />} />
+            <Route
+              path="/chat/private-chat/:userId"
+              element={<PrivateChatPage />}
+            />
+          </Route>
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/not-found" element={<NoPageFound />} />
+        </Routes>
+      </BrowserRouter>
       <ToastContainer />
     </div>
   );

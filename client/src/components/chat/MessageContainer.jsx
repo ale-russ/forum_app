@@ -2,9 +2,9 @@ import React from "react";
 import { formatDistanceToNow, isValid } from "date-fns";
 
 import { useForum } from "../../utils/PostContext";
+import { validDate } from "../../utils/FormatDate";
 
 export function messageContainer(messages, user) {
-  //   console.log("message: ", messages);
   return ({ index, style }) => {
     const msg = messages[index];
 
@@ -36,12 +36,7 @@ export function messageContainer(messages, user) {
                 {msg.content}
               </span>
             </div>
-            <p className="text-[10px] italic">
-              {/* {formatDistanceToNow(msg?.createdAt)} ago */}
-              {isValid(new Date(msg?.createdAt))
-                ? `${formatDistanceToNow(new Date(msg?.createdAt))} ago`
-                : "Just now"}
-            </p>
+            <p className="text-[10px] italic">{validDate(msg?.createdAt)}</p>
           </div>
         </div>
       </div>

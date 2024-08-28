@@ -49,6 +49,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
     "Artificial Intelligence",
     "Programming",
     "Sports",
+    "Game",
     "Other",
   ];
 
