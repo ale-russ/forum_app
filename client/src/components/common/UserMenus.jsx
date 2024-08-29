@@ -9,7 +9,7 @@ import { handleLogout } from "../../controllers/AuthController";
 import Room from "../chat/RoomComponent";
 import JoinRoom from "../chat/JoinRoom";
 
-const UserMenus = ({ userMenuRef }) => {
+const UserMenus = ({ userMenuRef, showDropdown }) => {
   const navigate = useNavigate();
   const { user, handleFetchRooms, chatRooms } = useForum();
   const { setUserAuth } = useContext(UserAuthContext);
@@ -50,7 +50,11 @@ const UserMenus = ({ userMenuRef }) => {
     <>
       <div
         // ref={userMenuRef}
-        className="flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 light-navbar rounded shadow-xl border border-gray-300"
+        className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 light-navbar rounded shadow-xl border border-gray-300 ${
+          showDropdown
+            ? "opacity-100 animate-slide-in-down"
+            : "opacity-0 animate-slide-out-up pointer-events-none"
+        }`}
       >
         <div className="p-2">
           <strong>{user.userName}</strong>
@@ -64,20 +68,21 @@ const UserMenus = ({ userMenuRef }) => {
             Profile
           </p>
 
-          <div className="my-2 w-full">
+          <div className="my-2 w-full rounded border border-gray-300 shadow-xl px-1">
             <h1>Chat Rooms</h1>
             <div className="border border-b w-full border-gray-300" />
-
-            {chatRooms &&
-              chatRooms.map((room) => (
-                <TagsGroupsTile
-                  key={room._id}
-                  label={room.name}
-                  color="bg-[#FF8F67]"
-                  caption={`${room.users.length} Users`}
-                  onRoomClicked={() => handleRoomClick(room._id, room)}
-                />
-              ))}
+            <div className="max-h-72 overflow-y-auto scrollbar custom-scrollbar w-full py-1">
+              {chatRooms &&
+                chatRooms.map((room) => (
+                  <TagsGroupsTile
+                    key={room._id}
+                    label={room.name}
+                    color="bg-[#FF8F67]"
+                    caption={`${room.users.length} Users`}
+                    onRoomClicked={() => handleRoomClick(room._id, room)}
+                  />
+                ))}
+            </div>
           </div>
 
           <div

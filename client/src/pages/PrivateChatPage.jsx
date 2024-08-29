@@ -137,13 +137,14 @@ const PrivateChatPage = () => {
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
           {userList
             ?.filter((usr) => usr._id !== user._id && usr._id !== recipient._id)
+            .sort((a, b) => a.userName.localeCompare(b.userName))
             .map((usr) => {
               const isOnline = onlineUsers?.some(
                 (onlineUser) => onlineUser.user._id === usr._id
               );
               return (
                 <div
-                  className="flex flex-col items-start justify-start cursor-pointer w-full"
+                  className="relative flex flex-col items-start justify-start cursor-pointer w-full"
                   key={usr._id}
                   onClick={() => {
                     navigate(`/chat/private-chat/${usr._id}`, {
@@ -154,6 +155,10 @@ const PrivateChatPage = () => {
                   <p className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold w-full">
                     {usr.userName}
                   </p>
+
+                  {isOnline && (
+                    <div className="rounded-full border border-stone-300 h-3 w-3 bg-green-500 absolute -top-1 right-0" />
+                  )}
                 </div>
               );
             })}
@@ -168,14 +173,16 @@ const PrivateChatPage = () => {
                 ?.filter(
                   (usr) => usr._id !== user._id && usr._id !== recipient._id
                 )
+                .sort((a, b) => a.userName.localeCompare(b.userName))
                 .map((usr) => {
                   const isOnline = onlineUsers?.some(
                     (onlineUser) => onlineUser.user._id === usr._id
                   );
                   return (
                     <div
-                      className="flex items-center mx-2 cursor-pointer"
+                      className="relative flex items-center mx-2 cursor-pointer"
                       key={usr._id}
+                      aria-label={`Chat with ${usr.userName}`}
                       onClick={() => {
                         navigate(`/chat/private-chat/${usr._id}`, {
                           state: { recipient: usr },
@@ -188,7 +195,7 @@ const PrivateChatPage = () => {
                       </div>
 
                       {isOnline && (
-                        <div className="rounded-full h-3 w-3 bg-green-500 relative -top-[24px] right-5 md:right-1" />
+                        <div className="rounded-full border border-stone-300 h-3 w-3 bg-green-500 absolute top-1 left-8" />
                       )}
                     </div>
                   );
@@ -221,7 +228,7 @@ const PrivateChatPage = () => {
                 </div>
 
                 <p className="text-[10px] italic">
-                  {validDate(msg?.timestamp)}
+                  {validDate(msg?.createdAt)}
                 </p>
               </div>
             );

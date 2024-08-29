@@ -33,19 +33,22 @@ const PopularRooms = () => {
     <>
       <LeftSideWrapper
         children={
-          <div>
+          <div className="flex flex-col gap-0 w-full">
             <h1>Chat Rooms</h1>
-            {chatRooms &&
-              chatRooms.map((room) => (
-                <TagsGroupsTile
-                  key={room._id}
-                  image={<IoLogoJavascript />}
-                  label={room.name}
-                  color="bg-[#FF8F67]"
-                  caption={`${room.users.length} Users`}
-                  onRoomClicked={() => handleRoomClick(room._id, room)}
-                />
-              ))}
+            <div className="border border-b w-full border-gray-300" />
+            <div className="max-h-72 overflow-y-auto scrollbar custom-scrollbar w-full py-1">
+              {chatRooms &&
+                chatRooms.map((room) => (
+                  <TagsGroupsTile
+                    key={room._id}
+                    image={<IoLogoJavascript />}
+                    label={room.name}
+                    color="bg-[#FF8F67]"
+                    caption={`${room.users.length} Users`}
+                    onRoomClicked={() => handleRoomClick(room._id, room)}
+                  />
+                ))}
+            </div>
           </div>
         }
       />

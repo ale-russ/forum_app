@@ -56,7 +56,6 @@ export const updatePost = async ({ post, token }) => {
 };
 
 export const handleSearch = async (searchQuery, token) => {
-  console.log("Token: ", token);
   try {
     const { data } = await axios.get(
       `${postsRoute}/search?query=${searchQuery}`,
@@ -64,7 +63,6 @@ export const handleSearch = async (searchQuery, token) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    console.log("Search Result: ", data);
 
     return data;
   } catch (error) {

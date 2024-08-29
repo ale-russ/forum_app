@@ -39,8 +39,10 @@ export const InputComponent = ({
             height={350}
             width={300}
             onEmojiClick={addEmoji}
-            className={` transition ease-in-out duration-300 ${
-              showPicker ? "open-animation" : "close-animation"
+            className={`transition-all duration-300  ${
+              showPicker
+                ? "opacity-100 animate-slide-in-up"
+                : "opacity-0 animate-slide-out-down pointer-events-none"
             }`}
           />
         </div>

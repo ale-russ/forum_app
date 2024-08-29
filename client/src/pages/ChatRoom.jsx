@@ -178,7 +178,13 @@ const ChatRoom = () => {
                         )}
 
                         {isOnline && (
-                          <div className="rounded-full h-3 w-3 bg-green-500 relative -top-[24px] md:-top-4 right-5 md:right-1" />
+                          <div
+                            className={`rounded-full h-3 w-3 bg-green-500 ${
+                              smallScreen
+                                ? " relative -top-[24px]"
+                                : "absolute -top-1"
+                            } right-5 md:right-1`}
+                          />
                         )}
                       </div>
                     );

@@ -116,10 +116,14 @@ router.delete("/post/:id", async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
-    // if (req.body._id !== post.author._id)
-    //   return res.status(401).json("You are not authorized to delete this post");
-
     await Post.findByIdAndDelete(post._id);
+
+    await User.findByIdAndUpdate(
+      post.author,
+      { $pull: { posts: post._id } },
+      { new: true }
+    );
+
     return res.status(200).json({ msg: "Post deleted" });
   } catch (err) {
     console.log("Error: ", err);

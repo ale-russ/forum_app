@@ -5,7 +5,7 @@ import ProfileImage from "../components/common/ProfileImage";
 
 const ProfilePage = () => {
   const { user } = useForum();
-  // console.log("User: ", user);
+
   return (
     <div className="m-auto h-full w-full lg:w-[40%] light-navbar p-4  flex-col space-y-4 rounded-lg shadow-xl">
       <div className="rounded-lg shadow-xl w-full h-36 flex flex-col items-center justify-center light-search ">

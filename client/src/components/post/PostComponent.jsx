@@ -1,24 +1,33 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { CiHeart } from 'react-icons/ci';
-import { FaHeart } from 'react-icons/fa';
-import { formatDistanceToNow } from 'date-fns';
-import io from 'socket.io-client';
-import { useNavigate } from 'react-router-dom';
-import { BsThreeDotsVertical } from 'react-icons/bs';
+import React, { useEffect, useRef, useState } from "react";
+import { CiHeart } from "react-icons/ci";
+import { FaHeart } from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
+import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { toast } from "react-toastify";
 
-import { useForum } from '../../utils/PostContext';
-import CommentsModal from './CommentsModal';
-import { host } from '../../utils/ApiRoutes';
-import { updateViewCount } from '../../controllers/ForumController';
-import ProfileImage from '../common/ProfileImage';
-import PulseAnimationLoader from '../common/PulseAnimationLoader';
+import { useForum } from "../../utils/PostContext";
+import CommentsModal from "./CommentsModal";
+import { host } from "../../utils/ApiRoutes";
+import { updateViewCount } from "../../controllers/ForumController";
+import ProfileImage from "../common/ProfileImage";
+import PulseAnimationLoader from "../common/PulseAnimationLoader";
+import { toastOptions } from "../../utils/constants";
 
 const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const { handleLikePost, user, token, handleDeletePost, postLoading, setPostComments } = useForum();
+  const {
+    handleLikePost,
+    user,
+    token,
+    handleDeletePost,
+    postLoading,
+    setPostComments,
+  } = useForum();
 
   const [localPost, setLocalPost] = useState(post);
   const [likeCount, setLikeCount] = useState(localPost?.likes?.length);
@@ -26,8 +35,11 @@ const PostComponent = ({ post }) => {
   const [viewCount, setViewCount] = useState(localPost?.views.length || 0);
   const [showMenu, setShowMenu] = useState(false);
   const deleteModalRef = useRef();
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
-  const [localCommentCount, setLocalCommentCount] = useState(localPost.comments?.length || 0);
+  const [localCommentCount, setLocalCommentCount] = useState(
+    localPost.comments?.length || 0
+  );
 
   const handleDelete = async () => {
     await handleDeletePost(localPost);
@@ -39,7 +51,7 @@ const PostComponent = ({ post }) => {
       setIsLiked(updatedPost?.likes.includes(user._id));
       setLikeCount(updatedPost?.likes?.length);
     } catch (err) {
-      console.error('Error updating like:', err);
+      console.error("Error updating like:", err);
     }
   };
 
@@ -57,9 +69,9 @@ const PostComponent = ({ post }) => {
   useEffect(() => {
     setPostComments(localPost?.comments);
 
-    socket.emit('join room', localPost._id);
+    socket.emit("join room", localPost._id);
 
-    socket?.on('new comment', ({ updatedPost }) => {
+    socket?.on("new comment", ({ updatedPost }) => {
       if (localPost?._id === updatedPost?._id) {
         setLocalPost({ ...updatedPost });
         setPostComments(updatedPost.comments);
@@ -67,22 +79,25 @@ const PostComponent = ({ post }) => {
     });
 
     return () => {
-      socket.off('leave room', localPost.id);
-      socket.off('new comment');
+      socket.off("leave room", localPost.id);
+      socket.off("new comment");
     };
   }, [localPost]);
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (deleteModalRef?.current && !deleteModalRef?.current?.contains(event.target)) {
+      if (
+        deleteModalRef?.current &&
+        !deleteModalRef?.current?.contains(event.target)
+      ) {
         setShowMenu(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -99,9 +114,16 @@ const PostComponent = ({ post }) => {
               </div>
               <div className="relative flex items-center">
                 <div className=" block cursor-pointer" onClick={handleLike}>
-                  {isLiked ? <FaHeart className={`text-red-500`} /> : <CiHeart />}
+                  {isLiked ? (
+                    <FaHeart className={`text-red-500`} />
+                  ) : (
+                    <CiHeart />
+                  )}
                 </div>
-                <BsThreeDotsVertical className="cursor-pointer" onClick={() => setShowMenu(!showMenu)} />
+                <BsThreeDotsVertical
+                  className="cursor-pointer"
+                  onClick={() => setShowMenu(!showMenu)}
+                />
                 {showMenu && (
                   <div
                     ref={deleteModalRef}
@@ -110,7 +132,20 @@ const PostComponent = ({ post }) => {
                     {/* <div className="rounded-lg light-navbar w-full p-1 light-navbar text-sm cursor-pointer">
                       Update post
                     </div> */}
-                    <div className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm" onClick={handleDelete}>
+                    <div
+                      className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm"
+                      // onClick={handleDelete}
+                      onClick={() => {
+                        if (post.author._id !== user._id) {
+                          toast.error(
+                            "You are not authorized to delete this post",
+                            toastOptions
+                          );
+                          return;
+                        }
+                        setShowDeleteWarning(true);
+                      }}
+                    >
                       Delete post
                     </div>
                   </div>
@@ -121,7 +156,10 @@ const PostComponent = ({ post }) => {
               {localPost?.tags &&
                 localPost.tags.map((tag, index) => {
                   return (
-                    <div key={index} className="rounded-lg shadow-lg text-[10px] p-2 light-search">
+                    <div
+                      key={index}
+                      className="rounded-lg shadow-lg text-[10px] p-2 light-search"
+                    >
                       {tag}
                     </div>
                   );
@@ -133,7 +171,9 @@ const PostComponent = ({ post }) => {
               <ProfileImage author={localPost?.author} />
 
               <div className="flex flex-col items-start">
-                <div className="font-bold text-sm">{localPost?.author?.userName}</div>
+                <div className="font-bold text-sm">
+                  {localPost?.author?.userName}
+                </div>
                 <div className="text-[10px] text-[#48494e] text-ellipsis truncate">
                   {formatDistanceToNow(new Date(localPost?.createdAt))} ago
                 </div>
@@ -141,8 +181,13 @@ const PostComponent = ({ post }) => {
             </div>
             <div className="flex items-center justify-end md:justify-between  space-x-2 md:space-x-0 mr-1 text-[10px] text-[#48494e] w-full md:w-[70%] ">
               <div className="flex items-center justify-between text-sm  w-[60%] md:w-full mx-1">
-                <div className="flex flex-wrap cursor-pointer">{viewCount} View</div>
-                <div className="flex flex-wrap cursor-pointer" onClick={handleLike}>
+                <div className="flex flex-wrap cursor-pointer">
+                  {viewCount} View
+                </div>
+                <div
+                  className="flex flex-wrap cursor-pointer"
+                  onClick={handleLike}
+                >
                   {likeCount} Likes
                 </div>
                 <div
@@ -166,6 +211,31 @@ const PostComponent = ({ post }) => {
               >
                 Read
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteWarning && (
+        <div className="absolute inset-0 w-full h-full z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="max-w-md bg-white rounded-lg p-6 text-center">
+            <h3 className="text-gray-700 text-xl mb-4">
+              Warning! You are about to delete the post. Are you sure you want
+              to delete the post?
+            </h3>
+            <div className="flex items-center justify-between w-[40%] mx-auto">
+              <button
+                className="flex items-center justify-center mb-4 rounded-lg bg-gray-400 w-30 h-11 p-3 text-white"
+                onClick={() => setShowDeleteWarning(!showDeleteWarning)}
+              >
+                Cancel
+              </button>
+              <button
+                className=" flex items-center justify-center mb-4 rounded-lg bg-red-600 w-  h-11  p-3 text-white"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
