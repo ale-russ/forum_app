@@ -157,18 +157,27 @@ router.post("/post/:id/comments", verifyToken, async (req, res) => {
 router.post("/post/:id/like", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-
+    const user = await User.findById(req.user.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
     const userIndex = post.likes.indexOf(req.user.id);
+    const postLikedIndex = user.likedPosts.indexOf(post._id);
 
     if (userIndex !== -1) {
       post.likes.splice(userIndex, 1);
+      if (postLikedIndex !== -1) {
+        user.likedPosts.splice(postLikedIndex, 1);
+      }
     } else {
       post.likes.push(req.user.id);
+      if (postLikedIndex === -1) {
+        user.likedPosts.push(post._id);
+      }
     }
 
     await post.save();
+    await user.save();
+    // console.log("User: ", user);
     res.status(200).json(post);
   } catch (err) {
     console.log("ERROR: ", err);

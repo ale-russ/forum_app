@@ -125,12 +125,6 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    const postsCount = await Post.countDocuments({ author: user._id });
-    const roomsJoinedCount = user.roomsJoined.length;
-    const roomsCreatedCount = user.roomsCreated.length;
-
-    console.log("Post count: ", postsCount);
-
     // delete user.password;
     user.password = undefined;
     console.log("User logged in successfully", user);
@@ -140,9 +134,6 @@ router.post("/login", async (req, res) => {
         msg: "User successfully Logged In",
         token,
         ...user._doc,
-        postsCount,
-        roomsJoinedCount,
-        roomsCreatedCount,
       });
     } else {
       return res.status(401).json({ msg: "Internal Server Error" });

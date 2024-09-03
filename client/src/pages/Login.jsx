@@ -2,10 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../controllers/AuthController";
 import Loader from "../components/common/Loader";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+// import { useGoogleLogin } from "@react-oauth/google";
+
 import { UserAuthContext } from "../utils/UserAuthenticationProvider";
-import { useSocket } from "../utils/SocketContext";
-import { useForum } from "../utils/PostContext";
+import { toastOptions } from "../utils/constants";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,6 +20,39 @@ const Login = () => {
     email: "",
     password: "",
   });
+
+  const [user, setUser] = useState({});
+
+  // const onGoogleLoginSuccess = async (res) => {
+  //   console.log("response: ", res);
+  //   const { credential } = res;
+  //   setUser({ ...res });
+  //   console.log("user credential: ", credential);
+  //   const token = jwtDecode(credential);
+  //   console.log("token: ", token);
+  //   try {
+  //     if (Object.keys(user).length !== 0) {
+  //       const response = await axios.get(
+  //         `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             Accept: "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       console.log("RESPONSE: ", response);
+  //     } else {
+  //       console.log("User not found");
+  //       return;
+  //     }
+  //     toast.success("User successfully logged in", toastOptions);
+  //   } catch (err) {
+  //     console.log("Error: ", err.response.data.error.message);
+  //     toast.error("Internal Server Error", toastOptions);
+  //   }
+  // };
 
   useEffect(() => {
     if (token) {
@@ -38,6 +75,11 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // const login = useGoogleLogin({
+  //   onSuccess: (codeResponse) => console.log(codeResponse),
+  //   flow: "auth-code",
+  // });
 
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
@@ -82,6 +124,9 @@ const Login = () => {
             <button className="mx-auto rounded bg-[#FF571A] h-10 text-sm px-3 my-2 shadow-lg text-white">
               SIGN IN
             </button>
+            {/* <div className="mx-auto">
+              <button onClick={() => login()}>Sign in with Google 🚀</button>
+            </div> */}
 
             <div className="flex items-center justify-center mx-auto">
               <p>

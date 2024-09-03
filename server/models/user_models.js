@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   roomsJoined: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
   roomsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
+  likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
 });
 
 UserSchema.methods.comparePassword = function (userPassword) {

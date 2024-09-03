@@ -63,7 +63,7 @@ const PostPage = () => {
       };
 
       if (newComment) {
-        socket.emit("new comment", newComment);
+        socket?.emit("new comment", newComment);
         setLocalCommentCount((prevCount) => prevCount + 1);
         setCommentInput("");
       }
@@ -80,10 +80,10 @@ const PostPage = () => {
 
   useEffect(() => {
     if (localPost?._id) {
-      socket.emit("join room", localPost?._id);
+      socket?.emit("join room", localPost?._id);
     }
 
-    socket.on("new comment", ({ updatedPost }) => {
+    socket?.on("new comment", ({ updatedPost }) => {
       console.log("updatedPost: ", updatedPost);
       if (localPost?._id === updatedPost._id) {
         setLocalPost({ ...updatedPost });
@@ -94,9 +94,9 @@ const PostPage = () => {
 
     return () => {
       if (localPost?._id) {
-        socket.emit("leave room", localPost?._id);
+        socket?.emit("leave room", localPost?._id);
       }
-      socket.off("new comment");
+      socket?.off("new comment");
     };
   }, [localPost?._id]);
 
