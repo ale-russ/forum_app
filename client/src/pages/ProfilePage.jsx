@@ -2,6 +2,12 @@ import React, { useState } from "react";
 
 import { useForum } from "../utils/PostContext";
 import ProfileImage from "../components/common/ProfileImage";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/ui/accordion";
 
 const ProfilePage = () => {
   const { user } = useForum();
@@ -35,6 +41,16 @@ const ProfilePage = () => {
           title="Created Rooms"
           label={user?.roomsCreated?.length ?? 0}
         />
+        <UserInfoAccordion
+          value="createdRooms"
+          title={"Created Rooms"}
+          label={user?.createdRooms}
+        />
+        <UserInfoAccordion
+          value="joinedRooms"
+          title={"Joined Rooms"}
+          label={user?.roomsJoined}
+        />
       </div>
     </div>
   );
@@ -48,5 +64,32 @@ const UserDetails = ({ title, label }) => {
       <div>{title}</div>
       <div>{label}</div>
     </div>
+  );
+};
+
+const UserInfoAccordion = ({ title, label, value }) => {
+  return (
+    <Accordion
+      type="single"
+      collapsible
+      className="w-full rounded-lg shadow-xl light-navbar px-2  "
+    >
+      <AccordionItem value={value} className="hover:no-underline">
+        <AccordionTrigger className="w-full no-underline hover:no-underline">
+          {title}
+        </AccordionTrigger>
+        <AccordionContent>
+          {label?.length ? (
+            <>
+              {label?.map((room, index) => {
+                return <div key={index}>{room?.name}</div>;
+              })}
+            </>
+          ) : (
+            <p>No items found</p>
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
