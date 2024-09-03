@@ -1,9 +1,4 @@
 import React, { useState } from "react";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import Typography from "@mui/material/Typography";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useForum } from "../utils/PostContext";
 import ProfileImage from "../components/common/ProfileImage";
@@ -40,24 +35,6 @@ const ProfilePage = () => {
           title="Created Rooms"
           label={user?.roomsCreated?.length ?? 0}
         />
-        {/* <Accordion
-          className="flex w-full flex-col rounded-lg shadow-xl light-navbar"
-          expanded={expanded === "panel1"}
-          onChange={handleChange("panel1")}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1bh-content"
-            id="panel1bh-header"
-          >
-            Rooms Joined
-          </AccordionSummary>
-          <AccordionDetails>
-            {user?.roomsJoined?.map((rooms) => (
-              <div>{rooms.name}</div>
-            ))}
-          </AccordionDetails>
-        </Accordion> */}
       </div>
     </div>
   );

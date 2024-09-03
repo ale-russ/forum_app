@@ -12,11 +12,11 @@ const googleClientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID_NEW;
 
 root.render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <UserAuthProvider>
-        <App />
-      </UserAuthProvider>
-    </GoogleOAuthProvider>
+    {/* <GoogleOAuthProvider clientId={googleClientId}> */}
+    <UserAuthProvider>
+      <App />
+    </UserAuthProvider>
+    {/* </GoogleOAuthProvider> */}
   </React.StrictMode>
 );
 
