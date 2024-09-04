@@ -4,13 +4,20 @@ import { ReactComponent as Following } from "../assets/Follow.svg";
 import { ReactComponent as Newest } from "../assets/NewBatch.svg";
 import { ReactComponent as Popular } from "../assets/PopularBach.svg";
 import LeftSideWrapper from "./common/LeftSideWrapper";
+import { useNavigate } from "react-router-dom";
 
-const LargeBaches = () => {
+const LargeBatches = () => {
+  const navigate = useNavigate();
   return (
     <LeftSideWrapper
       children={
         <>
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => {
+              navigate("/post/latest-posts");
+            }}
+          >
             <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Newest />
             </div>
@@ -19,7 +26,12 @@ const LargeBaches = () => {
               <p className="light-caption">Find the latest update</p>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => {
+              navigate("/post/popular-posts");
+            }}
+          >
             <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Popular />
             </div>
@@ -28,7 +40,12 @@ const LargeBaches = () => {
               <p className="light-caption">Shots featured tody curators</p>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => {
+              navigate("/post/following-posts");
+            }}
+          >
             <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
               <Following />
             </div>
@@ -50,4 +67,4 @@ const LargeBaches = () => {
   );
 };
 
-export default LargeBaches;
+export default LargeBatches;
