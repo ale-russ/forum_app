@@ -4,10 +4,15 @@ import { useSocket } from "../utils/SocketContext";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchPrivateMessages } from "../controllers/ChatController";
 import { toast } from "react-toastify";
+import { VariableSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 
-import toastOptions from "../utils/constants";
+import { sendMessage, toastOptions } from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
 import ProfileImage from "../components/common/ProfileImage";
+import { estimatedMessageHeight } from "../utils/MessageHeight";
+import { messageContainer } from "../components/chat/MessageContainer";
+import { validDate } from "../utils/FormatDate";
 
 const PrivateChatPage = () => {
   const navigate = useNavigate();
@@ -31,6 +36,37 @@ const PrivateChatPage = () => {
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const messageEndRef = useRef();
+
+  const [listHeight, setListHeight] = useState(500);
+  const containerRef = useRef(null);
+  const listRef = useRef(null);
+  const messageRef = useRef(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setListHeight(containerRef.current.clientHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
+  useEffect(() => {
+    if (listRef?.current) {
+      listRef?.current?.resetAfterIndex(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messageRef?.current) {
+      const { height } = messageRef?.current?.getBoundingClientRect();
+      setMessageHeight(height);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,6 +93,7 @@ const PrivateChatPage = () => {
 
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
+        console.log("private message: ", message);
         setMessages((prevMessages) => [...prevMessages, message]);
         setMessageNotification({ message });
       };
@@ -75,31 +112,23 @@ const PrivateChatPage = () => {
     }
   }, [socket, recipient?._id, setMessageNotification]);
 
-  // useEffect(() => {
-  //   console.log("new notification: ", messageNotification);
-  // }, [messageNotification]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const sendPrivateMessage = () => {
     if (input.trim()) {
-      const message = {
-        content: input,
-        author: user._id,
-        recipient: recipient._id,
-        userName: user.userName,
-        profileImage: user.profileImage,
-        timestamp: new Date().toISOString(),
-      };
+      sendMessage({
+        input,
+        user,
+        recipient,
+        socket,
+        socketEvent: "private message",
+        setMessage: setMessages,
+        setInput,
+      });
 
-      socket.emit("private message", { message, recipient });
-      setMessages((prevMessages) => [...prevMessages, message]);
-      setInput("");
       setShowPicker(false);
     }
   };
+
+  const getItemsSize = (index) => estimatedMessageHeight(messages[index]);
 
   return (
     <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
@@ -108,13 +137,14 @@ const PrivateChatPage = () => {
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
           {userList
             ?.filter((usr) => usr._id !== user._id && usr._id !== recipient._id)
+            .sort((a, b) => a.userName.localeCompare(b.userName))
             .map((usr) => {
               const isOnline = onlineUsers?.some(
                 (onlineUser) => onlineUser.user._id === usr._id
               );
               return (
                 <div
-                  className="flex flex-col items-start justify-start cursor-pointer w-full"
+                  className="relative flex flex-col items-start justify-start cursor-pointer w-full"
                   key={usr._id}
                   onClick={() => {
                     navigate(`/chat/private-chat/${usr._id}`, {
@@ -125,6 +155,10 @@ const PrivateChatPage = () => {
                   <p className="mb-2 rounded-lg light-navbar py-1 px-2 drop-shadow-xl font-bold w-full">
                     {usr.userName}
                   </p>
+
+                  {isOnline && (
+                    <div className="rounded-full border border-stone-300 h-3 w-3 bg-green-500 absolute -top-1 right-0" />
+                  )}
                 </div>
               );
             })}
@@ -139,14 +173,16 @@ const PrivateChatPage = () => {
                 ?.filter(
                   (usr) => usr._id !== user._id && usr._id !== recipient._id
                 )
+                .sort((a, b) => a.userName.localeCompare(b.userName))
                 .map((usr) => {
                   const isOnline = onlineUsers?.some(
                     (onlineUser) => onlineUser.user._id === usr._id
                   );
                   return (
                     <div
-                      className="flex items-center mx-2 cursor-pointer"
+                      className="relative flex items-center mx-2 cursor-pointer"
                       key={usr._id}
+                      aria-label={`Chat with ${usr.userName}`}
                       onClick={() => {
                         navigate(`/chat/private-chat/${usr._id}`, {
                           state: { recipient: usr },
@@ -159,7 +195,7 @@ const PrivateChatPage = () => {
                       </div>
 
                       {isOnline && (
-                        <div className="rounded-full h-3 w-3 bg-green-500 relative -top-[24px] right-5 md:right-1" />
+                        <div className="rounded-full border border-stone-300 h-3 w-3 bg-green-500 absolute top-1 left-8" />
                       )}
                     </div>
                   );
@@ -175,8 +211,8 @@ const PrivateChatPage = () => {
             return (
               <div
                 key={key}
-                className={`w-full flex ${
-                  isCurrentUser ? "justify-end" : "justify-start"
+                className={`w-full flex flex-col ${
+                  isCurrentUser ? "items-end" : "items-start"
                 }`}
               >
                 <div
@@ -190,11 +226,30 @@ const PrivateChatPage = () => {
                     {msg?.content}
                   </span>
                 </div>
+
+                <p className="text-[10px] italic">
+                  {validDate(msg?.createdAt)}
+                </p>
               </div>
             );
           })}
-          <div ref={messageEndRef} />
         </div>
+        {/* <div ref={containerRef} className="flex-grow overflow-hidden">
+          <AutoSizer>
+            {({ width }) => (
+              <List
+                ref={listRef}
+                itemCount={messages.length}
+                height={listHeight}
+                itemSize={getItemsSize}
+                width={width}
+                className="scrollbar custom-scrollbar"
+              >
+                {messageContainer(messages, user)}
+              </List>
+            )}
+          </AutoSizer>
+        </div> */}
         <InputComponent
           input={input}
           setInput={setInput}

@@ -106,9 +106,14 @@ const NavBar = () => {
           onClick={() => setShowDropdown(!showDropdown)}
         />
         {showContacts ? (
-          <DisplayContactsModal contactsModalRef={contactsModalRef} />
+          <DisplayContactsModal
+            contactsModalRef={contactsModalRef}
+            showContacts={showContacts}
+          />
         ) : null}
-        {showDropdown ? <UserMenus userMenuRef={userMenuRef} /> : null}
+        {showDropdown ? (
+          <UserMenus userMenuRef={userMenuRef} showDropdown={showDropdown} />
+        ) : null}
       </div>
     </div>
   );

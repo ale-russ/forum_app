@@ -3,11 +3,11 @@ const express = require("express");
 const { verifyToken } = require("../middleware/auth");
 const Post = require("../models/post_model");
 const Comment = require("../models/comments_model");
+const User = require("../models/user_models");
 
 const router = express.Router();
 // Create Post
 router.post("/post", verifyToken, async (req, res) => {
-  console.log("req.body: ", req.body);
   try {
     if (!req.user || !req.user.id)
       return res.status(400).json({ message: "User ID is missing" });
@@ -19,8 +19,14 @@ router.post("/post", verifyToken, async (req, res) => {
 
     await post.save();
 
+    const user = await User.findById(req.user._id || req.user.id);
+    console.log("user: ", user);
+    user?.posts?.push(post);
+    await user.save();
+
     res.status(201).json(post);
   } catch (err) {
+    console.log("Error: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -112,12 +118,14 @@ router.delete("/post/:id", async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
-    console.log("Post ID: ", post);
-
-    // if (req.body._id !== post.author._id)
-    //   return res.status(401).json("You are not authorized to delete this post");
-
     await Post.findByIdAndDelete(post._id);
+
+    await User.findByIdAndUpdate(
+      post.author,
+      { $pull: { posts: post._id } },
+      { new: true }
+    );
+
     return res.status(200).json({ msg: "Post deleted" });
   } catch (err) {
     console.log("Error: ", err);
@@ -151,18 +159,27 @@ router.post("/post/:id/comments", verifyToken, async (req, res) => {
 router.post("/post/:id/like", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-
+    const user = await User.findById(req.user.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
     const userIndex = post.likes.indexOf(req.user.id);
+    const postLikedIndex = user.likedPosts.indexOf(post._id);
 
     if (userIndex !== -1) {
       post.likes.splice(userIndex, 1);
+      if (postLikedIndex !== -1) {
+        user.likedPosts.splice(postLikedIndex, 1);
+      }
     } else {
       post.likes.push(req.user.id);
+      if (postLikedIndex === -1) {
+        user.likedPosts.push(post);
+      }
     }
 
     await post.save();
+    await user.save();
+    // console.log("User: ", user);
     res.status(200).json(post);
   } catch (err) {
     console.log("ERROR: ", err);

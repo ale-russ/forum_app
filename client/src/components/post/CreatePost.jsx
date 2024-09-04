@@ -49,6 +49,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
     "Artificial Intelligence",
     "Programming",
     "Sports",
+    "Game",
     "Other",
   ];
 
@@ -99,6 +100,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
                 type="text"
                 className="light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="Title"
+                value={newPost.title}
                 onChange={(e) =>
                   setNewPost({ ...newPost, title: e.target.value })
                 }
@@ -107,6 +109,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
                 type="text"
                 className="flex items-center light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="What's on your mind?"
+                value={newPost.content}
                 onChange={(e) =>
                   setNewPost({ ...newPost, content: e.target.value })
                 }

@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
-import toastOptions from "../../utils/constants";
+import { toastOptions } from "../../utils/constants";
 import { useForum } from "../../utils/PostContext";
 
 const socket = io(host);
@@ -42,9 +42,13 @@ const Room = ({ setCrateModalOpen }) => {
   };
 
   useEffect(() => {
-    socket.on("room created", (room) => {
-      setRooms([...rooms, room]);
-      setCurrentRoom(room);
+    socket.on("create room", (room) => {
+      if (room._id) {
+        toast.success("Room created successfully", toastOptions);
+        setRooms([...rooms, room]);
+        setCurrentRoom(room);
+        setRoomName("");
+      }
     });
 
     socket.on("user joined", ({ userId, roomName }) => {
@@ -90,7 +94,7 @@ const Room = ({ setCrateModalOpen }) => {
       children={
         <div className="light-navbar h-full w-full">
           <div className="flex flex-col items-center gap-x-4  w-full px-4">
-            <div className="flex flex-col gap-y-4 w-40 sm:w-80 md:w-80 lg:w-80 xl:w-80">
+            <div className="flex flex-col gap-y-4 w-full md:w-[70%] ">
               <p className="text-center">Create A Room</p>
               <input
                 type="text"
@@ -100,7 +104,7 @@ const Room = ({ setCrateModalOpen }) => {
               />
             </div>
             <button
-              className="rounded bg-[#FF571A] h-10 text-sm px-3 my-5 shadow-lg text-white drop-shadow-lg"
+              className="rounded bg-[#FF571A] h-10 w-40 text-sm px-3 my-5 shadow-lg text-white drop-shadow-lg"
               onClick={handleCreateRoom}
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}

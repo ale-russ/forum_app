@@ -5,9 +5,6 @@ const Joi = require("joi");
 const { ObjectId } = require("mongodb");
 const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
 
 const User = require("../models/user_models");
 const Post = require("../models/post_model");
@@ -128,12 +125,6 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    const postsCount = await Post.countDocuments({ author: user._id });
-    const roomsJoinedCount = user.roomsJoined.length;
-    const roomsCreatedCount = user.roomsCreated.length;
-
-    console.log("Post count: ", postsCount);
-
     // delete user.password;
     user.password = undefined;
     console.log("User logged in successfully", user);
@@ -143,9 +134,6 @@ router.post("/login", async (req, res) => {
         msg: "User successfully Logged In",
         token,
         ...user._doc,
-        postsCount,
-        roomsJoinedCount,
-        roomsCreatedCount,
       });
     } else {
       return res.status(401).json({ msg: "Internal Server Error" });
@@ -170,12 +158,15 @@ router.get("/users", async (req, res) => {
 // route to get user information
 router.get("/user-info", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id)
+      .select("-password")
+      .populate("posts")
+      .populate({ path: "roomsCreated", select: "-messages" })
+      .populate({ path: "roomsJoined", select: "-messages" })
+      .populate("likedPosts");
 
     // check if user exist
     if (!user) return res.status(400).json({ msg: "User Not Found" });
-    console.log("USER: ", user);
-    delete user.password;
     return res.status(200).json({ user });
   } catch (err) {
     return res.status(500).json({ msg: "Internal Server Error" });

@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 import { useForum } from "../../utils/PostContext";
 import CommentsModal from "./CommentsModal";
@@ -12,6 +13,7 @@ import { host } from "../../utils/ApiRoutes";
 import { updateViewCount } from "../../controllers/ForumController";
 import ProfileImage from "../common/ProfileImage";
 import PulseAnimationLoader from "../common/PulseAnimationLoader";
+import { toastOptions } from "../../utils/constants";
 
 const socket = io(host);
 
@@ -33,6 +35,7 @@ const PostComponent = ({ post }) => {
   const [viewCount, setViewCount] = useState(localPost?.views.length || 0);
   const [showMenu, setShowMenu] = useState(false);
   const deleteModalRef = useRef();
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
 
   const [localCommentCount, setLocalCommentCount] = useState(
     localPost.comments?.length || 0
@@ -131,7 +134,17 @@ const PostComponent = ({ post }) => {
                     </div> */}
                     <div
                       className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm"
-                      onClick={handleDelete}
+                      // onClick={handleDelete}
+                      onClick={() => {
+                        if (post.author._id !== user._id) {
+                          toast.error(
+                            "You are not authorized to delete this post",
+                            toastOptions
+                          );
+                          return;
+                        }
+                        setShowDeleteWarning(true);
+                      }}
                     >
                       Delete post
                     </div>
@@ -154,8 +167,9 @@ const PostComponent = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center justify-between w-full">
-            <div className="flex flex-col md:flex-row items-center w-20 md:w-[20%] ">
+            <div className="flex flex-col md:flex-row items-center w-20 md:w-[30%] ">
               <ProfileImage author={localPost?.author} />
+
               <div className="flex flex-col items-start">
                 <div className="font-bold text-sm">
                   {localPost?.author?.userName}
@@ -197,6 +211,31 @@ const PostComponent = ({ post }) => {
               >
                 Read
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteWarning && (
+        <div className="absolute inset-0 w-full h-full z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="max-w-md bg-white rounded-lg p-6 text-center">
+            <h3 className="text-gray-700 text-xl mb-4">
+              Warning! You are about to delete the post. Are you sure you want
+              to delete the post?
+            </h3>
+            <div className="flex items-center justify-between w-[40%] mx-auto">
+              <button
+                className="flex items-center justify-center mb-4 rounded-lg bg-gray-400 w-30 h-11 p-3 text-white"
+                onClick={() => setShowDeleteWarning(!showDeleteWarning)}
+              >
+                Cancel
+              </button>
+              <button
+                className=" flex items-center justify-center mb-4 rounded-lg bg-red-600 w-  h-11  p-3 text-white"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

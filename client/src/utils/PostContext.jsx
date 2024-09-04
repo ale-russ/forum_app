@@ -9,10 +9,13 @@ import {
   likePost,
   deletePost,
 } from "../controllers/ForumController";
-import toastOptions from "./constants";
+import { toastOptions } from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
 import { useSocket } from "./SocketContext";
-import { fetchAllUsers } from "../controllers/AuthController";
+import {
+  fetchAllUsers,
+  handleGetUserInfo,
+} from "../controllers/AuthController";
 
 const ForumContext = createContext();
 
@@ -31,6 +34,7 @@ export const ForumProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
   const [messageNotification, setMessageNotification] = useState({});
+  const [isRoomFetched, setIsRoomFetched] = useState(false);
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -41,6 +45,11 @@ export const ForumProvider = ({ children }) => {
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const socket = useSocket();
+
+  const handleGetUpdatedUserInfo = async () => {
+    const data = await handleGetUserInfo(token);
+    localStorage.setItem("currentUser", JSON.stringify(data));
+  };
 
   const handleFetchPosts = async () => {
     setPostLoading(true);
@@ -58,16 +67,6 @@ export const ForumProvider = ({ children }) => {
       setPostLoading(false);
     }
   };
-
-  // const handleSinglePost = async (id) => {
-  //   const response = await getSinglePost(id, token);
-  //   setCurrentPost(response?.data);
-  //   if (response?.data) {
-  //     return response?.data;
-  //   } else {
-  //     toast.error("No Data Found");
-  //   }
-  // };
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -102,14 +101,13 @@ export const ForumProvider = ({ children }) => {
   const handleDeletePost = async (post) => {
     // setPostLoading(true);
     try {
-      if (post.author._id !== user._id) {
-        toast.error("You are not authorized to delete this post", toastOptions);
-        return;
-      }
+      // if (post.author._id !== user._id) {
+      //   toast.error("You are not authorized to delete this post", toastOptions);
+      //   return;
+      // }
       await deletePost(post._id, token);
       setThreads(threads.filter((t) => t._id !== post._id));
     } catch (error) {
-      // console.log("Error Delete: ", error);
       toast.error("Failed to delete post", toastOptions);
     }
     // setPostLoading(false);
@@ -149,18 +147,13 @@ export const ForumProvider = ({ children }) => {
 
   useEffect(() => {
     handleFetchRooms();
-
-    if (chatRooms && chatRooms?.[0]) {
-      const isUserInGeneralRoom =
-        chatRooms && chatRooms[0]?.users.some((usr) => usr._id === user._id);
-      if (!isUserInGeneralRoom) {
-        socket?.emit("join chat room", {
-          roomId: chatRooms[0]?.roomId,
-          userId: user._id,
-        });
-      }
-    }
   }, []);
+
+  useEffect(() => {
+    if (isRoomFetched) {
+      handleGeneralRoomUser();
+    }
+  }, [isRoomFetched]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -178,8 +171,24 @@ export const ForumProvider = ({ children }) => {
   const handleFetchRooms = async () => {
     await fetchRooms().then((value) => {
       setChatRooms(value?.data);
+      setIsRoomFetched(true);
     });
+
     return chatRooms;
+  };
+
+  const handleGeneralRoomUser = () => {
+    if (chatRooms && chatRooms?.[0]) {
+      const isUserInGeneralRoom = chatRooms[0]?.users?.some(
+        (usr) => usr?._id === user?._id
+      );
+      if (!isUserInGeneralRoom) {
+        socket?.emit("join chat room", {
+          roomId: chatRooms[0]?._id,
+          userId: user?._id,
+        });
+      }
+    }
   };
 
   return (
@@ -212,6 +221,7 @@ export const ForumProvider = ({ children }) => {
         // handleSinglePost,
         handleDeletePost,
         handleFetchUsers,
+        handleGetUpdatedUserInfo,
       }}
     >
       {children}

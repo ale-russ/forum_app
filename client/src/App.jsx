@@ -19,37 +19,39 @@ import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import { SocketProvider } from "./utils/SocketContext";
 import PrivateChatPage from "./pages/PrivateChatPage";
+import NewPosts from "./components/post/NewPosts";
+import PopularPosts from "./components/post/PopularPosts";
+import FollowingPosts from "./components/post/FollowingPosts";
 
 function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
     <div className="light w-full h-full overflow-x-hidden">
-      <SocketProvider>
-        <ForumProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<AuthWrapper />}>
-                <Route path="/" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Route>
-              <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
-                <Route path="/home" element={<Home />} />
-                <Route path="/rooms/:roomId" element={<ChatRoom />} />
-                <Route path="/:id/replies" element={<Replies />} />
-                <Route path="/post/:id" element={<PostPage />} />
-                <Route path="/user-profile" element={<ProfilePage />} />
-                <Route
-                  path="/chat/private-chat/:userId"
-                  element={<PrivateChatPage />}
-                />
-              </Route>
-              <Route path="/unauthorized" element={<Unauthorized />} />
-              <Route path="/not-found" element={<NoPageFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ForumProvider>
-      </SocketProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AuthWrapper />}>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+          <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/rooms/:roomId" element={<ChatRoom />} />
+            <Route path="/:id/replies" element={<Replies />} />
+            <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/user-profile" element={<ProfilePage />} />
+            <Route
+              path="/chat/private-chat/:userId"
+              element={<PrivateChatPage />}
+            />
+            <Route path="/post/latest-posts" element={<NewPosts />} />
+            <Route path="/post/popular-posts" element={<PopularPosts />} />
+            <Route path="/post/following-posts" element={<FollowingPosts />} />
+          </Route>
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/not-found" element={<NoPageFound />} />
+        </Routes>
+      </BrowserRouter>
       <ToastContainer />
     </div>
   );

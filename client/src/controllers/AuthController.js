@@ -1,10 +1,11 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-import toastOptions from "../utils/constants";
+import { toastOptions } from "../utils/constants";
 
 import {
   getAllUsersRoute,
+  getCurrentUserInfo,
   host,
   loginRoute,
   registerRoute,
@@ -115,6 +116,20 @@ export const fetchAllUsers = async (token) => {
     console.log("ERROR FETCHING USERS: ", error);
     toast.error(error, toastOptions);
     return [];
+  }
+};
+
+export const handleGetUserInfo = async (token) => {
+  try {
+    const response = await axios.get(`${getCurrentUserInfo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data.user;
+  } catch (error) {
+    console.log("Error: ", error);
+    toast.error(error, toastOptions);
   }
 };
 

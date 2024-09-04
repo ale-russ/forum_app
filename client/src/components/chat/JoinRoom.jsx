@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 
 import { host } from "../../utils/ApiRoutes";
-import toastOptions from "../../utils/constants";
+import { toastOptions } from "../../utils/constants";
 import Loader from "./../common/Loader";
 import ModalWrapper from "../common/ModalWrapper";
 import { useForum } from "../../utils/PostContext";
@@ -30,7 +30,7 @@ const JoinRoom = ({ setJoinModalOpen }) => {
           userId: user._id,
         });
       }
-      toast.success("You have successfully joined the room", toastOptions);
+      // toast.success("You have successfully joined the room", toastOptions);
     } catch (err) {
       toast.error(err, toastOptions);
     } finally {
@@ -41,7 +41,10 @@ const JoinRoom = ({ setJoinModalOpen }) => {
   useEffect(() => {
     handleFetchRooms();
     socket.on("join chat room", (message) => {
-      toast.success("User has been added to group", toastOptions);
+      toast.success(
+        `User has been added to room ${message.roomName}`,
+        toastOptions
+      );
     });
 
     socket.on("error", (error) => {
@@ -66,13 +69,13 @@ const JoinRoom = ({ setJoinModalOpen }) => {
               <label className="px-3 mr-4 flex items-start justify-center flex-grow">
                 <select
                   name="join-rooms"
-                  defaultValue="Join Room"
+                  // defaultValue="Join Room"
                   value={selectedRoom}
                   onChange={(event) => setSelectedRoom(event.target.value)}
                   className="light-search rounded p-2 ml-4 w-96 outline-none selection:bg-red-800"
                 >
                   <option value="Join Room">Join Room</option>
-                  {chatRooms.map((room) => (
+                  {chatRooms?.map((room) => (
                     <option key={room._id} value={room._id}>
                       {room.name}
                     </option>
