@@ -12,7 +12,10 @@ import {
 import { toastOptions } from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
 import { useSocket } from "./SocketContext";
-import { fetchAllUsers } from "../controllers/AuthController";
+import {
+  fetchAllUsers,
+  handleGetUserInfo,
+} from "../controllers/AuthController";
 
 const ForumContext = createContext();
 
@@ -42,6 +45,11 @@ export const ForumProvider = ({ children }) => {
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const socket = useSocket();
+
+  const handleGetUpdatedUserInfo = async () => {
+    const data = await handleGetUserInfo(token);
+    localStorage.setItem("currentUser", JSON.stringify(data));
+  };
 
   const handleFetchPosts = async () => {
     setPostLoading(true);
@@ -213,6 +221,7 @@ export const ForumProvider = ({ children }) => {
         // handleSinglePost,
         handleDeletePost,
         handleFetchUsers,
+        handleGetUpdatedUserInfo,
       }}
     >
       {children}

@@ -19,6 +19,9 @@ import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
 import { SocketProvider } from "./utils/SocketContext";
 import PrivateChatPage from "./pages/PrivateChatPage";
+import NewPosts from "./components/post/NewPosts";
+import PopularPosts from "./components/post/PopularPosts";
+import FollowingPosts from "./components/post/FollowingPosts";
 
 function App() {
   const { token } = useContext(UserAuthContext);
@@ -41,6 +44,9 @@ function App() {
               path="/chat/private-chat/:userId"
               element={<PrivateChatPage />}
             />
+            <Route path="/post/latest-posts" element={<NewPosts />} />
+            <Route path="/post/popular-posts" element={<PopularPosts />} />
+            <Route path="/post/following-posts" element={<FollowingPosts />} />
           </Route>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/not-found" element={<NoPageFound />} />

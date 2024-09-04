@@ -158,12 +158,15 @@ router.get("/users", async (req, res) => {
 // route to get user information
 router.get("/user-info", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id)
+      .select("-password")
+      .populate("posts")
+      .populate({ path: "roomsCreated", select: "-messages" })
+      .populate({ path: "roomsJoined", select: "-messages" })
+      .populate("likedPosts");
 
     // check if user exist
     if (!user) return res.status(400).json({ msg: "User Not Found" });
-    console.log("USER: ", user);
-    delete user.password;
     return res.status(200).json({ user });
   } catch (err) {
     return res.status(500).json({ msg: "Internal Server Error" });

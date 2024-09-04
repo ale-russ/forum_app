@@ -210,7 +210,7 @@ const socketControllers = (io) => {
         const room = await Room.findById(roomId);
 
         if (room) {
-          const user = await User.findById(userId);
+          const user = await User.findById(userId).select("-password");
           if (!user) {
             socket.emit("error", "User not found. Please check again");
             return;
