@@ -19,12 +19,14 @@ router.post("/post", verifyToken, async (req, res) => {
 
     await post.save();
 
-    const user = await User.findById(req.user._id);
-    user.posts.push(post);
+    const user = await User.findById(req.user._id || req.user.id);
+    console.log("user: ", user);
+    user?.posts?.push(post);
     await user.save();
 
     res.status(201).json(post);
   } catch (err) {
+    console.log("Error: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -171,7 +173,7 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
     } else {
       post.likes.push(req.user.id);
       if (postLikedIndex === -1) {
-        user.likedPosts.push(post._id);
+        user.likedPosts.push(post);
       }
     }
 
