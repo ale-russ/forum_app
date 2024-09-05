@@ -8,7 +8,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import { MdHomeFilled } from "react-icons/md";
 import { BsCalendar4 } from "react-icons/bs";
-import { IoIosPeople } from "react-icons/io";
+import { IoIosPeople, IoMdContacts } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import { AiFillMessage } from "react-icons/ai";
 import { TbBellFilled } from "react-icons/tb";
@@ -23,7 +23,7 @@ import DisplayContactsModal from "./common/DisplayContactsModal";
 import useCloseModal from "../hooks/useCloseModal.js";
 
 const NavBar = () => {
-  const { token, user, messageNotification } = useForum();
+  const { token, user } = useForum();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -46,6 +46,38 @@ const NavBar = () => {
     console.log("Search Results: ", searchResult);
     setSearchQuery("");
   };
+
+  const handleCloseDropdownMenu = () => {
+    setShowDropdown(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        userMenuRef?.current &&
+        !userMenuRef?.current?.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+
+    function handleOutsideClick(event) {
+      if (
+        contactsModalRef?.current &&
+        !contactsModalRef?.current?.contains(event.target)
+      ) {
+        setShowContacts(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
 
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-full shadow-lg sticky top-0 right-0 left-0 z-50">
@@ -89,7 +121,7 @@ const NavBar = () => {
             className="flex items-center mx-1 rounded-lg light-search cursor-pointer"
             onClick={() => setShowContacts(!showContacts)}
           >
-            <AiFillMessage className="w-9 h-9  px-2  rounded-lg" />
+            <IoMdContacts className="w-9 h-9  px-2  rounded-lg" />
           </div>
           <div className="flex items-center mx-auto rounded-lg light-search">
             <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
@@ -112,7 +144,11 @@ const NavBar = () => {
           />
         ) : null}
         {showDropdown ? (
-          <UserMenus userMenuRef={userMenuRef} showDropdown={showDropdown} />
+          <UserMenus
+            userMenuRef={userMenuRef}
+            showDropdown={showDropdown}
+            handleCloseDropdownMenu={handleCloseDropdownMenu}
+          />
         ) : null}
       </div>
     </div>

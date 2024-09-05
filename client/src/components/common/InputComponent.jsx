@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { IoMdSend } from "react-icons/io";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
@@ -12,6 +12,9 @@ export const InputComponent = ({
   handleSendMessage,
   input,
   socket,
+  setUserTyping,
+  recipient,
+  userTyping,
 }) => {
   const { user } = useForum();
   const chatRef = useRef(null);
@@ -23,7 +26,19 @@ export const InputComponent = ({
   useCloseModal(chatRef, () => setShowPicker(false));
 
   const handleTyping = () =>
-    socket.emit("typing", `${user.userName} is typing`);
+    socket?.emit("typing", { userId: user._id, recipient: recipient });
+
+  useEffect(() => {
+    socket?.on("user typing", (author) => {
+      if (author.userName !== user.userName) {
+        setUserTyping(`${author.userName} is typing `);
+      }
+    });
+
+    socket?.on("stop typing", (data) => {
+      setUserTyping("");
+    });
+  }, []);
 
   return (
     <div className=" relative flex items-center light-search  h-12 pl-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg m-4">
@@ -55,13 +70,15 @@ export const InputComponent = ({
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             handleSendMessage();
+          } else {
+            if (e.target.value.trim()) handleTyping();
+            setTimeout(() => {
+              socket.emit("stop typing", {
+                userId: user._id,
+                recipient: recipient,
+              });
+            }, 100000);
           }
-          //  else {
-          //   if (e.target.value.trim()) handleTyping();
-          //   setTimeout(() => {
-          //     socket.emit("stopTyping");
-          //   }, 5000);
-          // }
         }}
       />
       <button className="bg-[#FF571A] text-white p-2 rounded-r-lg h-full">

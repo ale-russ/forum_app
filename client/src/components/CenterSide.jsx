@@ -1,10 +1,10 @@
-import React from 'react';
-import CreatePost from './post/CreatePost';
-import SmallBaches from './SmallBaches';
+import React from "react";
+import CreatePost from "./post/CreatePost";
+import SmallBaches from "./SmallBaches";
 
-import { useForum } from '../utils/PostContext';
-import PostComponent from './post/PostComponent';
-import Loader from './common/Loader';
+import { useForum } from "../utils/PostContext";
+import PostComponent from "./post/PostComponent";
+import Loader from "./common/Loader";
 
 const CenterSide = () => {
   const { threads, postLoading } = useForum();
@@ -13,7 +13,15 @@ const CenterSide = () => {
       <SmallBaches />
       <CreatePost />
 
-      <>{threads ? threads?.map((post, index) => <PostComponent key={index} post={post} />) : <p>No Post Found</p>}</>
+      <>
+        {threads ? (
+          threads?.map((post, index) => (
+            <PostComponent key={index} post={post} />
+          ))
+        ) : (
+          <p>No Post Found</p>
+        )}
+      </>
     </form>
   );
 };

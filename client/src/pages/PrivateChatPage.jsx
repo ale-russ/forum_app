@@ -33,6 +33,7 @@ const PrivateChatPage = () => {
   const socket = useSocket();
 
   const [messages, setMessages] = useState([]);
+  const [userTyping, setUserTyping] = useState("");
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const messageEndRef = useRef();
@@ -136,7 +137,9 @@ const PrivateChatPage = () => {
         <p className="font-bold flex justify-center items-center">Contacts</p>
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
           {userList
-            ?.filter((usr) => usr._id !== user._id && usr._id !== recipient._id)
+            ?.filter(
+              (usr) => usr?._id !== user?._id && usr?._id !== recipient?._id
+            )
             .sort((a, b) => a.userName.localeCompare(b.userName))
             .map((usr) => {
               const isOnline = onlineUsers?.some(
@@ -171,12 +174,12 @@ const PrivateChatPage = () => {
             <div className="flex items-center justify-start px-2 w-full ">
               {userList
                 ?.filter(
-                  (usr) => usr._id !== user._id && usr._id !== recipient._id
+                  (usr) => usr?._id !== user?._id && usr?._id !== recipient?._id
                 )
                 .sort((a, b) => a.userName.localeCompare(b.userName))
                 .map((usr) => {
                   const isOnline = onlineUsers?.some(
-                    (onlineUser) => onlineUser.user._id === usr._id
+                    (onlineUser) => onlineUser.user?._id === usr?._id
                   );
                   return (
                     <div
@@ -184,7 +187,7 @@ const PrivateChatPage = () => {
                       key={usr._id}
                       aria-label={`Chat with ${usr.userName}`}
                       onClick={() => {
-                        navigate(`/chat/private-chat/${usr._id}`, {
+                        navigate(`/chat/private-chat/${usr?._id}`, {
                           state: { recipient: usr },
                         });
                       }}
@@ -203,7 +206,7 @@ const PrivateChatPage = () => {
             </div>
           )}
         </div>
-        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-x-hidden overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
           {messages?.map((msg) => {
             const isCurrentUser = msg?.author === user?._id;
             const key = `${msg?.timestamp}-${Math.random()}`;
@@ -233,6 +236,10 @@ const PrivateChatPage = () => {
               </div>
             );
           })}
+          {userTyping}{" "}
+          <div className="h-8 w-8 rounded-full animate-bounce [animation-delay:0.3s]"></div>
+          <div className="h-8 w-8 rounded-full animate-bounce [animation-delay:0.15s]"></div>
+          <div className="h-8 w-8 rounded-full animate-bounce"></div>
         </div>
         {/* <div ref={containerRef} className="flex-grow overflow-hidden">
           <AutoSizer>
@@ -250,6 +257,7 @@ const PrivateChatPage = () => {
             )}
           </AutoSizer>
         </div> */}
+
         <InputComponent
           input={input}
           setInput={setInput}
@@ -257,6 +265,9 @@ const PrivateChatPage = () => {
           showPicker={showPicker}
           setShowPicker={setShowPicker}
           socket={socket}
+          setUserTyping={setUserTyping}
+          recipient={recipient}
+          userTyping={userTyping}
         />
       </div>
     </div>
