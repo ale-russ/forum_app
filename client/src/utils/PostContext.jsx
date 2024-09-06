@@ -16,12 +16,15 @@ import {
   fetchAllUsers,
   handleGetUserInfo,
 } from "../controllers/AuthController";
+import { useNavigate } from "react-router-dom";
 
 const ForumContext = createContext();
 
 export const useForum = () => useContext(ForumContext);
 
 export const ForumProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [threads, setThreads] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
   const [isLiked, setIsLiked] = useState({});
@@ -35,6 +38,8 @@ export const ForumProvider = ({ children }) => {
   const [postLoading, setPostLoading] = useState(false);
   const [messageNotification, setMessageNotification] = useState({});
   const [isRoomFetched, setIsRoomFetched] = useState(false);
+  const [newMessages, setNewMessages] = useState([{}]);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -45,6 +50,52 @@ export const ForumProvider = ({ children }) => {
   const { token } = useContext(UserAuthContext);
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const socket = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit("user connected", user?._id);
+
+    socket.on("update user list", (users) => {
+      setOnlineUsers(users);
+    });
+
+    const handleNewComment = ({ id }) => {
+      setCommentCounts((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + 1,
+      }));
+    };
+
+    socket.on("new comment", handleNewComment);
+
+    socket.on("new message", handleNewMessage);
+
+    return () => {
+      socket.off("new comment", handleNewComment);
+      socket.off("new message", handleNewMessage);
+    };
+  }, [socket, navigate, newMessages]);
+
+  useEffect(() => {
+    handleFetchRooms();
+
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isRoomFetched) {
+      handleGeneralRoomUser();
+    }
+  }, [isRoomFetched]);
+
+  useEffect(() => {
+    // console.log("new notification: ", messageNotification);
+  }, [newMessages]);
 
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
@@ -123,51 +174,6 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.emit("user connected", user?._id);
-
-    socket.on("update user list", (users) => {
-      setOnlineUsers(users);
-    });
-
-    const handleNewComment = ({ id }) => {
-      setCommentCounts((prev) => ({
-        ...prev,
-        [id]: (prev[id] || 0) + 1,
-      }));
-    };
-
-    socket.on("new comment", handleNewComment);
-
-    return () => {
-      socket.off("new comment", handleNewComment);
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    handleFetchRooms();
-  }, []);
-
-  useEffect(() => {
-    if (isRoomFetched) {
-      handleGeneralRoomUser();
-    }
-  }, [isRoomFetched]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    // console.log("new notification: ", messageNotification);
-  }, [messageNotification]);
-
   const handleFetchRooms = async () => {
     await fetchRooms().then((value) => {
       setChatRooms(value?.data);
@@ -191,6 +197,28 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
+  const handleNewMessage = ({ chatId, senderName, message }) => {
+    console.log("handleNewMessage: ", message);
+    setNewMessages((prev) => [...prev, message]);
+    toast.info(`New message from ${senderName}: ${message.content}`, {
+      ...toastOptions,
+      onClick: () => navigateToChat(chatId),
+    });
+    console.log("new message in handleNewMessage: ", newMessages);
+  };
+
+  const navigateToChat = (chatId) => {
+    navigate(`/chat/private-chat/${chatId}`);
+    setMessageNotification({});
+  };
+
+  const clearUnreadMessages = (chatId) => {
+    setNewMessages((prev) => prev.filter((msg) => msg.chatId !== chatId));
+    if (newMessages.length === 0) {
+      setHasUnreadMessages(false);
+    }
+  };
+
   return (
     <ForumContext.Provider
       value={{
@@ -209,11 +237,13 @@ export const ForumProvider = ({ children }) => {
         messageNotification,
         dimensions,
         userList,
+        newMessages,
         setDimensions,
         setMessageNotification,
         setPostComments,
         setNewPost,
         setLikeCounts,
+        setNewMessages,
         handleFetchPosts,
         handleCreatePost,
         handleLikePost,
@@ -222,6 +252,7 @@ export const ForumProvider = ({ children }) => {
         handleDeletePost,
         handleFetchUsers,
         handleGetUpdatedUserInfo,
+        handleNewMessage,
       }}
     >
       {children}

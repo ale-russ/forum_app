@@ -70,6 +70,7 @@ export const InputComponent = ({
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             handleSendMessage();
+            setUserTyping("");
           } else {
             if (e.target.value.trim()) handleTyping();
             setTimeout(() => {

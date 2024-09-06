@@ -56,7 +56,7 @@ const socketControllers = (io) => {
             "_id userName"
           );
 
-          console.log("author: ", author);
+          // console.log("author: ", author);
 
           if (!author) {
             io.emit("error", "User not found");
@@ -144,7 +144,7 @@ const socketControllers = (io) => {
     });
 
     socket.on("stop typing", async ({ userId, recipient }) => {
-      console.log("Stopped writing");
+      // console.log("Stopped writing");
       try {
         const recipientSocketId = users[recipient._id]?.socketId;
         if (recipientSocketId) {
@@ -200,7 +200,7 @@ const socketControllers = (io) => {
 
         io.to(room).emit("chat room message", newMessage);
       } catch (err) {
-        console.error("Sending message failed: ", err.message);
+        // console.error("Sending message failed: ", err.message);
         io.to(room).emit("error", "Error Sending message");
       }
     });

@@ -22,11 +22,11 @@ const PrivateChatPage = () => {
     user,
     token,
     onlineUsers,
-    messageNotification,
     setMessageNotification,
     dimensions,
     handleFetchUsers,
     userList,
+    handleNewMessage,
   } = useForum();
 
   const smallScreen = dimensions.width < 768;
@@ -53,20 +53,16 @@ const PrivateChatPage = () => {
     updateHeight();
     window.addEventListener("resize", updateHeight);
 
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
-
-  useEffect(() => {
     if (listRef?.current) {
       listRef?.current?.resetAfterIndex(0);
     }
-  }, []);
 
-  useEffect(() => {
     if (messageRef?.current) {
       const { height } = messageRef?.current?.getBoundingClientRect();
       setMessageHeight(height);
     }
+
+    return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
   const scrollToBottom = () => {
@@ -94,9 +90,13 @@ const PrivateChatPage = () => {
 
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
-        console.log("private message: ", message);
+        console.log("Message: ", message);
         setMessages((prevMessages) => [...prevMessages, message]);
-        setMessageNotification({ message });
+        handleNewMessage({
+          chatId: message.recipient,
+          senderName: message.userName,
+          message: message,
+        });
       };
 
       const handleError = (errorMessage) => {
@@ -111,7 +111,7 @@ const PrivateChatPage = () => {
         socket.off("error");
       };
     }
-  }, [socket, recipient?._id, setMessageNotification]);
+  }, [socket, recipient?._id]);
 
   const sendPrivateMessage = () => {
     if (input.trim()) {
@@ -236,10 +236,14 @@ const PrivateChatPage = () => {
               </div>
             );
           })}
-          {userTyping}{" "}
-          <div className="h-8 w-8 rounded-full animate-bounce [animation-delay:0.3s]"></div>
-          <div className="h-8 w-8 rounded-full animate-bounce [animation-delay:0.15s]"></div>
-          <div className="h-8 w-8 rounded-full animate-bounce"></div>
+          {/* {userTyping && (
+            <div className="w-40 flex justify-between items-center italic text-gray-500">
+              {userTyping}{" "}
+              <div className="h-3 w-3 rounded-full animate-bounce [animation-delay:0.3s] bg-gray-400"></div>
+              <div className="h-3 w-3 rounded-full animate-bounce [animation-delay:0.15s] bg-gray-400"></div>
+              <div className="h-3 w-3 rounded-full animate-bounce bg-gray-400"></div>
+            </div>
+          )} */}
         </div>
         {/* <div ref={containerRef} className="flex-grow overflow-hidden">
           <AutoSizer>
