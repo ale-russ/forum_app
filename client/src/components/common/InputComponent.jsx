@@ -74,7 +74,7 @@ export const InputComponent = ({
           } else {
             if (e.target.value.trim()) handleTyping();
             setTimeout(() => {
-              socket.emit("stop typing", {
+              socket?.emit("stop typing", {
                 userId: user._id,
                 recipient: recipient,
               });

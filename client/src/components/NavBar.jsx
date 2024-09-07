@@ -21,9 +21,16 @@ import ProfileImage from "./common/ProfileImage";
 import UserMenus from "./common/UserMenus";
 import DisplayContactsModal from "./common/DisplayContactsModal";
 import useCloseModal from "../hooks/useCloseModal.js";
+import { useMessage } from "../utils/MessageContextProvider.jsx";
 
 const NavBar = () => {
-  const { token, user, newMessages, setNewMessages } = useForum();
+  const { token, user } = useForum();
+  const {
+    newMessages,
+    hasUnreadMessages,
+    setHasUnreadMessages,
+    navigateToChat,
+  } = useMessage();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -34,11 +41,13 @@ const NavBar = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [showNotification, setShoNotification] = useState(false);
 
-  let isCurrentUser = newMessages.some((msg) => {
-    msg?.userName === user?.userName;
-  });
-
   useCloseModal(contactsModalRef, () => setShowContacts(false));
+
+  let isInChatPage =
+    newMessages.length > 0 &&
+    newMessages.some((msg) => msg.author === user._id);
+
+  // console.log("isInChatPage: ", isInChatPage);
 
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
@@ -83,9 +92,6 @@ const NavBar = () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
-
-  // console.log("new message: ", newMessages);
-
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-full shadow-lg sticky top-0 right-0 left-0 z-50">
       <div
@@ -131,14 +137,13 @@ const NavBar = () => {
             <IoMdContacts className="w-9 h-9  px-2  rounded-lg" />
           </div>
           <div
-            className=" relative  flex items-center mx-auto rounded-lg light-search"
+            className=" relative  flex items-center mx-auto rounded-lg light-search cursor-pointer"
             onClick={() => {
-              console.log("isCurrentUser: ", isCurrentUser);
               setShoNotification(!showNotification);
             }}
           >
             <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
-            {!isCurrentUser && newMessages.length > 0 && (
+            {hasUnreadMessages && (
               <div className="absolute top-2 right-2 rounded-full h-2 w-2 bg-red-600" />
             )}
           </div>
@@ -155,18 +160,24 @@ const NavBar = () => {
         />
         {showNotification ? (
           <div
-            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 h-72 light-navbar rounded shadow-xl border border-gray-300 ${
+            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
               showNotification
                 ? "opacity-100 animate-slide-in-down"
                 : "opacity-0 animate-slide-out-up pointer-events-none"
             }`}
           >
             {newMessages &&
-              newMessages?.map((message) => {
-                // console.log("Message: ", message);
+              newMessages?.map((message, index) => {
+                setHasUnreadMessages(false);
                 return (
-                  <div className="bg-green-500 w-full h-16">
-                    {message.content}
+                  <div
+                    onClick={() => navigateToChat(message.author)}
+                    key={index}
+                    className="flex items-center rounded-lg shadow-lg border-gray-300 my-2  w-[95%] px-2 h-8 light-search text-ellipsis truncate"
+                  >
+                    <p className="italic">{message.userName} :</p>
+
+                    <p className="mx-2 text-ellipsis">has sent you a message</p>
                   </div>
                 );
               })}

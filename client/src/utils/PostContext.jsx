@@ -17,6 +17,7 @@ import {
   handleGetUserInfo,
 } from "../controllers/AuthController";
 import { useNavigate } from "react-router-dom";
+import { useMessage } from "./MessageContextProvider";
 
 const ForumContext = createContext();
 
@@ -24,6 +25,9 @@ export const useForum = () => useContext(ForumContext);
 
 export const ForumProvider = ({ children }) => {
   const navigate = useNavigate();
+  const { token } = useContext(UserAuthContext);
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const socket = useSocket();
 
   const [threads, setThreads] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
@@ -36,20 +40,12 @@ export const ForumProvider = ({ children }) => {
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
-  const [messageNotification, setMessageNotification] = useState({});
   const [isRoomFetched, setIsRoomFetched] = useState(false);
-  const [newMessages, setNewMessages] = useState([{}]);
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
   const [userList, setUserList] = useState([]);
-
-  const { token } = useContext(UserAuthContext);
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const socket = useSocket();
 
   useEffect(() => {
     if (!socket) return;
@@ -68,13 +64,10 @@ export const ForumProvider = ({ children }) => {
 
     socket.on("new comment", handleNewComment);
 
-    socket.on("new message", handleNewMessage);
-
     return () => {
       socket.off("new comment", handleNewComment);
-      socket.off("new message", handleNewMessage);
     };
-  }, [socket, navigate, newMessages]);
+  }, [socket, navigate]);
 
   useEffect(() => {
     handleFetchRooms();
@@ -92,10 +85,6 @@ export const ForumProvider = ({ children }) => {
       handleGeneralRoomUser();
     }
   }, [isRoomFetched]);
-
-  useEffect(() => {
-    // console.log("new notification: ", messageNotification);
-  }, [newMessages]);
 
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
@@ -197,28 +186,6 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  const handleNewMessage = ({ chatId, senderName, message }) => {
-    console.log("handleNewMessage: ", message);
-    setNewMessages((prev) => [...prev, message]);
-    toast.info(`New message from ${senderName}: ${message.content}`, {
-      ...toastOptions,
-      onClick: () => navigateToChat(chatId),
-    });
-    console.log("new message in handleNewMessage: ", newMessages);
-  };
-
-  const navigateToChat = (chatId) => {
-    navigate(`/chat/private-chat/${chatId}`);
-    setMessageNotification({});
-  };
-
-  const clearUnreadMessages = (chatId) => {
-    setNewMessages((prev) => prev.filter((msg) => msg.chatId !== chatId));
-    if (newMessages.length === 0) {
-      setHasUnreadMessages(false);
-    }
-  };
-
   return (
     <ForumContext.Provider
       value={{
@@ -234,25 +201,19 @@ export const ForumProvider = ({ children }) => {
         currentPost,
         onlineUsers,
         postLoading,
-        messageNotification,
         dimensions,
         userList,
-        newMessages,
         setDimensions,
-        setMessageNotification,
         setPostComments,
         setNewPost,
         setLikeCounts,
-        setNewMessages,
         handleFetchPosts,
         handleCreatePost,
         handleLikePost,
         handleFetchRooms,
-        // handleSinglePost,
         handleDeletePost,
         handleFetchUsers,
         handleGetUpdatedUserInfo,
-        handleNewMessage,
       }}
     >
       {children}
