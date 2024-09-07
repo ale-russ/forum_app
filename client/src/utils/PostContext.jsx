@@ -16,12 +16,19 @@ import {
   fetchAllUsers,
   handleGetUserInfo,
 } from "../controllers/AuthController";
+import { useNavigate } from "react-router-dom";
+import { useMessage } from "./MessageContextProvider";
 
 const ForumContext = createContext();
 
 export const useForum = () => useContext(ForumContext);
 
 export const ForumProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const { token } = useContext(UserAuthContext);
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const socket = useSocket();
+
   const [threads, setThreads] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
   const [isLiked, setIsLiked] = useState({});
@@ -33,18 +40,51 @@ export const ForumProvider = ({ children }) => {
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
-  const [messageNotification, setMessageNotification] = useState({});
   const [isRoomFetched, setIsRoomFetched] = useState(false);
-
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
   const [userList, setUserList] = useState([]);
 
-  const { token } = useContext(UserAuthContext);
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  const socket = useSocket();
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit("user connected", user?._id);
+
+    socket.on("update user list", (users) => {
+      setOnlineUsers(users);
+    });
+
+    const handleNewComment = ({ id }) => {
+      setCommentCounts((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + 1,
+      }));
+    };
+
+    socket.on("new comment", handleNewComment);
+
+    return () => {
+      socket.off("new comment", handleNewComment);
+    };
+  }, [socket, navigate]);
+
+  useEffect(() => {
+    handleFetchRooms();
+
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isRoomFetched) {
+      handleGeneralRoomUser();
+    }
+  }, [isRoomFetched]);
 
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
@@ -123,51 +163,6 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.emit("user connected", user?._id);
-
-    socket.on("update user list", (users) => {
-      setOnlineUsers(users);
-    });
-
-    const handleNewComment = ({ id }) => {
-      setCommentCounts((prev) => ({
-        ...prev,
-        [id]: (prev[id] || 0) + 1,
-      }));
-    };
-
-    socket.on("new comment", handleNewComment);
-
-    return () => {
-      socket.off("new comment", handleNewComment);
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    handleFetchRooms();
-  }, []);
-
-  useEffect(() => {
-    if (isRoomFetched) {
-      handleGeneralRoomUser();
-    }
-  }, [isRoomFetched]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    // console.log("new notification: ", messageNotification);
-  }, [messageNotification]);
-
   const handleFetchRooms = async () => {
     await fetchRooms().then((value) => {
       setChatRooms(value?.data);
@@ -206,11 +201,9 @@ export const ForumProvider = ({ children }) => {
         currentPost,
         onlineUsers,
         postLoading,
-        messageNotification,
         dimensions,
         userList,
         setDimensions,
-        setMessageNotification,
         setPostComments,
         setNewPost,
         setLikeCounts,
@@ -218,7 +211,6 @@ export const ForumProvider = ({ children }) => {
         handleCreatePost,
         handleLikePost,
         handleFetchRooms,
-        // handleSinglePost,
         handleDeletePost,
         handleFetchUsers,
         handleGetUpdatedUserInfo,

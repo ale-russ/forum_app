@@ -27,7 +27,7 @@ function App() {
   const { token } = useContext(UserAuthContext);
 
   return (
-    <div className="light w-full h-full overflow-x-hidden">
+    <div className="light w-full h-full overflow-x-hidden scrollbar custom-scrollbar">
       <BrowserRouter>
         <Routes>
           <Route element={<AuthWrapper />}>

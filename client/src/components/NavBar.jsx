@@ -8,7 +8,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import { MdHomeFilled } from "react-icons/md";
 import { BsCalendar4 } from "react-icons/bs";
-import { IoIosPeople } from "react-icons/io";
+import { IoIosPeople, IoMdContacts } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import { AiFillMessage } from "react-icons/ai";
 import { TbBellFilled } from "react-icons/tb";
@@ -21,9 +21,16 @@ import ProfileImage from "./common/ProfileImage";
 import UserMenus from "./common/UserMenus";
 import DisplayContactsModal from "./common/DisplayContactsModal";
 import useCloseModal from "../hooks/useCloseModal.js";
+import { useMessage } from "../utils/MessageContextProvider.jsx";
 
 const NavBar = () => {
-  const { token, user, messageNotification } = useForum();
+  const { token, user } = useForum();
+  const {
+    newMessages,
+    hasUnreadMessages,
+    setHasUnreadMessages,
+    navigateToChat,
+  } = useMessage();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -32,8 +39,15 @@ const NavBar = () => {
   const userMenuRef = useRef();
   const contactsModalRef = useRef();
   const [showContacts, setShowContacts] = useState(false);
+  const [showNotification, setShoNotification] = useState(false);
 
   useCloseModal(contactsModalRef, () => setShowContacts(false));
+
+  let isInChatPage =
+    newMessages.length > 0 &&
+    newMessages.some((msg) => msg.author === user._id);
+
+  // console.log("isInChatPage: ", isInChatPage);
 
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
@@ -47,6 +61,37 @@ const NavBar = () => {
     setSearchQuery("");
   };
 
+  const handleCloseDropdownMenu = () => {
+    setShowDropdown(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        userMenuRef?.current &&
+        !userMenuRef?.current?.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+
+    function handleOutsideClick(event) {
+      if (
+        contactsModalRef?.current &&
+        !contactsModalRef?.current?.contains(event.target)
+      ) {
+        setShowContacts(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
   return (
     <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-full shadow-lg sticky top-0 right-0 left-0 z-50">
       <div
@@ -89,10 +134,18 @@ const NavBar = () => {
             className="flex items-center mx-1 rounded-lg light-search cursor-pointer"
             onClick={() => setShowContacts(!showContacts)}
           >
-            <AiFillMessage className="w-9 h-9  px-2  rounded-lg" />
+            <IoMdContacts className="w-9 h-9  px-2  rounded-lg" />
           </div>
-          <div className="flex items-center mx-auto rounded-lg light-search">
+          <div
+            className=" relative  flex items-center mx-auto rounded-lg light-search cursor-pointer"
+            onClick={() => {
+              setShoNotification(!showNotification);
+            }}
+          >
             <TbBellFilled className="w-9 h-9  px-2  rounded-lg" />
+            {hasUnreadMessages && (
+              <div className="absolute top-2 right-2 rounded-full h-2 w-2 bg-red-600" />
+            )}
           </div>
         </div>
 
@@ -105,6 +158,31 @@ const NavBar = () => {
           className="relative mx-2 w-4 h-4 cursor-pointer"
           onClick={() => setShowDropdown(!showDropdown)}
         />
+        {showNotification ? (
+          <div
+            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
+              showNotification
+                ? "opacity-100 animate-slide-in-down"
+                : "opacity-0 animate-slide-out-up pointer-events-none"
+            }`}
+          >
+            {newMessages &&
+              newMessages?.map((message, index) => {
+                setHasUnreadMessages(false);
+                return (
+                  <div
+                    onClick={() => navigateToChat(message.author)}
+                    key={index}
+                    className="flex items-center rounded-lg shadow-lg border-gray-300 my-2  w-[95%] px-2 h-8 light-search text-ellipsis truncate"
+                  >
+                    <p className="italic">{message.userName} :</p>
+
+                    <p className="mx-2 text-ellipsis">has sent you a message</p>
+                  </div>
+                );
+              })}
+          </div>
+        ) : null}
         {showContacts ? (
           <DisplayContactsModal
             contactsModalRef={contactsModalRef}
@@ -112,7 +190,11 @@ const NavBar = () => {
           />
         ) : null}
         {showDropdown ? (
-          <UserMenus userMenuRef={userMenuRef} showDropdown={showDropdown} />
+          <UserMenus
+            userMenuRef={userMenuRef}
+            showDropdown={showDropdown}
+            handleCloseDropdownMenu={handleCloseDropdownMenu}
+          />
         ) : null}
       </div>
     </div>

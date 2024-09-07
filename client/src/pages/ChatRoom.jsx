@@ -1,21 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import io from "socket.io-client";
 import { useNavigate, useParams } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
-import { VariableSizeList as List } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
 
-import { host } from "../utils/ApiRoutes";
-import Chat from "../components/chat/Chat";
 import { useForum } from "../utils/PostContext";
 import HomeWrapper from "../components/common/HomeWrapper";
 import { InputComponent } from "../components/common/InputComponent";
 import { useSocket } from "../utils/SocketContext";
 import ProfileImage from "../components/common/ProfileImage";
 import { estimatedMessageHeight } from "../utils/MessageHeight";
-import { messageContainer } from "../components/chat/MessageContainer";
-
-// const socket = io(host);
+import ScrollableFeed from "react-scrollable-feed";
+import { validDate } from "../utils/FormatDate";
 
 const ChatRoom = () => {
   const navigate = useNavigate();
@@ -28,6 +21,7 @@ const ChatRoom = () => {
   const [users, setUsers] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(roomId);
   const [chatRoom, setChatRoom] = useState();
+  const [userTyping, setUserTyping] = useState("");
 
   const [showPicker, setShowPicker] = useState(false);
 
@@ -195,21 +189,47 @@ const ChatRoom = () => {
             <div className="flex items-center justify-center font-bold w-full border-b-2">
               {chatRoom?.name}
             </div>
-            <div ref={containerRef} className="flex-grow overflow-hidden">
-              <AutoSizer>
-                {({ width }) => (
-                  <List
-                    ref={listRef}
-                    height={listHeight}
-                    itemCount={messages.length}
-                    itemSize={getItemSize}
-                    width={width}
-                    className="scrollbar custom-scrollbar"
-                  >
-                    {messageContainer(messages, user)}
-                  </List>
-                )}
-              </AutoSizer>
+
+            <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-x-hidden overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+              <ScrollableFeed className="w-full overflow-x-hidden">
+                {messages?.map((msg, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className={`flex flex-col ${
+                        msg.author._id === user._id
+                          ? "items-end"
+                          : "items-start"
+                      }`}
+                    >
+                      {msg.author._id !== user._id && (
+                        <p className="text-xs italic mb-1">
+                          {msg.author.userName}
+                        </p>
+                      )}
+                      <div
+                        className={` rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex
+               ${
+                 msg.author._id === user._id
+                   ? "bg-blue-600 text-right"
+                   : "bg-zinc-600 text-left"
+               }`}
+                      >
+                        <span
+                          className={`inline-block px-1 py-1 rounded-lg text-[12px] ${
+                            msg.author._id === user._id
+                          } ? "bg-blue-500 text-white" : "bg-gray-200 text-white`}
+                        >
+                          {msg.content}
+                        </span>
+                      </div>
+                      <p className="text-[10px] italic">
+                        {validDate(msg?.createdAt)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </ScrollableFeed>
             </div>
             <InputComponent
               input={input}
@@ -217,6 +237,8 @@ const ChatRoom = () => {
               setInput={setInput}
               setShowPicker={setShowPicker}
               handleSendMessage={handleSendMessage}
+              userTyping={userTyping}
+              setUserTyping={setUserTyping}
             />
           </div>
         </div>
