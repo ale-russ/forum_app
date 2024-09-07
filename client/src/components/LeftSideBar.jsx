@@ -5,7 +5,7 @@ import PinnedGroups from "./PinnedGroups";
 
 const RightSideBar = () => {
   return (
-    <div className=" hidden  lg:flex xl:flex flex-col">
+    <div className=" hidden lg:flex xl:flex flex-col">
       <LargeBatches />
       <PopularRooms />
       {/* <PinnedGroups /> */}

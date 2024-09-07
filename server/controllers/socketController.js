@@ -56,7 +56,7 @@ const socketControllers = (io) => {
             "_id userName"
           );
 
-          console.log("author: ", author);
+          // console.log("author: ", author);
 
           if (!author) {
             io.emit("error", "User not found");
@@ -125,14 +125,45 @@ const socketControllers = (io) => {
       }
     });
 
-    socket.on("typing", (data) => {
-      // console.log("Typing: ", data);
-      socket.emit("typingResponse", data);
+    socket.on("typing", async ({ userId, recipient }) => {
+      try {
+        const recipientSocketId = users[recipient._id]?.socketId;
+        if (recipientSocketId) {
+          const author = await User.findById(userId).select("_id userName");
+          if (!author) {
+            io.emit("error", "User not found");
+            return;
+          }
+          io.to(recipientSocketId).emit("user typing", author);
+        } else {
+          io.emit("error", "Recipient not connected");
+        }
+      } catch (error) {
+        io.emit("error", "Error");
+      }
     });
 
-    socket.on("stopTyping", () =>
-      socket.emit("response", "user stopped typing")
-    );
+    socket.on("stop typing", async ({ userId, recipient }) => {
+      // console.log("Stopped writing");
+      try {
+        const recipientSocketId = users[recipient._id]?.socketId;
+        if (recipientSocketId) {
+          const author = await User.findById(userId).select("_id userName");
+          if (!author) {
+            io.emit("error", "User not found");
+            return;
+          }
+          io.to(recipientSocketId).emit(
+            "stop typing",
+            `${author.userName} stopped writing`
+          );
+        } else {
+          io.emit("error", "Recipient not connected");
+        }
+      } catch (error) {
+        io.emit("error", "Error");
+      }
+    });
 
     socket.on("chat room message", async ({ room, message }) => {
       try {
@@ -169,7 +200,7 @@ const socketControllers = (io) => {
 
         io.to(room).emit("chat room message", newMessage);
       } catch (err) {
-        console.error("Sending message failed: ", err.message);
+        // console.error("Sending message failed: ", err.message);
         io.to(room).emit("error", "Error Sending message");
       }
     });

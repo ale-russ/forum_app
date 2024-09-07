@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoLogoJavascript } from "react-icons/io";
 
 import { UserAuthContext } from "../../utils/UserAuthenticationProvider";
 import { useForum } from "../../utils/PostContext";
@@ -9,7 +8,7 @@ import { handleLogout } from "../../controllers/AuthController";
 import Room from "../chat/RoomComponent";
 import JoinRoom from "../chat/JoinRoom";
 
-const UserMenus = ({ userMenuRef, showDropdown }) => {
+const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
   const navigate = useNavigate();
   const { user, handleFetchRooms, chatRooms } = useForum();
   const { setUserAuth } = useContext(UserAuthContext);
@@ -36,9 +35,11 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
 
   const handleOpenJoinModal = () => {
     setJoinModalOpen(!joinModalOpen);
+    // handleCloseDropdownMenu();
   };
   const handleOpenCreateModal = () => {
     setCreateModalOpen(!createModalOpen);
+    // handleCloseDropdownMenu();
   };
 
   const signOut = async () => {
@@ -47,7 +48,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
     navigate("/");
   };
   return (
-    <>
+    <div ref={userMenuRef}>
       <div
         // ref={userMenuRef}
         className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 light-navbar rounded shadow-xl border border-gray-300 ${
@@ -123,7 +124,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
       )}
       {createModalOpen && <Room setCrateModalOpen={setCreateModalOpen} />}
       {joinModalOpen && <JoinRoom setJoinModalOpen={setJoinModalOpen} />}
-    </>
+    </div>
   );
 };
 

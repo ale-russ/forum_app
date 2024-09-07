@@ -4,38 +4,28 @@ import { useSocket } from "../utils/SocketContext";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchPrivateMessages } from "../controllers/ChatController";
 import { toast } from "react-toastify";
-import { VariableSizeList as List } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
+import ScrollableFeed from "react-scrollable-feed";
 
 import { sendMessage, toastOptions } from "../utils/constants";
 import { InputComponent } from "../components/common/InputComponent";
 import ProfileImage from "../components/common/ProfileImage";
-import { estimatedMessageHeight } from "../utils/MessageHeight";
-import { messageContainer } from "../components/chat/MessageContainer";
 import { validDate } from "../utils/FormatDate";
+import { useMessage } from "../utils/MessageContextProvider";
 
 const PrivateChatPage = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { recipient } = state || {};
-  const {
-    user,
-    token,
-    onlineUsers,
-    messageNotification,
-    setMessageNotification,
-    dimensions,
-    handleFetchUsers,
-    userList,
-  } = useForum();
+  const { user, token, onlineUsers, dimensions, handleFetchUsers, userList } =
+    useForum();
 
   const smallScreen = dimensions.width < 768;
   const socket = useSocket();
+  const { messages, setMessages } = useMessage();
 
-  const [messages, setMessages] = useState([]);
+  const [userTyping, setUserTyping] = useState("");
   const [input, setInput] = useState("");
   const [showPicker, setShowPicker] = useState(false);
-  const messageEndRef = useRef();
 
   const [listHeight, setListHeight] = useState(500);
   const containerRef = useRef(null);
@@ -52,25 +42,17 @@ const PrivateChatPage = () => {
     updateHeight();
     window.addEventListener("resize", updateHeight);
 
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
-
-  useEffect(() => {
     if (listRef?.current) {
       listRef?.current?.resetAfterIndex(0);
     }
-  }, []);
 
-  useEffect(() => {
     if (messageRef?.current) {
       const { height } = messageRef?.current?.getBoundingClientRect();
       setMessageHeight(height);
     }
-  }, []);
 
-  const scrollToBottom = () => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const handleChatMessages = async () => {
     try {
@@ -81,7 +63,6 @@ const PrivateChatPage = () => {
       );
       setMessages(data);
     } catch (error) {
-      console.error(error);
       toast.error("Error Fetching Messages", toastOptions);
       setMessages([]);
     }
@@ -90,27 +71,7 @@ const PrivateChatPage = () => {
   useEffect(() => {
     handleChatMessages();
     handleFetchUsers();
-
-    if (socket) {
-      const handlePrivateMessage = ({ message }) => {
-        console.log("private message: ", message);
-        setMessages((prevMessages) => [...prevMessages, message]);
-        setMessageNotification({ message });
-      };
-
-      const handleError = (errorMessage) => {
-        console.error("Socket error:", errorMessage);
-      };
-
-      socket.on("private message", handlePrivateMessage);
-      socket.on("error", handleError);
-
-      return () => {
-        socket.off("private message");
-        socket.off("error");
-      };
-    }
-  }, [socket, recipient?._id, setMessageNotification]);
+  }, [socket, recipient?._id]);
 
   const sendPrivateMessage = () => {
     if (input.trim()) {
@@ -128,7 +89,7 @@ const PrivateChatPage = () => {
     }
   };
 
-  const getItemsSize = (index) => estimatedMessageHeight(messages[index]);
+  // const getItemsSize = (index) => estimatedMessageHeight(messages[index]);
 
   return (
     <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
@@ -136,7 +97,9 @@ const PrivateChatPage = () => {
         <p className="font-bold flex justify-center items-center">Contacts</p>
         <div className="flex flex-col items-start relative cursor-pointer mt-4">
           {userList
-            ?.filter((usr) => usr._id !== user._id && usr._id !== recipient._id)
+            ?.filter(
+              (usr) => usr?._id !== user?._id && usr?._id !== recipient?._id
+            )
             .sort((a, b) => a.userName.localeCompare(b.userName))
             .map((usr) => {
               const isOnline = onlineUsers?.some(
@@ -171,12 +134,12 @@ const PrivateChatPage = () => {
             <div className="flex items-center justify-start px-2 w-full ">
               {userList
                 ?.filter(
-                  (usr) => usr._id !== user._id && usr._id !== recipient._id
+                  (usr) => usr?._id !== user?._id && usr?._id !== recipient?._id
                 )
                 .sort((a, b) => a.userName.localeCompare(b.userName))
                 .map((usr) => {
                   const isOnline = onlineUsers?.some(
-                    (onlineUser) => onlineUser.user._id === usr._id
+                    (onlineUser) => onlineUser.user?._id === usr?._id
                   );
                   return (
                     <div
@@ -184,7 +147,7 @@ const PrivateChatPage = () => {
                       key={usr._id}
                       aria-label={`Chat with ${usr.userName}`}
                       onClick={() => {
-                        navigate(`/chat/private-chat/${usr._id}`, {
+                        navigate(`/chat/private-chat/${usr?._id}`, {
                           state: { recipient: usr },
                         });
                       }}
@@ -203,53 +166,48 @@ const PrivateChatPage = () => {
             </div>
           )}
         </div>
-        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
-          {messages?.map((msg) => {
-            const isCurrentUser = msg?.author === user?._id;
-            const key = `${msg?.timestamp}-${Math.random()}`;
+        <div className="w-full h-full p-4 flex flex-col items-start light-navbar overflow-x-hidden overflow-y-auto space-y-2 scrollbar custom-scrollbar ">
+          <ScrollableFeed className="w-full overflow-x-hidden">
+            {messages?.map((msg) => {
+              const isCurrentUser = msg?.author === user?._id;
+              const key = `${msg?.timestamp}-${Math.random()}`;
 
-            return (
-              <div
-                key={key}
-                className={`w-full flex flex-col ${
-                  isCurrentUser ? "items-end" : "items-start"
-                }`}
-              >
+              return (
                 <div
-                  className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
-                    isCurrentUser
-                      ? "bg-blue-600 text-right"
-                      : "bg-zinc-600 text-left "
+                  key={key}
+                  className={`w-full flex flex-col ${
+                    isCurrentUser ? "items-end" : "items-start"
                   }`}
                 >
-                  <span className="inline-block px-1 py-1 rounded-lg text-[12px] text-white">
-                    {msg?.content}
-                  </span>
-                </div>
+                  <div
+                    className={`rounded-lg shadow-xl border-gray-200 min-w-10 max-w-40 flex ${
+                      isCurrentUser
+                        ? "bg-blue-600 text-right"
+                        : "bg-zinc-600 text-left "
+                    }`}
+                  >
+                    <span className="inline-block px-1 py-1 rounded-lg text-[12px] text-white">
+                      {msg?.content}
+                    </span>
+                  </div>
 
-                <p className="text-[10px] italic">
-                  {validDate(msg?.createdAt)}
-                </p>
-              </div>
-            );
-          })}
+                  <p className="text-[10px] italic">
+                    {validDate(msg?.createdAt)}
+                  </p>
+                </div>
+              );
+            })}
+          </ScrollableFeed>
+          {/* {userTyping && (
+            <div className="w-40 flex justify-between items-center italic text-gray-500">
+              {userTyping}{" "}
+              <div className="h-3 w-3 rounded-full animate-bounce [animation-delay:0.3s] bg-gray-400"></div>
+              <div className="h-3 w-3 rounded-full animate-bounce [animation-delay:0.15s] bg-gray-400"></div>
+              <div className="h-3 w-3 rounded-full animate-bounce bg-gray-400"></div>
+            </div>
+          )} */}
         </div>
-        {/* <div ref={containerRef} className="flex-grow overflow-hidden">
-          <AutoSizer>
-            {({ width }) => (
-              <List
-                ref={listRef}
-                itemCount={messages.length}
-                height={listHeight}
-                itemSize={getItemsSize}
-                width={width}
-                className="scrollbar custom-scrollbar"
-              >
-                {messageContainer(messages, user)}
-              </List>
-            )}
-          </AutoSizer>
-        </div> */}
+
         <InputComponent
           input={input}
           setInput={setInput}
@@ -257,6 +215,9 @@ const PrivateChatPage = () => {
           showPicker={showPicker}
           setShowPicker={setShowPicker}
           socket={socket}
+          setUserTyping={setUserTyping}
+          recipient={recipient}
+          userTyping={userTyping}
         />
       </div>
     </div>
