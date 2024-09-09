@@ -7,10 +7,12 @@ import TagsGroupsTile from "./TagsGroupsTile";
 import { handleLogout } from "../../controllers/AuthController";
 import Room from "../chat/RoomComponent";
 import JoinRoom from "../chat/JoinRoom";
+import { useMessage } from "../../utils/MessageContextProvider";
 
 const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
   const navigate = useNavigate();
-  const { user, handleFetchRooms, chatRooms } = useForum();
+  const { user } = useForum();
+  const { handleFetchRooms, chatRooms } = useMessage();
   const { setUserAuth } = useContext(UserAuthContext);
   const [showWarningModal, setShowWarningModal] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);

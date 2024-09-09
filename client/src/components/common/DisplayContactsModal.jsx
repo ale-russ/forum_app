@@ -2,10 +2,12 @@ import React, { useEffect } from "react";
 import { useForum } from "../../utils/PostContext";
 import ProfileImage from "./ProfileImage";
 import { useNavigate } from "react-router-dom";
+import { useMessage } from "../../utils/MessageContextProvider";
 
 const DisplayContactsModal = ({ contactsModalRef, showContacts }) => {
   const navigate = useNavigate();
-  const { onlineUsers, userList, handleFetchUsers, user } = useForum();
+  const { onlineUsers, user } = useForum();
+  const { userList, handleFetchUsers } = useMessage();
 
   useEffect(() => {
     handleFetchUsers();

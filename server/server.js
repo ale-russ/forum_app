@@ -57,7 +57,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
 });
 
-development;
+// development;
 server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });

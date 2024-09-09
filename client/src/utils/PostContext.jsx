@@ -33,19 +33,16 @@ export const ForumProvider = ({ children }) => {
   const [likeCounts, setLikeCounts] = useState({});
   const [isLiked, setIsLiked] = useState({});
   const [commentCounts, setCommentCounts] = useState([]);
-  const [chatRooms, setChatRooms] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const [postComments, setPostComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
-  const [isRoomFetched, setIsRoomFetched] = useState(false);
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [userList, setUserList] = useState([]);
 
   useEffect(() => {
     if (!socket) return;
@@ -70,8 +67,6 @@ export const ForumProvider = ({ children }) => {
   }, [socket, navigate]);
 
   useEffect(() => {
-    handleFetchRooms();
-
     const handleResize = () => {
       setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
@@ -79,12 +74,6 @@ export const ForumProvider = ({ children }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    if (isRoomFetched) {
-      handleGeneralRoomUser();
-    }
-  }, [isRoomFetched]);
 
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
@@ -153,39 +142,6 @@ export const ForumProvider = ({ children }) => {
     // setPostLoading(false);
   };
 
-  const handleFetchUsers = async () => {
-    try {
-      const response = await fetchAllUsers(token);
-      setUserList(response);
-    } catch (err) {
-      // console.log("Error: ", err);
-      toast.error("Failed to fetch users", toastOptions);
-    }
-  };
-
-  const handleFetchRooms = async () => {
-    await fetchRooms().then((value) => {
-      setChatRooms(value?.data);
-      setIsRoomFetched(true);
-    });
-
-    return chatRooms;
-  };
-
-  const handleGeneralRoomUser = () => {
-    if (chatRooms && chatRooms?.[0]) {
-      const isUserInGeneralRoom = chatRooms[0]?.users?.some(
-        (usr) => usr?._id === user?._id
-      );
-      if (!isUserInGeneralRoom) {
-        socket?.emit("join chat room", {
-          roomId: chatRooms[0]?._id,
-          userId: user?._id,
-        });
-      }
-    }
-  };
-
   return (
     <ForumContext.Provider
       value={{
@@ -194,7 +150,6 @@ export const ForumProvider = ({ children }) => {
         likeCounts,
         isLiked,
         commentCounts,
-        chatRooms,
         user,
         token,
         postComments,
@@ -202,7 +157,6 @@ export const ForumProvider = ({ children }) => {
         onlineUsers,
         postLoading,
         dimensions,
-        userList,
         setDimensions,
         setPostComments,
         setNewPost,
@@ -210,9 +164,7 @@ export const ForumProvider = ({ children }) => {
         handleFetchPosts,
         handleCreatePost,
         handleLikePost,
-        handleFetchRooms,
         handleDeletePost,
-        handleFetchUsers,
         handleGetUpdatedUserInfo,
       }}
     >

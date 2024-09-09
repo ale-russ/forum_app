@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import LeftSideWrapper from "../common/LeftSideWrapper";
 import TagsGroupsTile from "../common/TagsGroupsTile";
 import { useForum } from "../../utils/PostContext";
+import { useMessage } from "../../utils/MessageContextProvider";
 
 const PopularRooms = () => {
   const navigate = useNavigate();
-  const { handleFetchRooms, chatRooms, user } = useForum();
+  const { user } = useForum();
+  const { handleFetchRooms, chatRooms } = useMessage();
   const [showWarningModal, setShowWarningModal] = useState(true);
 
   const getRooms = async () => {
@@ -56,11 +58,12 @@ const PopularRooms = () => {
         <div className="absolute inset-0 w-full h-full z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="max-w-md bg-white rounded-lg p-6 text-center">
             <h3 className="text-gray-700 text-xl mb-4">
-              Warning! Please Join the Chat Room first by pressing the Chat
-              button then the Join Button.
+              Warning! Please Join the Chat Room first by going to the menus in
+              the top right corner, select "Join Chat Room" and selecting the
+              chat room
             </h3>
             <button
-              className="mb-4 rounded-lg bg-[#FF571A] w-30 p-3 text-white"
+              className="mb-4 rounded-lg bg-[#FF571A] w-36 p-3 text-white"
               onClick={() => setShowWarningModal(!showWarningModal)}
             >
               OK

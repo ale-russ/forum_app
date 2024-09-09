@@ -9,12 +9,13 @@ import ProfileImage from "../components/common/ProfileImage";
 import { estimatedMessageHeight } from "../utils/MessageHeight";
 import ScrollableFeed from "react-scrollable-feed";
 import { validDate } from "../utils/FormatDate";
+import { useMessage } from "../utils/MessageContextProvider";
 
 const ChatRoom = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const { chatRooms, user, handleFetchRooms, onlineUsers, dimensions } =
-    useForum();
+  const { user, onlineUsers, dimensions } = useForum();
+  const { chatRooms, handleFetchRooms } = useMessage();
   const socket = useSocket();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -92,6 +93,7 @@ const ChatRoom = () => {
   useEffect(() => {
     const findAndSetRoom = () => {
       const matchedRoom = chatRooms?.find((room) => room._id === roomId);
+
       if (matchedRoom) {
         setChatRoom(matchedRoom);
         setMessages([...matchedRoom?.messages]);

@@ -1,14 +1,19 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
 import { useForum } from "./PostContext";
 import { useSocket } from "./SocketContext";
 import { useNavigate } from "react-router-dom";
+import { fetchRooms } from "../controllers/ChatController";
+import { toastOptions } from "./constants";
+import { fetchAllUsers } from "../controllers/AuthController";
 
 const MessageContext = createContext();
 
 export const useMessage = () => useContext(MessageContext);
 
 const MessageContextProvider = ({ children }) => {
-  const { onlineUsers } = useForum();
+  const { onlineUsers, token } = useForum();
   const socket = useSocket();
   const navigate = useNavigate();
 
@@ -16,6 +21,9 @@ const MessageContextProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [messageNotification, setMessageNotification] = useState([]);
+  const [chatRooms, setChatRooms] = useState([]);
+  const [isRoomFetched, setIsRoomFetched] = useState(false);
+  const [userList, setUserList] = useState([]);
 
   const handleNewMessage = ({ chatId, senderName, message }) => {
     setNewMessages((prev) => [...prev, message]);
@@ -33,6 +41,39 @@ const MessageContextProvider = ({ children }) => {
   const clearUnreadMessages = (chatId) => {
     setNewMessages((prev) => prev.filter((msg) => msg.chatId !== chatId));
     setHasUnreadMessages(newMessages.length > 1); // Check if there are still unread messages
+  };
+
+  const handleFetchRooms = async () => {
+    await fetchRooms().then((value) => {
+      setChatRooms(value?.data);
+      setIsRoomFetched(true);
+    });
+
+    return chatRooms;
+  };
+
+  const handleGeneralRoomUser = () => {
+    if (chatRooms && chatRooms?.[0]) {
+      const isUserInGeneralRoom = chatRooms[0]?.users?.some(
+        (usr) => usr?._id === user?._id
+      );
+      if (!isUserInGeneralRoom) {
+        socket?.emit("join chat room", {
+          roomId: chatRooms[0]?._id,
+          userId: user?._id,
+        });
+      }
+    }
+  };
+
+  const handleFetchUsers = async () => {
+    try {
+      const response = await fetchAllUsers(token);
+      setUserList(response);
+    } catch (err) {
+      // console.log("Error: ", err);
+      toast.error("Failed to fetch users", toastOptions);
+    }
   };
 
   useEffect(() => {
@@ -60,7 +101,17 @@ const MessageContextProvider = ({ children }) => {
   }, [socket, handleNewMessage]);
 
   useEffect(() => {
-    console.log("new notification: ", newMessages);
+    handleFetchRooms();
+  }, []);
+
+  useEffect(() => {
+    if (!isRoomFetched) {
+      handleGeneralRoomUser();
+    }
+  }, [isRoomFetched]);
+
+  useEffect(() => {
+    // console.log("new notification: ", newMessages);
   }, [newMessages]);
 
   return (
@@ -70,12 +121,19 @@ const MessageContextProvider = ({ children }) => {
         newMessages,
         hasUnreadMessages,
         messageNotification,
+        userList,
+        chatRooms,
+        setUserList,
         setHasUnreadMessages,
         setMessageNotification,
         setNewMessages,
         setMessages,
         handleNewMessage,
         navigateToChat,
+        handleFetchRooms,
+        handleGeneralRoomUser,
+        clearUnreadMessages,
+        handleFetchUsers,
       }}
     >
       {children}

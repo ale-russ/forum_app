@@ -16,8 +16,8 @@ const PrivateChatPage = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { recipient } = state || {};
-  const { user, token, onlineUsers, dimensions, handleFetchUsers, userList } =
-    useForum();
+  const { user, token, onlineUsers, dimensions } = useForum();
+  const { handleFetchUsers, userList } = useMessage();
 
   const smallScreen = dimensions.width < 768;
   const socket = useSocket();
