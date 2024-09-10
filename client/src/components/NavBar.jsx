@@ -47,8 +47,6 @@ const NavBar = () => {
     newMessages.length > 0 &&
     newMessages.some((msg) => msg.author === user._id);
 
-  // console.log("isInChatPage: ", isInChatPage);
-
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
     setSearchResult(searchRes);

@@ -8,6 +8,7 @@ import {
   fetchPosts,
   likePost,
   deletePost,
+  followUnfollowUser,
 } from "../controllers/ForumController";
 import { toastOptions } from "./constants";
 import { fetchRooms } from "../controllers/ChatController";
@@ -35,7 +36,6 @@ export const ForumProvider = ({ children }) => {
   const [commentCounts, setCommentCounts] = useState([]);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const [postComments, setPostComments] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [postLoading, setPostLoading] = useState(false);
@@ -43,6 +43,7 @@ export const ForumProvider = ({ children }) => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [followedUsers, setFollowedUsers] = useState(new Set());
 
   useEffect(() => {
     if (!socket) return;
@@ -75,6 +76,17 @@ export const ForumProvider = ({ children }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const userFollowing = user?.following || [];
+    setFollowedUsers(
+      new Set(
+        userFollowing
+          .filter((followingUser) => followingUser._id !== user?._id)
+          .map((followingUser) => followingUser._id)
+      )
+    );
+  }, []);
+
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
     localStorage.setItem("currentUser", JSON.stringify(data));
@@ -90,6 +102,7 @@ export const ForumProvider = ({ children }) => {
       } else {
         return "No Data found";
       }
+      handleGetUpdatedUserInfo();
     } catch (err) {
       toast.error("Failed to fetch posts", toastOptions);
     } finally {
@@ -99,7 +112,7 @@ export const ForumProvider = ({ children }) => {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setPostLoading(true);
     try {
       if (newPost.title === "" || newPost.content === "") {
         toast.error("Title and Content cannot be empty", toastOptions);
@@ -113,7 +126,7 @@ export const ForumProvider = ({ children }) => {
       toast.error("Failed to create post", toastOptions);
     } finally {
       setNewPost({ title: "", content: "" });
-      setLoading(false);
+      setPostLoading(false);
     }
   };
 
@@ -125,6 +138,25 @@ export const ForumProvider = ({ children }) => {
       )
     );
     return response?.data;
+  };
+
+  const handleFollowUnFollowUser = async (post) => {
+    const response = await followUnfollowUser({
+      userId: post?.author?._id,
+      token,
+    });
+    console.log("response: ", response);
+    if (response?.data?.isFollowing) {
+      setFollowedUsers((prev) => new Set(prev).add(post?.author?._id));
+    } else {
+      setFollowedUsers((prev) => {
+        const updated = new Set(prev);
+        updated.delete(post.author._id);
+        return updated;
+      });
+    }
+
+    await handleGetUpdatedUserInfo();
   };
 
   const handleDeletePost = async (post) => {
@@ -157,6 +189,7 @@ export const ForumProvider = ({ children }) => {
         onlineUsers,
         postLoading,
         dimensions,
+        followedUsers,
         setDimensions,
         setPostComments,
         setNewPost,
@@ -166,6 +199,7 @@ export const ForumProvider = ({ children }) => {
         handleLikePost,
         handleDeletePost,
         handleGetUpdatedUserInfo,
+        handleFollowUnFollowUser,
       }}
     >
       {children}

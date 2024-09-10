@@ -6,6 +6,8 @@ import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { toast } from "react-toastify";
+import { RiUserUnfollowFill } from "react-icons/ri";
+import { RiUserFollowFill } from "react-icons/ri";
 
 import { useForum } from "../../utils/PostContext";
 import CommentsModal from "./CommentsModal";
@@ -27,6 +29,8 @@ const PostComponent = ({ post }) => {
     handleDeletePost,
     postLoading,
     setPostComments,
+    handleFollowUnFollowUser,
+    followedUsers,
   } = useForum();
 
   const [localPost, setLocalPost] = useState(post);
@@ -36,10 +40,11 @@ const PostComponent = ({ post }) => {
   const [showMenu, setShowMenu] = useState(false);
   const deleteModalRef = useRef();
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
-
   const [localCommentCount, setLocalCommentCount] = useState(
     localPost.comments?.length || 0
   );
+  const isFollowing = followedUsers?.has(post?.author?._id);
+  const [localIsFollowing, setLocalIsFollowing] = useState(isFollowing);
 
   const handleDelete = async () => {
     await handleDeletePost(localPost);
@@ -101,6 +106,16 @@ const PostComponent = ({ post }) => {
     };
   }, []);
 
+  useEffect(() => {
+    setLocalIsFollowing(isFollowing);
+  }, [isFollowing]);
+
+  const handleFollowClick = () => {
+    if (post?.author?._id === user?._id) return;
+
+    handleFollowUnFollowUser(post);
+  };
+
   return (
     <div className="light-navbar flex items-start h-48 rounded-lg shadow-lg w-full py-3 px-4">
       {postLoading ? (
@@ -112,7 +127,14 @@ const PostComponent = ({ post }) => {
               <div className="line-clamp-2 font-bold w-[90%]">
                 {localPost?.title} : {localPost?.content}
               </div>
-              <div className="relative flex items-center">
+              <div className="relative flex items-center space-x-1">
+                <div className="cursor-pointer" onClick={handleFollowClick}>
+                  {localIsFollowing ? (
+                    <RiUserFollowFill className="text-green-700" />
+                  ) : (
+                    <RiUserUnfollowFill />
+                  )}
+                </div>
                 <div className=" block cursor-pointer" onClick={handleLike}>
                   {isLiked ? (
                     <FaHeart className={`text-red-500`} />

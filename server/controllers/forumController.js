@@ -209,4 +209,53 @@ router.post("/post/:id/view", verifyToken, async (req, res) => {
   }
 });
 
+//following route
+router.post("/post/follow/:userId", verifyToken, async (req, res) => {
+  try {
+    let isFollowing;
+    let currentUser = await User.findById(req.user.id).select("-password"); // Currently logged in user
+    const { userId } = req.params; //ID of  the user to follow
+    let followedUser = await User.findById(userId).select("-password"); //followed user
+
+    if (currentUser?.following?.includes(userId)) {
+      // Unfollow the user
+      currentUser = await User.findByIdAndUpdate(
+        currentUser._id,
+        { $pull: { following: userId } },
+        { new: true }
+      );
+      followedUser = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { followers: currentUser._id } },
+        { new: true }
+      );
+      isFollowing = false;
+    } else {
+      // Follow the user
+      currentUser = await User.findByIdAndUpdate(
+        currentUser._id,
+        { $addToSet: { following: userId } },
+        { new: true }
+      );
+      followedUser = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { followers: currentUser._id } },
+        { new: true }
+      );
+      isFollowing = true;
+    }
+
+    //fetch posts from followed users
+    const posts = await Post.find({
+      author: { $in: currentUser.following },
+    }).sort({
+      createdAt: -1,
+    });
+    return res.status(200).json({ msg: "Success", isFollowing, posts });
+  } catch (err) {
+    console.log("Error: ", err);
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
 module.exports = router;

@@ -11,6 +11,8 @@ const UserSchema = new mongoose.Schema({
   roomsJoined: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
   roomsCreated: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
   likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 UserSchema.methods.comparePassword = function (userPassword) {

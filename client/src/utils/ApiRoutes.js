@@ -10,3 +10,4 @@ export const postsRoute = `${host}/forum`;
 export const deletePostRoute = `${host}/forum/post`;
 export const chatRoute = `${host}/chat`;
 export const privateChatRoute = `${host}/chat/private`;
+export const followUnfollowRoute = `${host}/forum/post/follow`;

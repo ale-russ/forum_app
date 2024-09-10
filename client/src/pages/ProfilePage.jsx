@@ -8,20 +8,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../components/ui/accordion";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../components/ui/hover-card";
+import { useMessage } from "../utils/MessageContextProvider";
 
 const ProfilePage = () => {
   const { user, handleGetUpdatedUserInfo } = useForum();
-  const [expanded, setExpanded] = useState(false);
-  // console.log("user: ", user);
-
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
-  };
 
   useEffect(() => {
     handleGetUpdatedUserInfo();
@@ -63,6 +53,18 @@ const ProfilePage = () => {
           label={user?.roomsJoined}
           numberOfItems={user?.roomsJoined?.length ?? 0}
         />
+        <UserInfoAccordion
+          value="followers"
+          title={"Followers"}
+          label={user?.followers}
+          numberOfItems={user?.followers?.length ?? 0}
+        />
+        <UserInfoAccordion
+          value="following"
+          title={"Following"}
+          label={user?.following}
+          numberOfItems={user?.following?.length ?? 0}
+        />
       </div>
     </div>
   );
@@ -79,7 +81,14 @@ const UserDetails = ({ title, label }) => {
   );
 };
 
-const UserInfoAccordion = ({ title, label, value, numberOfItems }) => {
+const UserInfoAccordion = ({
+  title,
+  label,
+  value,
+  numberOfItems,
+  navigateTo,
+}) => {
+  const { userList, handleFetchUsers } = useMessage();
   return (
     <Accordion
       type="single"
@@ -97,12 +106,33 @@ const UserInfoAccordion = ({ title, label, value, numberOfItems }) => {
           {label?.length ? (
             <>
               {label?.map((item, index) => {
+                let name;
+
+                if (item?.name) {
+                  name = item.name;
+                } else if (item?.title) {
+                  name = item?.title;
+                } else if (title === "Followers") {
+                  const followUser = userList.find(
+                    (usr) => usr?._id === item?._id
+                  );
+                  name = followUser?.userName;
+                } else if (title === "Following") {
+                  const followUser = userList.find(
+                    (usr) => usr?._id === item?._id
+                  );
+                  name = followUser?.userName;
+                }
                 return (
                   <div
                     key={index}
                     className="flex items-center rounded-lg shadow-lg h-8 my-3 p-2 border bg-white"
+                    onClick={() => {
+                      if (!navigateTo) return;
+                      navigateTo();
+                    }}
                   >
-                    {item?.name ?? item?.title}
+                    {name}
                   </div>
                 );
               })}

@@ -1,5 +1,9 @@
 import axios from "axios";
-import { postsRoute, deletePostRoute } from "../utils/ApiRoutes";
+import {
+  postsRoute,
+  deletePostRoute,
+  followUnfollowRoute,
+} from "../utils/ApiRoutes";
 import { toast } from "react-toastify";
 
 import { toastOptions } from "../utils/constants";
@@ -127,5 +131,19 @@ export const updateViewCount = async ({ postId, token }) => {
     return response.data.views;
   } catch (error) {
     toast.error(error.response.data.msg, toastOptions);
+  }
+};
+
+export const followUnfollowUser = async ({ userId, token }) => {
+  try {
+    const response = await axios.post(
+      `${followUnfollowRoute}/${userId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (err) {
+    console.log("Error: ", err);
+    toast.error("Failed to follow/unfollow user", toastOptions);
   }
 };

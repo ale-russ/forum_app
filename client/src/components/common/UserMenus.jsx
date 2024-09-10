@@ -65,7 +65,7 @@ const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
         <div className="w-full border border-gray-300 m-3" />
         <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
           <p
-            className="border border-gray-300 rounded drop-shadow-xl light-navbar opacity-65 w-full p-1 cursor-pointer "
+            className="border border-gray-300 rounded drop-shadow-xl light-navbar w-full p-1 px-2 cursor-pointer font-semibold text-lg "
             onClick={() => navigate("/user-profile")}
           >
             Profile

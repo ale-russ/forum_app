@@ -47,8 +47,8 @@ async function fetchUserData(userCollection, id) {
 
 // register route
 router.post("/register", uploadFile.single("image"), async (req, res) => {
-  console.log("in register");
-  console.log("Request body: ", req.body);
+  // console.log("in register");
+  // console.log("Request body: ", req.body);
   try {
     const validationResult = userSchema.validate(req.body);
 
@@ -83,7 +83,8 @@ router.post("/register", uploadFile.single("image"), async (req, res) => {
         );
         profileImageUrl = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
       } catch (err) {
-        console.log("Error uploading profile image", err);
+        // console.log("Error uploading profile image", err);
+        return res.status(500).json({ msg: "Internal Server Error" });
       }
     }
 
@@ -97,7 +98,7 @@ router.post("/register", uploadFile.single("image"), async (req, res) => {
     delete newUser.password;
     return res.json({ msg: "User registered successfully", user: newUser });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -127,7 +128,7 @@ router.post("/login", async (req, res) => {
 
     // delete user.password;
     user.password = undefined;
-    console.log("User logged in successfully", user);
+    // console.log("User logged in successfully", user);
 
     if (res.statusCode === 200) {
       return res.status(200).json({
@@ -163,7 +164,9 @@ router.get("/user-info", verifyToken, async (req, res) => {
       .populate("posts")
       .populate({ path: "roomsCreated", select: "-messages" })
       .populate({ path: "roomsJoined", select: "-messages" })
-      .populate("likedPosts");
+      .populate("likedPosts")
+      .populate({ path: "followers", select: "-password" })
+      .populate({ path: "following", select: "-password" });
 
     // check if user exist
     if (!user) return res.status(400).json({ msg: "User Not Found" });

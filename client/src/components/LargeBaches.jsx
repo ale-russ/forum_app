@@ -5,9 +5,11 @@ import { ReactComponent as Newest } from "../assets/NewBatch.svg";
 import { ReactComponent as Popular } from "../assets/PopularBach.svg";
 import LeftSideWrapper from "./common/LeftSideWrapper";
 import { useNavigate } from "react-router-dom";
+import { useForum } from "../utils/PostContext";
 
 const LargeBatches = () => {
   const navigate = useNavigate();
+  const { user } = useForum();
   return (
     <LeftSideWrapper
       children={
@@ -54,7 +56,9 @@ const LargeBatches = () => {
                 <div className="flex items-center">
                   <p className="font-bold text-lg">Following</p>
                   <div className="bg-[#FF571A] h-7 w-7 rounded-lg flex items-center justify-center mx-1">
-                    <p className="text-bold text-xs text-white">0</p>
+                    <p className="text-bold text-xs text-white">
+                      {user?.following.length}
+                    </p>
                   </div>
                 </div>
                 <p className="light-caption">Find the latest update</p>
