@@ -1,4 +1,5 @@
-// socketHandlers.js
+const mongoose = require("mongoose");
+
 const User = require("../models/user_models");
 const Message = require("../models/message_model");
 const Room = require("../models/room_model");
@@ -268,6 +269,33 @@ const socketControllers = (io) => {
         }
       } catch (error) {
         socket.emit("error", "Failed to join room");
+      }
+    });
+
+    socket.on("new post", async (post) => {
+      console.log("new Post: ", post);
+      try {
+        const author = await User.findById(
+          new mongoose.Types.ObjectId(post?.author)
+        );
+        // .populate("followers", "socketId")
+        // .select("-password");
+
+        console.log("Author: ", author);
+
+        //Notify all followers
+        author?.followers?.forEach((follower) => {
+          const followerSocketId = users[follower._id]?.socketId;
+          if (followerSocketId) {
+            io.to(followerSocketId).emit("new post notification", {
+              post: post,
+              author: author.userName,
+            });
+          }
+        });
+      } catch (err) {
+        console.log("Error on socket: ", err);
+        io.emit("error", "Failed to send notification");
       }
     });
 

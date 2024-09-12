@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import io from "socket.io-client";
 
 import { UserAuthContext } from "./UserAuthenticationProvider";
 import {
@@ -11,14 +10,9 @@ import {
   followUnfollowUser,
 } from "../controllers/ForumController";
 import { toastOptions } from "./constants";
-import { fetchRooms } from "../controllers/ChatController";
 import { useSocket } from "./SocketContext";
-import {
-  fetchAllUsers,
-  handleGetUserInfo,
-} from "../controllers/AuthController";
+import { handleGetUserInfo } from "../controllers/AuthController";
 import { useNavigate } from "react-router-dom";
-import { useMessage } from "./MessageContextProvider";
 
 const ForumContext = createContext();
 
@@ -87,6 +81,13 @@ export const ForumProvider = ({ children }) => {
     );
   }, []);
 
+  useEffect(() => {
+    socket?.on("new post notification", ({ post, author }) => {
+      console.log("New Post: ", post);
+      console.log("AUTHOR is: ", author);
+    });
+  }, [threads]);
+
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
     localStorage.setItem("currentUser", JSON.stringify(data));
@@ -119,10 +120,13 @@ export const ForumProvider = ({ children }) => {
         return;
       }
       const response = await createPost(newPost, token);
+      console.log("response: ", response.data);
       if (response && response?.data) {
         setThreads([...threads, response.data]);
+        socket?.emit("new post", { post: response?.data });
       }
     } catch (err) {
+      console.log("Error in context post creation: ", err);
       toast.error("Failed to create post", toastOptions);
     } finally {
       setNewPost({ title: "", content: "" });
@@ -145,7 +149,6 @@ export const ForumProvider = ({ children }) => {
       userId: post?.author?._id,
       token,
     });
-    console.log("response: ", response);
     if (response?.data?.isFollowing) {
       setFollowedUsers((prev) => new Set(prev).add(post?.author?._id));
     } else {

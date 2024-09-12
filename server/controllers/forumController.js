@@ -19,14 +19,15 @@ router.post("/post", verifyToken, async (req, res) => {
 
     await post.save();
 
-    const user = await User.findById(req.user._id || req.user.id);
-    console.log("user: ", user);
+    const user = await User.findById(post?.author);
+    console.log("USER in Post Creation: ", user);
+    // console.log("user: ", user);
     user?.posts?.push(post);
     await user.save();
 
     res.status(201).json(post);
   } catch (err) {
-    console.log("Error: ", err);
+    // console.log("Error: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.msg });
   }
 });
@@ -74,7 +75,7 @@ router.get("/posts/:id", verifyToken, async (req, res) => {
 });
 
 router.get("/search", verifyToken, async (req, res) => {
-  console.log("in search backend");
+  // console.log("in search backend");
   const { query } = req.query;
   try {
     if (!query)
@@ -89,7 +90,7 @@ router.get("/search", verifyToken, async (req, res) => {
 
     res.status(200).json(posts);
   } catch (err) {
-    console.log("Err: ", err);
+    // console.log("Err: ", err);
     res.status(500).json({ msg: "Internal Server Error", error: err.message });
   }
 });
@@ -128,7 +129,7 @@ router.delete("/post/:id", async (req, res) => {
 
     return res.status(200).json({ msg: "Post deleted" });
   } catch (err) {
-    console.log("Error: ", err);
+    // console.log("Error: ", err);
     return res
       .status(500)
       .json({ msg: "Internal Server Error", error: err.message });
@@ -182,7 +183,7 @@ router.post("/post/:id/like", verifyToken, async (req, res) => {
     // console.log("User: ", user);
     res.status(200).json(post);
   } catch (err) {
-    console.log("ERROR: ", err);
+    // console.log("ERROR: ", err);
     res.status(400).json({ msg: err.message });
   }
 });
@@ -199,7 +200,7 @@ router.post("/post/:id/view", verifyToken, async (req, res) => {
       post.views.push(userId);
       await post.save();
     } else {
-      console.log("User already viewed the post");
+      // console.log("User already viewed the post");
       return;
     }
 
@@ -253,7 +254,7 @@ router.post("/post/follow/:userId", verifyToken, async (req, res) => {
     });
     return res.status(200).json({ msg: "Success", isFollowing, posts });
   } catch (err) {
-    console.log("Error: ", err);
+    // console.log("Error: ", err);
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });

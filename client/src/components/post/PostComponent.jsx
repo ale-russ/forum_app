@@ -16,11 +16,13 @@ import { updateViewCount } from "../../controllers/ForumController";
 import ProfileImage from "../common/ProfileImage";
 import PulseAnimationLoader from "../common/PulseAnimationLoader";
 import { toastOptions } from "../../utils/constants";
+import { useSocket } from "../../utils/SocketContext";
 
-const socket = io(host);
+// const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const navigate = useNavigate();
+  const socket = useSocket();
   const [showModal, setShowModal] = useState(false);
   const {
     handleLikePost,
@@ -129,10 +131,14 @@ const PostComponent = ({ post }) => {
               </div>
               <div className="relative flex items-center space-x-1">
                 <div className="cursor-pointer" onClick={handleFollowClick}>
-                  {localIsFollowing ? (
-                    <RiUserFollowFill className="text-green-700" />
-                  ) : (
-                    <RiUserUnfollowFill />
+                  {post?.author?._id !== user?._id && (
+                    <>
+                      {localIsFollowing ? (
+                        <RiUserFollowFill className="text-green-700" />
+                      ) : (
+                        <RiUserUnfollowFill />
+                      )}
+                    </>
                   )}
                 </div>
                 <div className=" block cursor-pointer" onClick={handleLike}>

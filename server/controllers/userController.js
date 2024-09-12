@@ -176,4 +176,31 @@ router.get("/user-info", verifyToken, async (req, res) => {
   }
 });
 
+router.get("/:userId/followers", verifyToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId)
+      .populate("followers", "userName email _id")
+      .select("-password");
+
+    res.status(200).json({ followers: user.followers });
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to fetch Followers", error: err });
+  }
+});
+
+router.get("/:userId/following", verifyToken, async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId)
+      .populate("following", "userName email _id")
+      .select("-password");
+
+    res.status(200).json({ following: user.following });
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to fetch Following", error: err });
+  }
+});
+
 module.exports = router;

@@ -33,16 +33,16 @@ export const getSinglePost = async (id, token) => {
 };
 
 export const createPost = async (post, token) => {
-  console.log("Post: ", post);
+  // console.log("Post: ", post);
   try {
     const res = await axios.post(`${postsRoute}/post`, post, {
       headers: { Authorization: `${token}` },
     });
 
     return res;
-  } catch (error) {
-    //
-    toast.error(error.response.data.msg, toastOptions);
+  } catch (err) {
+    // console.log("Error: ", err);
+    toast.error(err.response.data.msg, toastOptions);
   }
 };
 
@@ -143,7 +143,7 @@ export const followUnfollowUser = async ({ userId, token }) => {
     );
     return response;
   } catch (err) {
-    console.log("Error: ", err);
+    // console.log("Error: ", err);
     toast.error("Failed to follow/unfollow user", toastOptions);
   }
 };

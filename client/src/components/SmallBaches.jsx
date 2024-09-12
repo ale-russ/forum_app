@@ -27,12 +27,12 @@ const SmallBaches = () => {
       />
 
       <div
-        className="flex items-center mx-2"
+        className="flex items-center mx-2  cursor-pointer "
         onClick={() => {
           navigate("/post/following-posts");
         }}
       >
-        <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1 ">
+        <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
           <Following />
         </div>
         <p>Following</p>
@@ -50,8 +50,8 @@ export default SmallBaches;
 
 const SmallBachesTile = ({ child, label, onClick }) => {
   return (
-    <div className="flex items-center mx-2" onClick={onClick}>
-      <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
+    <div className="flex items-center mx-2 cursor-pointer" onClick={onClick}>
+      <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1 ">
         {child}
       </div>
       <p>{label}</p>

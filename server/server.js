@@ -28,9 +28,6 @@ const io = socketIo(server, {
   },
 });
 
-// Socket.io setup
-socketControllers(io);
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({ origin: "*" }));
@@ -45,6 +42,9 @@ mongoose
   .connect(mongoUrl)
   .then(() => console.log("CONNECTED TO MONGODB"))
   .catch((err) => console.log("MONGODB CONNECTION ERROR: ", err));
+
+// Socket.io setup
+socketControllers(io);
 
 // auth routes
 app.use("/auth", authRoutes);
