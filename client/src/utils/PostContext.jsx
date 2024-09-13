@@ -81,13 +81,6 @@ export const ForumProvider = ({ children }) => {
     );
   }, []);
 
-  useEffect(() => {
-    socket?.on("new post notification", ({ post, author }) => {
-      console.log("New Post: ", post);
-      console.log("AUTHOR is: ", author);
-    });
-  }, [threads]);
-
   const handleGetUpdatedUserInfo = async () => {
     const data = await handleGetUserInfo(token);
     localStorage.setItem("currentUser", JSON.stringify(data));
@@ -120,7 +113,7 @@ export const ForumProvider = ({ children }) => {
         return;
       }
       const response = await createPost(newPost, token);
-      console.log("response: ", response.data);
+
       if (response && response?.data) {
         setThreads([...threads, response.data]);
         socket?.emit("new post", { post: response?.data });
@@ -163,7 +156,7 @@ export const ForumProvider = ({ children }) => {
   };
 
   const handleDeletePost = async (post) => {
-    // setPostLoading(true);
+    setPostLoading(true);
     try {
       // if (post.author._id !== user._id) {
       //   toast.error("You are not authorized to delete this post", toastOptions);
@@ -174,7 +167,7 @@ export const ForumProvider = ({ children }) => {
     } catch (error) {
       toast.error("Failed to delete post", toastOptions);
     }
-    // setPostLoading(false);
+    setPostLoading(false);
   };
 
   return (

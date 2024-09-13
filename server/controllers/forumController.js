@@ -20,8 +20,6 @@ router.post("/post", verifyToken, async (req, res) => {
     await post.save();
 
     const user = await User.findById(post?.author);
-    console.log("USER in Post Creation: ", user);
-    // console.log("user: ", user);
     user?.posts?.push(post);
     await user.save();
 
@@ -125,7 +123,7 @@ router.delete("/post/:id", async (req, res) => {
       post.author,
       { $pull: { posts: post._id } },
       { new: true }
-    );
+    ).select("-password");
 
     return res.status(200).json({ msg: "Post deleted" });
   } catch (err) {

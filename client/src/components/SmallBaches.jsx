@@ -28,9 +28,9 @@ const SmallBaches = () => {
 
       <div
         className="flex items-center mx-2  cursor-pointer "
-        onClick={() => {
-          navigate("/post/following-posts");
-        }}
+        // onClick={() => {
+        //   navigate("/post/following-posts");
+        // }}
       >
         <div className="flex items-center justify-center m-auto rounded-lg light-search border-1 h-[30px] w-[30px] mr-1">
           <Following />

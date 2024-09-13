@@ -166,6 +166,7 @@ const NavBar = () => {
           >
             {newMessages &&
               newMessages?.map((message, index) => {
+                console.log("message: ", message);
                 setHasUnreadMessages(false);
                 return (
                   <div

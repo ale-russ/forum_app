@@ -272,20 +272,16 @@ const socketControllers = (io) => {
       }
     });
 
-    socket.on("new post", async (post) => {
-      console.log("new Post: ", post);
+    socket.on("new post", async ({ post }) => {
       try {
-        const author = await User.findById(
-          new mongoose.Types.ObjectId(post?.author)
-        );
-        // .populate("followers", "socketId")
-        // .select("-password");
-
-        console.log("Author: ", author);
+        const author = await User.findById(post?.author)
+          .populate("followers", "socketId")
+          .select("-password");
 
         //Notify all followers
         author?.followers?.forEach((follower) => {
           const followerSocketId = users[follower._id]?.socketId;
+
           if (followerSocketId) {
             io.to(followerSocketId).emit("new post notification", {
               post: post,

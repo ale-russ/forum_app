@@ -13,21 +13,32 @@ const MessageContext = createContext();
 export const useMessage = () => useContext(MessageContext);
 
 const MessageContextProvider = ({ children }) => {
-  const { onlineUsers, token } = useForum();
+  const { onlineUsers, token, user, threads } = useForum();
   const socket = useSocket();
   const navigate = useNavigate();
 
   const [newMessages, setNewMessages] = useState([]);
   const [messages, setMessages] = useState([]);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-  const [messageNotification, setMessageNotification] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [isRoomFetched, setIsRoomFetched] = useState(false);
   const [userList, setUserList] = useState([]);
 
-  const handleNewMessage = ({ chatId, senderName, message }) => {
-    setNewMessages((prev) => [...prev, message]);
-    setHasUnreadMessages(true);
+  const handleNewMessage = ({ chatId, senderName, message, isPost }) => {
+    if (isPost) {
+      const newMsg = {
+        id: chatId,
+        author: message?.author,
+        senderName: senderName,
+        message: message,
+        isPost: isPost,
+      };
+      setNewMessages((prev) => [...prev, newMsg]);
+    } else {
+      setNewMessages((prev) => [...prev, message]);
+      setHasUnreadMessages(true);
+    }
   };
 
   const navigateToChat = (chatId) => {
@@ -35,7 +46,7 @@ const MessageContextProvider = ({ children }) => {
     navigate(`/chat/private-chat/${chatId}`, {
       state: { recipient: chatUser.user },
     });
-    setMessageNotification({});
+    setNotifications({});
   };
 
   const clearUnreadMessages = (chatId) => {
@@ -114,18 +125,30 @@ const MessageContextProvider = ({ children }) => {
     // console.log("new notification: ", newMessages);
   }, [newMessages]);
 
+  useEffect(() => {
+    socket?.on("new post notification", ({ post, author }) => {
+      handleNewMessage({
+        chatId: post?._id,
+        senderName: author,
+        message: post,
+        isPost: true,
+      });
+    });
+    // setHasUnreadMessages(true);
+  }, [threads]);
+
   return (
     <MessageContext.Provider
       value={{
         messages,
         newMessages,
         hasUnreadMessages,
-        messageNotification,
+        notifications,
         userList,
         chatRooms,
         setUserList,
         setHasUnreadMessages,
-        setMessageNotification,
+        setMessageNotification: setNotifications,
         setNewMessages,
         setMessages,
         handleNewMessage,
