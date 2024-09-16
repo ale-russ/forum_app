@@ -105,7 +105,7 @@ export const ForumProvider = ({ children }) => {
   const handleFetchPosts = useCallback(async () => {
     setPostLoading(true);
     try {
-      const response = await fetchPosts();
+      const response = await fetchPosts(token);
 
       if (response && response.data) {
         // setThreads(response.data);

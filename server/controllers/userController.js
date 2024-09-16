@@ -124,7 +124,9 @@ router.post("/login", async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ msg: "Invalid Email or Password" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "5d",
+    });
 
     // delete user.password;
     user.password = undefined;
@@ -201,6 +203,11 @@ router.get("/:userId/following", verifyToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: "Failed to fetch Following", error: err });
   }
+});
+
+router.post("/signout", (req, res) => {
+  // res.clearCookie("token");
+  return res.status(200).json({ msg: "Successfully signed out" });
 });
 
 module.exports = router;
