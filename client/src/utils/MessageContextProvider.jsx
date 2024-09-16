@@ -33,7 +33,7 @@ const MessageContextProvider = ({ children }) => {
         message: message,
         isPost: isPost,
       };
-      setThreads(() => [...threads, message]);
+
       setNewMessages((prev) => [...prev, newMsg]);
       setHasUnreadMessages(true);
       console.log("New message: ", newMessages);
@@ -138,7 +138,15 @@ const MessageContextProvider = ({ children }) => {
         isPost: true,
       });
     });
-    // setHasUnreadMessages(true);
+
+    socket?.on("new post broadcast", ({ post, author }) => {
+      setThreads((prev) => [...prev, post]);
+    });
+
+    return () => {
+      socket?.off("new post notification");
+      socket?.off("new post broadcast");
+    };
   }, [threads]);
 
   return (

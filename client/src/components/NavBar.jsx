@@ -159,7 +159,7 @@ const NavBar = () => {
         />
         {showNotification ? (
           <div
-            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 min-h-16 max-h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
+            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-72 min-h-16 max-h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
               showNotification
                 ? "opacity-100 animate-slide-in-down"
                 : "opacity-0 animate-slide-out-up pointer-events-none"
@@ -181,7 +181,7 @@ const NavBar = () => {
                       }
                     }}
                     key={index}
-                    className="flex items-center rounded-lg shadow-lg border-gray-300 my-2  w-[95%] px-2 h-8 light-search text-ellipsis truncate"
+                    className="flex items-center rounded-lg shadow-lg border-gray-300 my-2  w-[95%] px-2 h-8 light-search text-ellipsis truncate text-sm"
                   >
                     <p className="italic">
                       {message?.userName

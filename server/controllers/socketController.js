@@ -272,30 +272,69 @@ const socketControllers = (io) => {
       }
     });
 
+    // socket.on("new post", async ({ post }) => {
+    //   try {
+    //     const author = await User.findById(post?.author)
+    //       .populate("followers", "socketId")
+    //       .select("-password");
+
+    //     //Notify all followers
+    //     author?.followers?.forEach((follower) => {
+    //       const followerSocketId = users[follower._id]?.socketId;
+    //       console.log("if followerSocketId: ", followerSocketId);
+    //       if (followerSocketId) {
+    //         io.to(followerSocketId).emit("new post notification", {
+    //           post: post,
+    //           author: author,
+    //         });
+    //       }
+    //     });
+    //     socket.broadcast.emit("new post notification", {
+    //       post: post,
+    //       author: author,
+    //     });
+    //   } catch (err) {
+    //     console.log("Error on socket: ", err);
+    //     io.emit("error", "Failed to send notification");
+    //   }
+    // });
     socket.on("new post", async ({ post }) => {
       try {
+        // Fetch the author with their followers
         const author = await User.findById(post?.author)
           .populate("followers", "socketId")
           .select("-password");
 
-        //Notify all followers
-        author?.followers?.forEach((follower) => {
-          const followerSocketId = users[follower._id]?.socketId;
+        if (!author) {
+          throw new Error("Author not found");
+        }
 
+        // Set to keep track of notified users
+        const notifiedUsers = new Set();
+
+        // Notify all followers
+        author.followers.forEach((follower) => {
+          const followerSocketId = users[follower._id]?.socketId;
           if (followerSocketId) {
             io.to(followerSocketId).emit("new post notification", {
               post: post,
               author: author,
             });
-            socket.broadcast.emit("new post notification", {
-              post: post,
-              author: author,
-            });
+            notifiedUsers.add(follower._id.toString());
           }
         });
+
+        // Broadcast the post to all users, excluding those already notified
+        socket.broadcast.emit("new post broadcast", {
+          post: post,
+          author: author,
+        });
+
+        console.log(`Notification sent to ${notifiedUsers.size} followers`);
+        console.log(`Post broadcasted to all users`);
       } catch (err) {
-        console.log("Error on socket: ", err);
-        io.emit("error", "Failed to send notification");
+        console.error("Error on socket: ", err);
+        socket.emit("error", "Failed to send notification");
       }
     });
 

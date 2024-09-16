@@ -9,6 +9,19 @@ const CreatePost = () => {
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef();
 
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    // Clean up on unmount to restore the scroll behavior
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showModal]);
+
   useCloseModal(modalRef, () => setShowModal(false));
 
   return (

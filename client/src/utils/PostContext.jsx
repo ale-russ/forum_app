@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { toast } from "react-toastify";
 
 import { UserAuthContext } from "./UserAuthenticationProvider";
@@ -38,6 +44,16 @@ export const ForumProvider = ({ children }) => {
     height: window.innerHeight,
   });
   const [followedUsers, setFollowedUsers] = useState(new Set());
+
+  const sortNewPosts = (data) => {
+    const sortedPosts = [...data].sort((a, b) => {
+      const aTimestamp = Date.parse(a.createdAt);
+      const bTimestamp = Date.parse(b.createdAt);
+      return bTimestamp - aTimestamp;
+    });
+
+    setThreads(sortedPosts);
+  };
 
   useEffect(() => {
     if (!socket) return;
@@ -86,13 +102,14 @@ export const ForumProvider = ({ children }) => {
     localStorage.setItem("currentUser", JSON.stringify(data));
   };
 
-  const handleFetchPosts = async () => {
+  const handleFetchPosts = useCallback(async () => {
     setPostLoading(true);
     try {
       const response = await fetchPosts();
 
       if (response && response.data) {
-        setThreads(response.data);
+        // setThreads(response.data);
+        sortNewPosts(response.data);
       } else {
         return "No Data found";
       }
@@ -102,7 +119,7 @@ export const ForumProvider = ({ children }) => {
     } finally {
       setPostLoading(false);
     }
-  };
+  });
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -187,6 +204,7 @@ export const ForumProvider = ({ children }) => {
         setNewPost,
         setLikeCounts,
         setThreads,
+        setPostLoading,
         handleFetchPosts,
         handleCreatePost,
         handleLikePost,
