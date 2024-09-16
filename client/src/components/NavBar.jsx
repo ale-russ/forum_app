@@ -30,6 +30,7 @@ const NavBar = () => {
     hasUnreadMessages,
     setHasUnreadMessages,
     navigateToChat,
+    setNotifications,
   } = useMessage();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -158,28 +159,52 @@ const NavBar = () => {
         />
         {showNotification ? (
           <div
-            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 max-h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
+            className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-56 min-h-16 max-h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
               showNotification
                 ? "opacity-100 animate-slide-in-down"
                 : "opacity-0 animate-slide-out-up pointer-events-none"
             }`}
           >
-            {newMessages &&
+            {newMessages.length > 0 ? (
               newMessages?.map((message, index) => {
-                console.log("message: ", message);
                 setHasUnreadMessages(false);
                 return (
                   <div
-                    onClick={() => navigateToChat(message.author)}
+                    onClick={() => {
+                      if (!message?.isPost) {
+                        navigateToChat(message?.author);
+                      } else {
+                        navigate(`/post/:${message?.message?._id}`, {
+                          state: { post: message?.message },
+                        });
+                        setNotifications({});
+                      }
+                    }}
                     key={index}
                     className="flex items-center rounded-lg shadow-lg border-gray-300 my-2  w-[95%] px-2 h-8 light-search text-ellipsis truncate"
                   >
-                    <p className="italic">{message.userName} :</p>
+                    <p className="italic">
+                      {message?.userName
+                        ? message?.userName
+                        : message?.author?.userName}{" "}
+                      :
+                    </p>
 
-                    <p className="mx-2 text-ellipsis">has sent you a message</p>
+                    <p className="mx-2 text-ellipsis">
+                      {message?.userName ? (
+                        <p>has sent you a message</p>
+                      ) : (
+                        <p>has posted a new post</p>
+                      )}
+                    </p>
                   </div>
                 );
-              })}
+              })
+            ) : (
+              <div className="italic h-6 w-full m-auto text-center">
+                No new notifications
+              </div>
+            )}
           </div>
         ) : null}
         {showContacts ? (

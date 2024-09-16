@@ -285,7 +285,11 @@ const socketControllers = (io) => {
           if (followerSocketId) {
             io.to(followerSocketId).emit("new post notification", {
               post: post,
-              author: author.userName,
+              author: author,
+            });
+            socket.broadcast.emit("new post notification", {
+              post: post,
+              author: author,
             });
           }
         });

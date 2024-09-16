@@ -158,10 +158,6 @@ export const ForumProvider = ({ children }) => {
   const handleDeletePost = async (post) => {
     setPostLoading(true);
     try {
-      // if (post.author._id !== user._id) {
-      //   toast.error("You are not authorized to delete this post", toastOptions);
-      //   return;
-      // }
       await deletePost(post._id, token);
       setThreads(threads.filter((t) => t._id !== post._id));
     } catch (error) {
@@ -190,6 +186,7 @@ export const ForumProvider = ({ children }) => {
         setPostComments,
         setNewPost,
         setLikeCounts,
+        setThreads,
         handleFetchPosts,
         handleCreatePost,
         handleLikePost,

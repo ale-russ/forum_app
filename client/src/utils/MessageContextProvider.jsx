@@ -13,7 +13,7 @@ const MessageContext = createContext();
 export const useMessage = () => useContext(MessageContext);
 
 const MessageContextProvider = ({ children }) => {
-  const { onlineUsers, token, user, threads } = useForum();
+  const { onlineUsers, token, user, threads, setThreads } = useForum();
   const socket = useSocket();
   const navigate = useNavigate();
 
@@ -25,20 +25,24 @@ const MessageContextProvider = ({ children }) => {
   const [isRoomFetched, setIsRoomFetched] = useState(false);
   const [userList, setUserList] = useState([]);
 
-  const handleNewMessage = ({ chatId, senderName, message, isPost }) => {
+  const handleNewMessage = ({ chatId, author, message, isPost }) => {
     if (isPost) {
       const newMsg = {
         id: chatId,
-        author: message?.author,
-        senderName: senderName,
+        author: author,
         message: message,
         isPost: isPost,
       };
+      setThreads(() => [...threads, message]);
       setNewMessages((prev) => [...prev, newMsg]);
+      setHasUnreadMessages(true);
+      console.log("New message: ", newMessages);
     } else {
       setNewMessages((prev) => [...prev, message]);
       setHasUnreadMessages(true);
     }
+
+    // console.log("new message: ", newMessages);
   };
 
   const navigateToChat = (chatId) => {
@@ -97,7 +101,7 @@ const MessageContextProvider = ({ children }) => {
         setMessages((prevMessages) => [...prevMessages, message]);
         handleNewMessage({
           chatId: message.recipient,
-          senderName: message.userName,
+          author: message.userName,
           message: message,
         });
       };
@@ -129,7 +133,7 @@ const MessageContextProvider = ({ children }) => {
     socket?.on("new post notification", ({ post, author }) => {
       handleNewMessage({
         chatId: post?._id,
-        senderName: author,
+        author: author,
         message: post,
         isPost: true,
       });
@@ -148,7 +152,7 @@ const MessageContextProvider = ({ children }) => {
         chatRooms,
         setUserList,
         setHasUnreadMessages,
-        setMessageNotification: setNotifications,
+        setNotifications,
         setNewMessages,
         setMessages,
         handleNewMessage,
