@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { toast } from "react-toastify";
 
 import { useForum } from "./PostContext";
@@ -24,6 +30,7 @@ const MessageContextProvider = ({ children }) => {
   const [chatRooms, setChatRooms] = useState([]);
   const [isRoomFetched, setIsRoomFetched] = useState(false);
   const [userList, setUserList] = useState([]);
+  const [roomsLoading, setRoomsLoading] = useState(false);
 
   const handleNewMessage = ({ chatId, author, message, isPost }) => {
     if (isPost) {
@@ -58,14 +65,18 @@ const MessageContextProvider = ({ children }) => {
     setHasUnreadMessages(newMessages.length > 1); // Check if there are still unread messages
   };
 
-  const handleFetchRooms = async () => {
-    await fetchRooms().then((value) => {
-      setChatRooms(value?.data);
-      setIsRoomFetched(true);
-    });
-
-    return chatRooms;
-  };
+  const handleFetchRooms = useCallback(async () => {
+    try {
+      setRoomsLoading(true);
+      await fetchRooms().then((value) => {
+        setChatRooms(value?.data);
+        setIsRoomFetched(true);
+      });
+      return chatRooms;
+    } finally {
+      setRoomsLoading(false);
+    }
+  });
 
   const handleGeneralRoomUser = () => {
     if (chatRooms && chatRooms?.[0]) {
@@ -158,11 +169,14 @@ const MessageContextProvider = ({ children }) => {
         notifications,
         userList,
         chatRooms,
+        roomsLoading,
         setUserList,
         setHasUnreadMessages,
         setNotifications,
         setNewMessages,
         setMessages,
+        setRoomsLoading,
+        setChatRooms,
         handleNewMessage,
         navigateToChat,
         handleFetchRooms,
