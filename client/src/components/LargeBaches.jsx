@@ -57,7 +57,7 @@ const LargeBatches = () => {
                   <p className="font-bold text-lg">Following</p>
                   <div className="bg-[#FF571A] h-7 w-7 rounded-lg flex items-center justify-center mx-1">
                     <p className="text-bold text-xs text-white">
-                      {user?.following.length}
+                      {user?.following?.length}
                     </p>
                   </div>
                 </div>
