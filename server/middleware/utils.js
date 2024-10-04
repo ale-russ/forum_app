@@ -11,9 +11,7 @@ const uploadFile = multer({ storage: multer.memoryStorage() });
 
 async function uploadImage(fileBuffer, fileName) {
   console.log("FileName: ", fileName);
-  // const readableStream = new Readable();
-  // readableStream.push(fileBuffer);
-  // readableStream.push(null);
+
   try {
     if (!fileBuffer) throw new Error("Invalid file buffer");
 

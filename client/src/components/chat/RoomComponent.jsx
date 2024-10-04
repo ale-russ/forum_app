@@ -6,16 +6,16 @@ import { host } from "../../utils/ApiRoutes";
 import ModalWrapper from "../common/ModalWrapper";
 import { toastOptions } from "../../utils/constants";
 import { useForum } from "../../utils/PostContext";
+import { useMessage } from "../../utils/MessageContextProvider";
 
 const socket = io(host);
 const Room = ({ setCrateModalOpen }) => {
   const [roomName, setRoomName] = useState("");
   const [currentRoom, setCurrentRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [message, setMessage] = useState([]);
   const { user } = useForum();
-  // const user = JSON.parse(localStorage.getItem("currentUser"));
+  const { chatRooms, setChatRooms } = useMessage();
+
   const userId = user._id;
 
   const handleCreateRoom = () => {
@@ -46,6 +46,7 @@ const Room = ({ setCrateModalOpen }) => {
       if (room._id) {
         toast.success("Room created successfully", toastOptions);
         setRooms([...rooms, room]);
+        setChatRooms([...chatRooms, room]);
         setCurrentRoom(room);
         setRoomName("");
       }
@@ -101,6 +102,7 @@ const Room = ({ setCrateModalOpen }) => {
                 className="light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="Set the Room's name"
                 onChange={(e) => setRoomName(e.target.value)}
+                value={roomName}
               />
             </div>
             <button

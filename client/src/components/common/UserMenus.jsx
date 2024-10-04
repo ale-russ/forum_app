@@ -8,23 +8,16 @@ import { handleLogout } from "../../controllers/AuthController";
 import Room from "../chat/RoomComponent";
 import JoinRoom from "../chat/JoinRoom";
 import { useMessage } from "../../utils/MessageContextProvider";
+import RoomsLoader from "./RoomsLoader";
 
 const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
   const navigate = useNavigate();
   const { user } = useForum();
-  const { handleFetchRooms, chatRooms } = useMessage();
+  const { handleFetchRooms, chatRooms, roomsLoading } = useMessage();
   const { setUserAuth } = useContext(UserAuthContext);
   const [showWarningModal, setShowWarningModal] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
-
-  useEffect(() => {
-    getRooms();
-  }, [chatRooms]);
-
-  const getRooms = async () => {
-    await handleFetchRooms();
-  };
 
   const handleRoomClick = (roomId, chatUsers) => {
     const userExists = chatUsers.users.some((usr) => usr._id === user._id);
@@ -71,22 +64,26 @@ const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
             Profile
           </p>
 
-          <div className="my-2 w-full rounded border border-gray-300 shadow-xl px-1">
-            <h1>Chat Rooms</h1>
-            <div className="border border-b w-full border-gray-300" />
-            <div className="max-h-72 overflow-y-auto scrollbar custom-scrollbar w-full py-1">
-              {chatRooms &&
-                chatRooms.map((room) => (
-                  <TagsGroupsTile
-                    key={room._id}
-                    label={room.name}
-                    color="bg-[#FF8F67]"
-                    caption={`${room.users.length} Users`}
-                    onRoomClicked={() => handleRoomClick(room._id, room)}
-                  />
-                ))}
+          {roomsLoading ? (
+            <RoomsLoader />
+          ) : (
+            <div className="my-2 w-full rounded border border-gray-300 shadow-xl px-1">
+              <h1>Chat Rooms</h1>
+              <div className="border border-b w-full border-gray-300" />
+              <div className="max-h-72 overflow-y-auto scrollbar custom-scrollbar w-full py-1">
+                {chatRooms &&
+                  chatRooms.map((room) => (
+                    <TagsGroupsTile
+                      key={room._id}
+                      label={room.name}
+                      color="bg-[#FF8F67]"
+                      caption={`${room.users.length} Users`}
+                      onRoomClicked={() => handleRoomClick(room._id, room)}
+                    />
+                  ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div
             className="flex items-center border border-gray-300 rounded shadow-xl p-1 h-18 w-full light-navbar cursor-pointer "

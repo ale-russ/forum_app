@@ -29,7 +29,7 @@ const userSchema = Joi.object({
 
 const client = new MongoClient(mongoUrl);
 
-const db = client.db("test");
+const db = client.db("forum");
 const userCollection = db.collection("users");
 
 // Check if email exists in the db
@@ -47,8 +47,6 @@ async function fetchUserData(userCollection, id) {
 
 // register route
 router.post("/register", uploadFile.single("image"), async (req, res) => {
-  // console.log("in register");
-  // console.log("Request body: ", req.body);
   try {
     const validationResult = userSchema.validate(req.body);
 
@@ -83,7 +81,6 @@ router.post("/register", uploadFile.single("image"), async (req, res) => {
         );
         profileImageUrl = `${baseUrl}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=public`;
       } catch (err) {
-        // console.log("Error uploading profile image", err);
         return res.status(500).json({ msg: "Internal Server Error" });
       }
     }
@@ -98,7 +95,6 @@ router.post("/register", uploadFile.single("image"), async (req, res) => {
     delete newUser.password;
     return res.json({ msg: "User registered successfully", user: newUser });
   } catch (err) {
-    // console.log(err);
     return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -124,7 +120,9 @@ router.post("/login", async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ msg: "Invalid Email or Password" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "5d",
+    });
 
     // delete user.password;
     user.password = undefined;
@@ -201,6 +199,11 @@ router.get("/:userId/following", verifyToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: "Failed to fetch Following", error: err });
   }
+});
+
+router.post("/signout", (req, res) => {
+  // res.clearCookie("token");
+  return res.status(200).json({ msg: "Successfully signed out" });
 });
 
 module.exports = router;

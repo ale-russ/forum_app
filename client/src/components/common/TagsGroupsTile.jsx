@@ -11,8 +11,10 @@ const TagsGroupsTile = ({ image, label, caption, color, onRoomClicked }) => {
       >
         {label[0]} R
       </div>
-      <div className="flex flex-col items-start">
-        <p className="font-bold text-lg">#{label}</p>
+      <div className="flex flex-col items-start w-[75%] ">
+        <p className="font-bold text-lg overflow-hidden text-ellipsis line-clamp-1">
+          #{label}
+        </p>
         <p className="dark-caption">{caption}</p>
       </div>
     </section>
