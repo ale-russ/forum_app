@@ -108,19 +108,7 @@ const PostPage = () => {
             <div className="flex items-center justify-center w-full h-10 font-bold uppercase">
               {localPost?.title}
             </div>
-            <div className="flex py-3 text-justify">
-              {localPost?.content}
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into
-              electronic typesetting, remaining essentially unchanged. It was
-              popularised in the 1960s with the release of Letraset sheets
-              containing Lorem Ipsum passages, and more recently with desktop
-              publishing software like Aldus PageMaker including versions of
-              Lorem Ipsum.
-            </div>
+            <div className="flex py-3 text-justify">{localPost?.content}</div>
             <div className="flex items-center justify-between mb-3 w-full">
               <div className="light-search flex flex-col md:flex-row lg:flex-row xl:flex-row items-center p-2 rounded-lg shadow-xl">
                 <ProfileImage author={localPost?.author} />
