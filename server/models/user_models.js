@@ -13,6 +13,14 @@ const UserSchema = new mongoose.Schema({
   likedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  resetPasswordToken: {
+    type: String,
+    default: null,
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null,
+  },
 });
 
 UserSchema.methods.comparePassword = function (userPassword) {

@@ -9,6 +9,8 @@ import {
   host,
   loginRoute,
   registerRoute,
+  requestPasswordResetRoute,
+  resetPasswordRoute,
 } from "../utils/ApiRoutes";
 
 export function handleValidation({ values, isRegister = false }) {
@@ -133,19 +135,9 @@ export const handleGetUserInfo = async (token) => {
   }
 };
 
-export const handleLogout = async ({ navigate }) => {
-  // var logoutRoute = `${host}/${endPoint}/`;
-  // const body = {
-  //   access_token: token,
-  // };
-
-  try {
-    // await axios.post(logoutRoute, body);
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("token");
-  } catch (error) {
-    toast.error(error, toastOptions);
-  }
+export const handleLogout = async () => {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("token");
 };
 
 export const handleDelete = async ({ token, endPoint, navigate }) => {
@@ -168,3 +160,24 @@ export const handleDelete = async ({ token, endPoint, navigate }) => {
     toast.error(error, toastOptions);
   }
 };
+
+export async function requestPasswordReset(email) {
+  console.log("email: ", email);
+  try {
+    await axios.post(`${requestPasswordResetRoute}`, { email });
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function resetPassword(password, token) {
+  try {
+    await axios.post(
+      `${resetPasswordRoute}`,
+      { password, token },
+      { headers: { "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    throw err;
+  }
+}

@@ -5,6 +5,8 @@ const Joi = require("joi");
 const { ObjectId } = require("mongodb");
 const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const User = require("../models/user_models");
 const Post = require("../models/post_model");
@@ -204,6 +206,83 @@ router.get("/:userId/following", verifyToken, async (req, res) => {
 router.post("/signout", (req, res) => {
   // res.clearCookie("token");
   return res.status(200).json({ msg: "Successfully signed out" });
+});
+
+//reset password link
+router.post("/request-password-reset-link", async (req, res) => {
+  try {
+    const { email } = req.body;
+    console.log("email: ", email);
+    const user = await User.findOne({ email }).select("-password");
+
+    if (!user) return res.status(400).json({ msg: "User not found" });
+
+    const token = crypto.randomBytes(20).toString("hex");
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+    await user.save();
+
+    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: "alemr905@gmail.com",
+      to: email,
+      subject: "Password Reset Link",
+      html: `<h1>Password Reset Link</h1>
+      <p>Please use this link to reset your password</p>
+      <a href="${resetUrl}" style="background-color: #BE0027; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+      <p>This link is valid for 1 hour only</p>`,
+    };
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "alemr905@gmail.com",
+        pass: "rxyv nnal wbal lhfe",
+      },
+    });
+
+    await transporter.sendMail(mailOptions);
+    return res
+      .status(200)
+      .json({ msg: "Reset Password Link has been sent to your email" });
+  } catch (err) {
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
+//reset password
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!password || !token)
+      return res.status(400).json({ msg: "Token and Password are required" });
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user)
+      return res
+        .status(404)
+        .json({ msg: "Password reset token is invalid or expired" });
+
+    // user.password = await bcrypt.genSalt(password, 10);
+    user.password = await bcrypt.hash(password, 10);
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ msg: "Password has been updated successfully" });
+  } catch (err) {
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
 });
 
 module.exports = router;

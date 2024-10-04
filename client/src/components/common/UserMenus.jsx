@@ -1,16 +1,16 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { UserAuthContext } from "../../utils/UserAuthenticationProvider";
 import { useForum } from "../../utils/PostContext";
 import TagsGroupsTile from "./TagsGroupsTile";
-import { handleLogout } from "../../controllers/AuthController";
 import Room from "../chat/RoomComponent";
 import JoinRoom from "../chat/JoinRoom";
 import { useMessage } from "../../utils/MessageContextProvider";
 import RoomsLoader from "./RoomsLoader";
+import { handleLogout } from "../../controllers/AuthController.js";
 
-const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
+const UserMenus = ({ userMenuRef, showDropdown }) => {
   const navigate = useNavigate();
   const { user } = useForum();
   const { handleFetchRooms, chatRooms, roomsLoading } = useMessage();
@@ -38,8 +38,8 @@ const UserMenus = ({ userMenuRef, showDropdown, handleCloseDropdownMenu }) => {
   };
 
   const signOut = async () => {
-    await handleLogout({ navigate });
-    setUserAuth({ newToken: "" });
+    await handleLogout();
+    setUserAuth({ newToken: "", newUser: null });
     navigate("/");
   };
   return (

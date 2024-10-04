@@ -13,7 +13,7 @@ import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { token } = useContext(UserAuthContext);
+  const { token, currentUser } = useContext(UserAuthContext);
   const { setUserAuth } = useContext(UserAuthContext);
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
@@ -55,17 +55,20 @@ const Login = () => {
   // };
 
   useEffect(() => {
-    if (token) {
+    if ((token, currentUser)) {
       navigate("/home");
     }
-  }, [token]);
+  }, [token, currentUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       await login({ values });
-      setUserAuth({ newToken: localStorage.getItem("token") });
+      setUserAuth({
+        newToken: localStorage.getItem("token"),
+        newUser: JSON.parse(localStorage.getItem("currentUser")),
+      });
       navigate("/home");
     } finally {
       setValues({
@@ -127,8 +130,12 @@ const Login = () => {
             {/* <div className="mx-auto">
               <button onClick={() => login()}>Sign in with Google 🚀</button>
             </div> */}
-
-            <div className="flex items-center justify-center mx-auto">
+            <div className="block text-center mx-auto cursor-pointer">
+              <Link className="underline" to="/request-password-reset">
+                <p>Forget Password</p>
+              </Link>
+            </div>
+            <div className="flex items-center justify-between mx-auto">
               <p>
                 Don't have an account ?{" "}
                 <Link className="underline" to="/register">
