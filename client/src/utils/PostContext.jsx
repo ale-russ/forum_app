@@ -63,10 +63,11 @@ export const ForumProvider = ({ children }) => {
       setOnlineUsers(users);
     });
 
-    const handleNewComment = ({ id }) => {
+    const handleNewComment = (post) => {
+      console.log("in post context useEffect");
       setCommentCounts((prev) => ({
         ...prev,
-        [id]: (prev[id] || 0) + 1,
+        [post?._id ?? post?.id]: (prev[id] || 0) + 1,
       }));
     };
 
