@@ -8,14 +8,22 @@ import { toast } from "react-toastify";
 
 import { toastOptions } from "../utils/constants";
 
-export const fetchPosts = async () => {
+export const fetchPosts = async (token) => {
   try {
-    const response = await axios.get(`${postsRoute}/posts`);
+    const response = await axios.get(`${postsRoute}/posts`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (response.status == 200) {
       return response;
     }
     return null;
   } catch (error) {
+    console.log("Error: ", error.response.status);
+    if (error.response.status === 401) {
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
     toast.error(error.response?.data.msg, toastOptions);
   }
 };

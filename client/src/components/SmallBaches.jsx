@@ -38,7 +38,7 @@ const SmallBaches = () => {
         <p>Following</p>
         <div className="primary h-7 w-7 rounded-lg flex items-center justify-center mx-1">
           <p className="text-bold text-xs text-white">
-            {user?.following.length}
+            {user?.following?.length}
           </p>
         </div>
       </div>

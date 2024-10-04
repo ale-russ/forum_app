@@ -32,7 +32,6 @@ router.post("/upload-image", uploadFile.single("image"), async (req, res) => {
 
     res.json({ msg: "Image uploaded successfully", fileId });
   } catch (err) {
-    console.error("ROUTE ERROR: ", err.message);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });

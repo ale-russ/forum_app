@@ -9,6 +9,11 @@ const verifyToken = (req, res, next) => {
     req.user = verified;
     next();
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ msg: "Token expired. Please log in again." });
+    }
     res.status(400).json({ msg: "Invalid Token" });
   }
 };

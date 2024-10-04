@@ -63,10 +63,11 @@ export const ForumProvider = ({ children }) => {
       setOnlineUsers(users);
     });
 
-    const handleNewComment = ({ id }) => {
+    const handleNewComment = (post) => {
+      console.log("in post context useEffect");
       setCommentCounts((prev) => ({
         ...prev,
-        [id]: (prev[id] || 0) + 1,
+        [post?._id ?? post?.id]: (prev[id] || 0) + 1,
       }));
     };
 
@@ -105,7 +106,7 @@ export const ForumProvider = ({ children }) => {
   const handleFetchPosts = useCallback(async () => {
     setPostLoading(true);
     try {
-      const response = await fetchPosts();
+      const response = await fetchPosts(token);
 
       if (response && response.data) {
         // setThreads(response.data);

@@ -76,6 +76,7 @@ const CommentsModal = ({
     }
 
     socket.on("new comment", ({ updatedPost }) => {
+      console.log("updatedPost: ", updatedPost);
       if (localPost._id === updatedPost._id) {
         setLocalPost({ ...updatedPost });
       }

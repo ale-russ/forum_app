@@ -10,14 +10,10 @@ import MessageContextProvider from "../utils/MessageContextProvider";
 
 const PrivateRoutes = ({ allowedRoutes }) => {
   const location = useLocation();
-  const token = localStorage.getItem("token");
-  // const user = JSON.parse(localStorage.getItem("currentUser"));
-  // console.log("user: ", user);
+  // const token = localStorage.getItem("token");
+  const [token, currentUser] = allowedRoutes;
 
-  // const isAuthed = token !== null && user !== undefined;
-  // console.log("isAuthed: ", user === undefined);
-
-  return token ? (
+  return token && currentUser ? (
     <SocketProvider>
       <ForumProvider>
         <MessageContextProvider>
@@ -31,7 +27,8 @@ const PrivateRoutes = ({ allowedRoutes }) => {
       </ForumProvider>
     </SocketProvider>
   ) : (
-    <Navigate to="/" state={{ from: location }} replace />
+    // <Navigate to="/" state={{ from: location }} replace />
+    <Navigate to="/" />
   );
 };
 

@@ -31,7 +31,7 @@ router.post("/post", verifyToken, async (req, res) => {
 });
 
 // Get All Posts
-router.get("/posts", async (req, res) => {
+router.get("/posts", verifyToken, async (req, res) => {
   try {
     const posts = await Post.find()
       .populate({
@@ -112,7 +112,7 @@ router.put("/post/:id", verifyToken, async (req, res) => {
 });
 
 // Delete a post
-router.delete("/post/:id", async (req, res) => {
+router.delete("/post/:id", verifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
