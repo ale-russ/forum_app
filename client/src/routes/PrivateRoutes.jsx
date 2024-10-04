@@ -10,9 +10,10 @@ import MessageContextProvider from "../utils/MessageContextProvider";
 
 const PrivateRoutes = ({ allowedRoutes }) => {
   const location = useLocation();
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
+  const [token, currentUser] = allowedRoutes;
 
-  return token ? (
+  return token && currentUser ? (
     <SocketProvider>
       <ForumProvider>
         <MessageContextProvider>
@@ -26,7 +27,8 @@ const PrivateRoutes = ({ allowedRoutes }) => {
       </ForumProvider>
     </SocketProvider>
   ) : (
-    <Navigate to="/" state={{ from: location }} replace />
+    // <Navigate to="/" state={{ from: location }} replace />
+    <Navigate to="/" />
   );
 };
 

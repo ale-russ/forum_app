@@ -22,9 +22,11 @@ import PrivateChatPage from "./pages/PrivateChatPage";
 import NewPosts from "./components/post/NewPosts";
 import PopularPosts from "./components/post/PopularPosts";
 import FollowingPosts from "./components/post/FollowingPosts";
+import RequestPasswordReset from "./pages/RequestPasswordReset";
+import PasswordResetPage from "./pages/PasswordResetPage";
 
 function App() {
-  const { token } = useContext(UserAuthContext);
+  const { token, currentUser } = useContext(UserAuthContext);
 
   return (
     <div className="light w-full h-full overflow-x-hidden scrollbar custom-scrollbar">
@@ -33,8 +35,15 @@ function App() {
           <Route element={<AuthWrapper />}>
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route
+              path="/request-password-reset"
+              element={<RequestPasswordReset />}
+            />
+            <Route path="/reset-password" element={<PasswordResetPage />} />
           </Route>
-          <Route element={<PrivateRoutes allowedRoutes={[token]} />}>
+          <Route
+            element={<PrivateRoutes allowedRoutes={[token, currentUser]} />}
+          >
             <Route path="/home" element={<Home />} />
             <Route path="/rooms/:roomId" element={<ChatRoom />} />
             <Route path="/:id/replies" element={<Replies />} />
