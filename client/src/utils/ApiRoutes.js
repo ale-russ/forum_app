@@ -1,5 +1,5 @@
-export const host = "http://localhost:4000";
-// export const host = "https://forum-app-57g1.onrender.com";
+// export const host = "http://localhost:4000";
+export const host = "https://forum-app-57g1.onrender.com";
 
 export const registerRoute = `${host}/auth/register`;
 export const loginRoute = `${host}/auth/login`;
