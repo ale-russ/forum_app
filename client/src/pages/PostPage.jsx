@@ -2,21 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { IoMdSend } from "react-icons/io";
 import { toast } from "react-toastify";
-import io from "socket.io-client";
-import Picker from "emoji-picker-react";
-import { BsEmojiSmile } from "react-icons/bs";
 
-import LeftSide from "../components/LeftSideBar";
-// import { ReactComponent as Profile } from "../assets/ProfileImage.svg";
 import { useForum } from "../utils/PostContext";
-import { host } from "../utils/ApiRoutes";
 import HomeWrapper from "../components/common/HomeWrapper";
 import ProfileImage from "../components/common/ProfileImage";
 import useCloseModal from "../hooks/useCloseModal.js";
 import EmojiPickerComponent from "../components/common/EmojiPicker.jsx";
 import { useSocket } from "../utils/SocketContext.jsx";
-
-// const socket = io(host);
 
 const PostPage = () => {
   const location = useLocation();

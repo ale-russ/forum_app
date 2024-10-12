@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   userName: { type: String, required: true, unique: true },
   profileImage: { type: String },
+  isActive: Boolean,
   role: { type: String, enum: ["user", "admin"], default: "user" },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   roomsJoined: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],

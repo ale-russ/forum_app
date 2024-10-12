@@ -84,16 +84,18 @@ export const handleSearch = async (searchQuery, token) => {
 };
 
 export const deletePost = async (id, token) => {
+  console.log("id: ", id, " token: ", token);
   try {
-    const response = await axios.delete(
+    await axios.delete(
       `${deletePostRoute}/${id}`,
-      {},
+
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
     toast.success("Post deleted successfully", toastOptions);
   } catch (error) {
+    console.log("ERror: ", error);
     toast.error("Oops! Something Went wrong", toastOptions);
   }
 };

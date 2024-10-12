@@ -4,6 +4,9 @@ import { useForum } from "../../utils/PostContext";
 import ProfileImage from "../common/ProfileImage";
 import useCloseModal from "../../hooks/useCloseModal";
 
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+
 const CreatePost = () => {
   const { user } = useForum();
   const [showModal, setShowModal] = useState(false);
@@ -109,7 +112,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
           {user.userName}
           <div className="flex flex-col px-2 py-8 items-center gap-x-4 w-full space-y-4 border border-gray-300 rounded-lg shadow-xl">
             <div className="flex flex-col gap-y-4 w-full">
-              <input
+              <Input
                 type="text"
                 className="light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="Title"
@@ -118,7 +121,7 @@ const CreatePostModal = ({ setShowModal, modalRef }) => {
                   setNewPost({ ...newPost, title: e.target.value })
                 }
               />
-              <textarea
+              <Textarea
                 type="text"
                 className="flex items-center light-search  h-9 px-4 focus:outline-none focus:shadow-outline outline-none border-0 rounded-lg shadow-lg"
                 placeholder="What's on your mind?"

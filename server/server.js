@@ -12,6 +12,7 @@ const forumRoute = require("./controllers/forumController");
 const chatRoute = require("./controllers/chat_controller");
 const upload = require("./controllers/upload");
 const chat = require("./controllers/chat_controller");
+const dashboard = require("./controllers/dashboard_controller");
 
 const socketControllers = require("./controllers/socketController");
 
@@ -52,6 +53,7 @@ app.use("/forum", forumRoute);
 app.use("/chat", chatRoute);
 app.use("/image", upload);
 app.use("/chat", chat);
+app.use("/admin", dashboard);
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));

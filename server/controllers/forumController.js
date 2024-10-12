@@ -117,6 +117,17 @@ router.delete("/post/:id", verifyToken, async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
+    console.log("user: ", req.user);
+    const user = await User.findById(req.user.id);
+
+    console.log("post.author", post.author);
+
+    if (post.author !== user.id && user.role !== "admin") {
+      console.log("Unable to delete post.");
+      res.status(401).json({ msg: "Unauthorized" });
+      return;
+    }
+
     await Post.findByIdAndDelete(post._id);
 
     await User.findByIdAndUpdate(

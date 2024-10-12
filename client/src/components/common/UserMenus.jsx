@@ -59,7 +59,14 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
         <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
           <p
             className="border border-gray-300 rounded drop-shadow-xl light-navbar w-full p-1 px-2 cursor-pointer font-semibold text-lg "
-            onClick={() => navigate("/user-profile")}
+            onClick={() => {
+              console.log("user: ", user);
+              if (user.role === "admin") {
+                navigate("/dashboard");
+              } else {
+                navigate("/user-profile");
+              }
+            }}
           >
             Profile
           </p>

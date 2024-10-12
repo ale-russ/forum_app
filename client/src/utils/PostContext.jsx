@@ -122,8 +122,7 @@ export const ForumProvider = ({ children }) => {
     }
   });
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
+  const handleCreatePost = async () => {
     setPostLoading(true);
     try {
       if (newPost.title === "" || newPost.content === "") {

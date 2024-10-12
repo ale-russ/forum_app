@@ -7,6 +7,7 @@ import Chat from "../components/chat/Chat";
 import { ForumProvider } from "../utils/PostContext";
 import { SocketProvider } from "../utils/SocketContext";
 import MessageContextProvider from "../utils/MessageContextProvider";
+import Footer from "../components/common/Footer";
 
 const PrivateRoutes = ({ allowedRoutes }) => {
   const location = useLocation();
@@ -23,6 +24,7 @@ const PrivateRoutes = ({ allowedRoutes }) => {
             <Outlet replace />
             {/* <Chat /> */}
           </div>
+          <Footer />
         </MessageContextProvider>
       </ForumProvider>
     </SocketProvider>

@@ -24,6 +24,7 @@ import PopularPosts from "./components/post/PopularPosts";
 import FollowingPosts from "./components/post/FollowingPosts";
 import RequestPasswordReset from "./pages/RequestPasswordReset";
 import PasswordResetPage from "./pages/PasswordResetPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   const { token, currentUser } = useContext(UserAuthContext);
@@ -49,6 +50,7 @@ function App() {
             <Route path="/:id/replies" element={<Replies />} />
             <Route path="/post/:id" element={<PostPage />} />
             <Route path="/user-profile" element={<ProfilePage />} />
+            <Route path="/dashboard" element={<AdminDashboard />} />
             <Route
               path="/chat/private-chat/:userId"
               element={<PrivateChatPage />}

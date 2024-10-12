@@ -48,7 +48,13 @@ const PostComponent = ({ post }) => {
   const isFollowing = followedUsers?.has(post?.author?._id);
   const [localIsFollowing, setLocalIsFollowing] = useState(isFollowing);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    if (post.author._id !== user._id && user.role !== "admin") {
+      toast.error("You are not authorized to delete this post", toastOptions);
+      return;
+    }
+    setShowDeleteWarning(true);
     await handleDeletePost(localPost);
   };
 
@@ -163,8 +169,12 @@ const PostComponent = ({ post }) => {
                     <div
                       className="rounded-lg light-navbar w-full p-1 cursor-pointer text-sm"
                       // onClick={handleDelete}
-                      onClick={() => {
-                        if (post.author._id !== user._id) {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (
+                          post.author._id !== user._id &&
+                          user.role !== "admin"
+                        ) {
                           toast.error(
                             "You are not authorized to delete this post",
                             toastOptions
