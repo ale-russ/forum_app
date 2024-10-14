@@ -13,6 +13,7 @@ const chatRoute = require("./controllers/chat_controller");
 const upload = require("./controllers/upload");
 const chat = require("./controllers/chat_controller");
 const dashboard = require("./controllers/dashboard_controller");
+const webPush = require("./controllers/web_push_controller");
 
 const socketControllers = require("./controllers/socketController");
 
@@ -35,7 +36,7 @@ app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
 //Serve static files from the React app
-app.use(express.static(path.join(__dirname, "client", "build")));
+// app.use(express.static(path.join(__dirname, "client", "build")));
 
 const mongoUrl = process.env.MONGODB_URL;
 
@@ -54,10 +55,11 @@ app.use("/chat", chatRoute);
 app.use("/image", upload);
 app.use("/chat", chat);
 app.use("/admin", dashboard);
+app.use("/web-push", webPush);
 
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+// });
 
 // development;
 server.listen(PORT, () => {
