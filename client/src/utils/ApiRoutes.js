@@ -7,6 +7,10 @@ export const requestPasswordResetRoute = `${host}/auth/request-password-reset-li
 export const resetPasswordRoute = `${host}/auth/reset-password`;
 export const adminDashboardRoute = `${host}/admin/dashboard`;
 
+//Push notification routes
+export const pushNotificationSubscribeRoute = `${host}/web-push/subscribe`;
+export const sendPushNotificationRouter = `${host}/web-push/notify`;
+
 export const getAllUsersRoute = `${host}/auth/users`;
 export const getCurrentUserInfo = `${host}/auth/user-info`;
 export const postsRoute = `${host}/forum`;

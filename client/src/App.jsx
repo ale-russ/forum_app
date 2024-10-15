@@ -25,9 +25,22 @@ import FollowingPosts from "./components/post/FollowingPosts";
 import RequestPasswordReset from "./pages/RequestPasswordReset";
 import PasswordResetPage from "./pages/PasswordResetPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import { subscribeUser } from "./controllers/PushNotificationController";
 
 function App() {
   const { token, currentUser } = useContext(UserAuthContext);
+
+  const curUser = JSON.parse(currentUser);
+  useEffect(() => {
+    const askNotificationPermission = async () => {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        subscribeUser(curUser?._id);
+      }
+    };
+
+    askNotificationPermission();
+  }, []);
 
   return (
     <div className="light w-full h-full overflow-x-hidden scrollbar custom-scrollbar">

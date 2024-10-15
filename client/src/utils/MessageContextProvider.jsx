@@ -108,7 +108,6 @@ const MessageContextProvider = ({ children }) => {
     };
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
-        console.log("Message: ", message);
         setMessages((prevMessages) => [...prevMessages, message]);
         handleNewMessage({
           chatId: message.recipient,

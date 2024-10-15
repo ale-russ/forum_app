@@ -2,11 +2,9 @@ self.addEventListener("push", function (event) {
   const data = event.data.json();
   const title = data.title;
   const options = {
-    body: body.data,
+    body: data.body,
     icon: "./assets/Logo.svg",
   };
 
-  event.waitUntil(
-    self.ServiceWorkerRegistration.showNotification(title, options)
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });

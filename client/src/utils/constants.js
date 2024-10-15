@@ -1,3 +1,5 @@
+import { notifyUser } from "../controllers/PushNotificationController";
+
 export const toastOptions = {
   position: "bottom-right",
   autoClose: 4000,
@@ -24,6 +26,7 @@ export const sendMessage = ({
   };
 
   socket.emit(socketEvent, { message, recipient });
+  notifyUser(user?.userName);
   setMessage((prevMessages) => [...prevMessages, message]);
   setInput("");
 };

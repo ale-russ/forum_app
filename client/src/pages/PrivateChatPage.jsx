@@ -89,8 +89,6 @@ const PrivateChatPage = () => {
     }
   };
 
-  // const getItemsSize = (index) => estimatedMessageHeight(messages[index]);
-
   return (
     <div className="flex w-full h-[90vh] light-navbar border-gray-400 border-2 border-opacity-20 rounded-lg shadow-xl mt-3">
       <div className="hidden md:flex flex-col light-search w-[30%] px-2 border-r h-full">
