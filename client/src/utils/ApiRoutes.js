@@ -9,7 +9,9 @@ export const adminDashboardRoute = `${host}/admin/dashboard`;
 
 //Push notification routes
 export const pushNotificationSubscribeRoute = `${host}/web-push/subscribe`;
-export const sendPushNotificationRouter = `${host}/web-push/notify`;
+export const sendPrivateMessagePushNotificationRoute = `${host}/web-push/private-message-notification`;
+export const sendGroupMessagePushNotificationRoute = `${host}/web-push/group-message-notification`;
+export const sendPostCreationPushNotificationRoute = `${host}/web-push/post-create-notification`;
 
 export const getAllUsersRoute = `${host}/auth/users`;
 export const getCurrentUserInfo = `${host}/auth/user-info`;

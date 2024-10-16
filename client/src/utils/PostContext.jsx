@@ -19,6 +19,10 @@ import { toastOptions } from "./constants";
 import { useSocket } from "./SocketContext";
 import { handleGetUserInfo } from "../controllers/AuthController";
 import { useNavigate } from "react-router-dom";
+import {
+  createPostNotification,
+  privateMessageNotification,
+} from "../controllers/PushNotificationController";
 
 const ForumContext = createContext();
 
@@ -134,6 +138,20 @@ export const ForumProvider = ({ children }) => {
       if (response && response?.data) {
         setThreads([...threads, response.data]);
         socket?.emit("new post", { post: response?.data });
+
+        await Promise.all(
+          user?.followers?.map(async (follower) => {
+            try {
+              await createPostNotification(
+                follower,
+                "New Post Notification",
+                `${user.userName} has created a new post`
+              );
+            } catch (err) {
+              console.error(`Failed to notify follower ${follower}`);
+            }
+          })
+        );
       }
     } catch (err) {
       console.log("Error in context post creation: ", err);

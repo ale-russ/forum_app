@@ -1,4 +1,4 @@
-import { notifyUser } from "../controllers/PushNotificationController";
+import { privateMessageNotification } from "../controllers/PushNotificationController";
 
 export const toastOptions = {
   position: "bottom-right",
@@ -8,7 +8,7 @@ export const toastOptions = {
   theme: "light",
 };
 
-export const sendMessage = ({
+export const sendMessage = async ({
   input,
   setInput,
   user,
@@ -26,7 +26,12 @@ export const sendMessage = ({
   };
 
   socket.emit(socketEvent, { message, recipient });
-  notifyUser(user?.userName);
+  await privateMessageNotification(
+    user.userName,
+    recipient._id,
+    "New Private Message",
+    `${user.userName} has sent you a private message`
+  );
   setMessage((prevMessages) => [...prevMessages, message]);
   setInput("");
 };

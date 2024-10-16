@@ -1,7 +1,8 @@
 import axios from "axios";
 import {
   pushNotificationSubscribeRoute,
-  sendPushNotificationRouter,
+  sendPostCreationPushNotificationRoute,
+  sendPrivateMessagePushNotificationRoute,
 } from "../utils/ApiRoutes";
 
 export const subscribeUser = async (userId) => {
@@ -36,13 +37,38 @@ export const subscribeUser = async (userId) => {
   }
 };
 
-export const notifyUser = async (userName, userId, title, body) => {
-  console.log("userName: ", userName);
+export const privateMessageNotification = async (
+  userName,
+  userId,
+  title,
+  body
+) => {
   try {
     const response = await axios.post(
-      `${sendPushNotificationRouter}`,
+      `${sendPrivateMessagePushNotificationRoute}`,
       {
-        userName,
+        userId,
+        title,
+        body,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("response: ", response);
+  } catch (err) {
+    console.log("Error sending notification: ", err);
+  }
+};
+
+export const createPostNotification = async (userId, title, body) => {
+  try {
+    const response = await axios.post(
+      `${sendPostCreationPushNotificationRoute}`,
+      {
         userId,
         title,
         body,
