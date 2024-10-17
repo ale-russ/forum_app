@@ -11,14 +11,11 @@ import { RiUserFollowFill } from "react-icons/ri";
 
 import { useForum } from "../../utils/PostContext";
 import CommentsModal from "./CommentsModal";
-import { host } from "../../utils/ApiRoutes";
 import { updateViewCount } from "../../controllers/ForumController";
 import ProfileImage from "../common/ProfileImage";
 import PulseAnimationLoader from "../common/PulseAnimationLoader";
 import { toastOptions } from "../../utils/constants";
 import { useSocket } from "../../utils/SocketContext";
-
-// const socket = io(host);
 
 const PostComponent = ({ post }) => {
   const navigate = useNavigate();
@@ -50,12 +47,16 @@ const PostComponent = ({ post }) => {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    if (post.author._id !== user._id && user.role !== "admin") {
-      toast.error("You are not authorized to delete this post", toastOptions);
-      return;
+    try {
+      if (post.author._id !== user._id && user.role !== "admin") {
+        toast.error("You are not authorized to delete this post", toastOptions);
+        return;
+      }
+      setShowDeleteWarning(true);
+      await handleDeletePost(localPost);
+    } finally {
+      setShowDeleteWarning(false);
     }
-    setShowDeleteWarning(true);
-    await handleDeletePost(localPost);
   };
 
   const handleLike = async () => {

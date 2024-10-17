@@ -6,9 +6,6 @@ import {
 } from "../utils/ApiRoutes";
 
 export const subscribeUser = async (userId) => {
-  console.log("UserId: ", userId);
-  const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-  console.log("PUBLIC_VAPID_KEY: ", publicVapidKey);
   try {
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
@@ -17,8 +14,6 @@ export const subscribeUser = async (userId) => {
         "BJGP9qG6HiHw-PEUyK18zevMrmGdy6mz4WzyWKsDQRxqw8aCo9h4CpgOz0_lzzjVORCpeFvy3zGQ0EDY-YJXI8I"
       ),
     });
-
-    // const body = {subscription:subscription, userId: userId}
 
     await axios.post(
       `${pushNotificationSubscribeRoute}`,
@@ -65,6 +60,7 @@ export const privateMessageNotification = async (
 };
 
 export const createPostNotification = async (userId, title, body) => {
+  console.log("create new post notification");
   try {
     const response = await axios.post(
       `${sendPostCreationPushNotificationRoute}`,

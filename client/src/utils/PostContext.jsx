@@ -128,16 +128,15 @@ export const ForumProvider = ({ children }) => {
 
   const handleCreatePost = async () => {
     setPostLoading(true);
+    console.log("user: ", user);
     try {
-      if (newPost.title === "" || newPost.content === "") {
-        toast.error("Title and Content cannot be empty", toastOptions);
-        return;
-      }
       const response = await createPost(newPost, token);
 
       if (response && response?.data) {
         setThreads([...threads, response.data]);
         socket?.emit("new post", { post: response?.data });
+
+        console.log("user: ", user);
 
         await Promise.all(
           user?.followers?.map(async (follower) => {

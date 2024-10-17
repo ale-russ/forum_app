@@ -120,9 +120,7 @@ router.delete("/post/:id", verifyToken, async (req, res) => {
     console.log("user: ", req.user);
     const user = await User.findById(req.user.id);
 
-    console.log("post.author", post.author);
-
-    if (post.author !== user.id && user.role !== "admin") {
+    if (post.author.toString() !== user.id && user.role !== "admin") {
       console.log("Unable to delete post.");
       res.status(401).json({ msg: "Unauthorized" });
       return;

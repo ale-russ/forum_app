@@ -18,13 +18,13 @@ webpush.setVapidDetails(
 function sendSubscriptions(subscriptions, payload, res) {
   webpush.sendNotification(subscriptions, payload).catch(async (error) => {
     if (error.statusCode === 410) {
-      console.log("Subscription is no longer valid, removing from database");
+      // console.log("Subscription is no longer valid, removing from database");
 
       try {
         await Subscription.findOneAndDelete({
           endpoint: subscriptions.endpoint,
         });
-        console.log("Subscription removed from database");
+        // console.log("Subscription removed from database");
       } catch (err) {
         // console.error("Error removing subscription from database:", err);
         res.status(500).json({ msg: "Internal Server Error" });
@@ -35,10 +35,10 @@ function sendSubscriptions(subscriptions, payload, res) {
 
 router.post("/subscribe", async (req, res) => {
   try {
-    console.log("body: ", req.body);
+    // console.log("body: ", req.body);
     const { subscription, userId } = req.body;
-    console.log("subscription: ", subscription);
-    console.log("userId: ", userId);
+    // console.log("subscription: ", subscription);
+    // console.log("userId: ", userId);
 
     const { endpoint, keys } = subscription;
 
@@ -50,7 +50,7 @@ router.post("/subscribe", async (req, res) => {
 
     res.status(201).json({ message: "Subscription stored successfully" });
   } catch (err) {
-    console.log("Subscription Error: ", err);
+    // console.log("Subscription Error: ", err);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -77,7 +77,7 @@ router.post("/private-message-notification", async (req, res) => {
     }
     res.status(200).json({ message: "Notification sent!" });
   } catch (err) {
-    console.log("Notify Error: ", err);
+    // console.log("Notify Error: ", err);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
@@ -90,6 +90,8 @@ router.post("/post-create-notification", async (req, res) => {
     const subscriptions = await Subscription.find({
       userId: { $in: user.followers },
     });
+
+    console.log("User: ", user);
 
     if (!subscriptions) {
       return res
