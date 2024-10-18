@@ -60,7 +60,6 @@ export const privateMessageNotification = async (
 };
 
 export const createPostNotification = async (userId, title, body) => {
-  console.log("create new post notification");
   try {
     const response = await axios.post(
       `${sendPostCreationPushNotificationRoute}`,
@@ -75,10 +74,11 @@ export const createPostNotification = async (userId, title, body) => {
         },
       }
     );
-
-    console.log("response: ", response);
+    // console.log("Push Notification Response: ", response);
+    return response;
   } catch (err) {
-    console.log("Error sending notification: ", err);
+    // console.log("Error sending notification: ", err);
+    return Promise.reject(err); // Ensure that the error is propagated
   }
 };
 

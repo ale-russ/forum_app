@@ -86,12 +86,7 @@ router.post("/post-create-notification", async (req, res) => {
   const { userId, title, body } = req.body;
 
   try {
-    const user = await User.findById(userId).select("followers");
-    const subscriptions = await Subscription.find({
-      userId: { $in: user.followers },
-    });
-
-    console.log("User: ", user);
+    const subscriptions = await Subscription.find({ userId });
 
     if (!subscriptions) {
       return res
@@ -106,6 +101,7 @@ router.post("/post-create-notification", async (req, res) => {
       subscriptions.forEach(async (subscription) => {
         sendSubscriptions(subscription, payload, res);
       });
+      res.status(200).json({ message: "Notification sent!" });
     }
   } catch (err) {
     console.log("Notify Error: ", err);

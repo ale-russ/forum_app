@@ -50,6 +50,7 @@ export const ForumProvider = ({ children }) => {
   const [followedUsers, setFollowedUsers] = useState(new Set());
 
   const sortNewPosts = (data) => {
+    console.log("DATA: ", data);
     const sortedPosts = [...data].sort((a, b) => {
       const aTimestamp = Date.parse(a.createdAt);
       const bTimestamp = Date.parse(b.createdAt);
@@ -128,35 +129,46 @@ export const ForumProvider = ({ children }) => {
 
   const handleCreatePost = async () => {
     setPostLoading(true);
-    console.log("user: ", user);
+
     try {
       const response = await createPost(newPost, token);
 
       if (response && response?.data) {
-        setThreads([...threads, response.data]);
+        // setThreads([response.data, ...threads]);
+        // setThreads((prevThreads) =>
+        //   prevThreads.some((thread) => thread._id === response.data._id)
+        //     ? prevThreads
+        //     : [response.data, ...prevThreads]
+        // );
+        const newData = [...threads, response?.data];
+        console.log("Data: ", newData);
+        sortNewPosts(newData);
         socket?.emit("new post", { post: response?.data });
-
-        console.log("user: ", user);
 
         await Promise.all(
           user?.followers?.map(async (follower) => {
             try {
               await createPostNotification(
-                follower,
+                follower._id,
                 "New Post Notification",
                 `${user.userName} has created a new post`
               );
             } catch (err) {
-              console.error(`Failed to notify follower ${follower}`);
+              console.error(`Failed to notify follower ${follower}: `, err);
             }
           })
         );
       }
+      await handleFetchPosts();
     } catch (err) {
-      console.log("Error in context post creation: ", err);
       toast.error("Failed to create post", toastOptions);
     } finally {
-      setNewPost({ title: "", content: "" });
+      setNewPost({
+        title: "",
+        content: "",
+        tags: [],
+        image: null,
+      });
       setPostLoading(false);
     }
   };
@@ -193,7 +205,9 @@ export const ForumProvider = ({ children }) => {
     setPostLoading(true);
     try {
       await deletePost(post._id, token);
-      setThreads(threads.filter((t) => t._id !== post._id));
+
+      // setThreads(threads.filter((t) => t._id !== post._id));
+      // console.log("Threads: ", threads);
     } catch (error) {
       toast.error("Failed to delete post", toastOptions);
     }

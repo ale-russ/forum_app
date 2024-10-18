@@ -30,6 +30,7 @@ const PostComponent = ({ post }) => {
     setPostComments,
     handleFollowUnFollowUser,
     followedUsers,
+    handleFetchPosts,
   } = useForum();
 
   const [localPost, setLocalPost] = useState(post);
@@ -54,6 +55,7 @@ const PostComponent = ({ post }) => {
       }
       setShowDeleteWarning(true);
       await handleDeletePost(localPost);
+      handleFetchPosts();
     } finally {
       setShowDeleteWarning(false);
     }
