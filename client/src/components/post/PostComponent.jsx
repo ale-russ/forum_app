@@ -55,7 +55,7 @@ const PostComponent = ({ post }) => {
       }
       setShowDeleteWarning(true);
       await handleDeletePost(localPost);
-      handleFetchPosts();
+      // handleFetchPosts();
     } finally {
       setShowDeleteWarning(false);
     }

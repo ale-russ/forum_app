@@ -48,9 +48,10 @@ export const ForumProvider = ({ children }) => {
     height: window.innerHeight,
   });
   const [followedUsers, setFollowedUsers] = useState(new Set());
+  const [undoDeletePost, setUndoDeletePost] = useState(null);
 
   const sortNewPosts = (data) => {
-    console.log("DATA: ", data);
+    console.log("SortingDATA: ", data);
     const sortedPosts = [...data].sort((a, b) => {
       const aTimestamp = Date.parse(a.createdAt);
       const bTimestamp = Date.parse(b.createdAt);
@@ -135,14 +136,7 @@ export const ForumProvider = ({ children }) => {
 
       if (response && response?.data) {
         // setThreads([response.data, ...threads]);
-        // setThreads((prevThreads) =>
-        //   prevThreads.some((thread) => thread._id === response.data._id)
-        //     ? prevThreads
-        //     : [response.data, ...prevThreads]
-        // );
-        const newData = [...threads, response?.data];
-        console.log("Data: ", newData);
-        sortNewPosts(newData);
+
         socket?.emit("new post", { post: response?.data });
 
         await Promise.all(
@@ -159,7 +153,7 @@ export const ForumProvider = ({ children }) => {
           })
         );
       }
-      await handleFetchPosts();
+      handleFetchPosts();
     } catch (err) {
       toast.error("Failed to create post", toastOptions);
     } finally {
@@ -204,14 +198,30 @@ export const ForumProvider = ({ children }) => {
   const handleDeletePost = async (post) => {
     setPostLoading(true);
     try {
-      await deletePost(post._id, token);
+      const postToDelete = threads.find((pst) => pst._id === post._id);
 
-      // setThreads(threads.filter((t) => t._id !== post._id));
-      // console.log("Threads: ", threads);
+      console.log("Post to delete: ", postToDelete);
+      // await deletePost(post._id, token);
+      // setUndoDeletePost({
+      //   post,
+      //   timeoutid: setTimeout(() => setUndoDeletePost(null), 10000),
+      // });
+
+      setThreads(threads.filter((t) => t._id !== post._id));
+      console.log("Threads: ", threads);
     } catch (error) {
       toast.error("Failed to delete post", toastOptions);
     }
     setPostLoading(false);
+  };
+
+  const undoDelete = () => {
+    if (undoDelete) {
+      clearTimeout(undoDeletePost.timeoutid);
+      setThreads([...threads, undoDeletePost.post]);
+      setUndoDeletePost(null);
+      toast.dismiss();
+    }
   };
 
   return (
