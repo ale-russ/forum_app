@@ -20,7 +20,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
   const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   const handleRoomClick = (roomId, chatUsers) => {
-    const userExists = chatUsers.users.some((usr) => usr._id === user._id);
+    const userExists = chatUsers.users.some((usr) => usr._id === user?._id);
     if (!userExists) {
       setShowWarningModal(userExists);
       return;
@@ -39,7 +39,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
 
   const signOut = async () => {
     await handleLogout();
-    setUserAuth({ newToken: "", newUser: null });
+    setUserAuth({ newToken: null, newUser: null });
     navigate("/");
   };
   return (
@@ -53,7 +53,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
         }`}
       >
         <div className="p-2">
-          <strong>{user.userName}</strong>
+          <strong>{user?.userName}</strong>
         </div>
         <div className="w-full border border-gray-300 m-3" />
         <div className="flex flex-col items-start justify-center w-full gap-y-2 p-2">
@@ -61,7 +61,7 @@ const UserMenus = ({ userMenuRef, showDropdown }) => {
             className="border border-gray-300 rounded drop-shadow-xl light-navbar w-full p-1 px-2 cursor-pointer font-semibold text-lg "
             onClick={() => {
               console.log("user: ", user);
-              if (user.role === "admin") {
+              if (user?.role === "admin") {
                 navigate("/dashboard");
               } else {
                 navigate("/user-profile");

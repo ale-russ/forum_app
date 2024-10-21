@@ -24,6 +24,8 @@ import {
   privateMessageNotification,
 } from "../controllers/PushNotificationController";
 
+import { Button } from "../components/ui/button";
+
 const ForumContext = createContext();
 
 export const useForum = () => useContext(ForumContext);
@@ -51,7 +53,6 @@ export const ForumProvider = ({ children }) => {
   const [undoDeletePost, setUndoDeletePost] = useState(null);
 
   const sortNewPosts = (data) => {
-    console.log("SortingDATA: ", data);
     const sortedPosts = [...data].sort((a, b) => {
       const aTimestamp = Date.parse(a.createdAt);
       const bTimestamp = Date.parse(b.createdAt);
@@ -200,15 +201,54 @@ export const ForumProvider = ({ children }) => {
     try {
       const postToDelete = threads.find((pst) => pst._id === post._id);
 
-      console.log("Post to delete: ", postToDelete);
-      // await deletePost(post._id, token);
+      await deletePost(postToDelete._id, token);
+      // Temporarily store the post to allow for undo
+      // const timeoutId = setTimeout(async () => {
+      //   try {
+      //     console.log("Post deleted");
+      //     setUndoDeletePost(null);
+      //     toast.success("Post permanently deleted", toastOptions);
+      //   } catch (error) {
+      //     toast.error("Failed to permanently delete post", toastOptions);
+      //   }
+      // }, 5000);
+
       // setUndoDeletePost({
-      //   post,
-      //   timeoutid: setTimeout(() => setUndoDeletePost(null), 10000),
+      //   post: postToDelete,
+      //   timeoutId,
       // });
 
+      // console.log("Undo delete post: ", undoDeletePost);
+
       setThreads(threads.filter((t) => t._id !== post._id));
-      console.log("Threads: ", threads);
+
+      // toast.warning(
+      //   <div>
+      //     Post deleted. Click <strong>'Cancel' </strong> to restore
+      //   </div>,
+      //   {
+      //     duration: 5000,
+      //     closeButton: (
+      //       <Button
+      //         className="w-16 h-8"
+      //         onClick={(e) => {
+      //           e.stopPropagation();
+      //           undoDelete();
+      //           clearTimeout(undoDeletePost?.timeoutId);
+      //           setUndoDeletePost(null);
+      //           toast.dismiss();
+      //         }}
+      //       >
+      //         Cancel
+      //       </Button>
+      //     ),
+      //     position: "bottom-right",
+      //     autoClose: 4000,
+      //     pauseOnHover: true,
+      //     draggable: true,
+      //     theme: "light",
+      //   }
+      // );
     } catch (error) {
       toast.error("Failed to delete post", toastOptions);
     }
@@ -216,11 +256,12 @@ export const ForumProvider = ({ children }) => {
   };
 
   const undoDelete = () => {
-    if (undoDelete) {
-      clearTimeout(undoDeletePost.timeoutid);
-      setThreads([...threads, undoDeletePost.post]);
-      setUndoDeletePost(null);
-      toast.dismiss();
+    console.log("UndoDeletePost: ", undoDeletePost);
+    if (undoDeletePost) {
+      clearTimeout(undoDeletePost.timeoutId); // Cancel the deletion timeout
+      setThreads([...threads, undoDeletePost.post]); // Restore the post
+      setUndoDeletePost(null); // Clear the undo state
+      toast.dismiss(); // Remove the undo toast
     }
   };
 

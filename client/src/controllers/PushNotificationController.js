@@ -7,6 +7,10 @@ import {
 
 export const subscribeUser = async (userId) => {
   try {
+    if (!userId) {
+      throw "User ID is required";
+      return;
+    }
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
@@ -14,21 +18,24 @@ export const subscribeUser = async (userId) => {
         "BJGP9qG6HiHw-PEUyK18zevMrmGdy6mz4WzyWKsDQRxqw8aCo9h4CpgOz0_lzzjVORCpeFvy3zGQ0EDY-YJXI8I"
       ),
     });
-
-    await axios.post(
-      `${pushNotificationSubscribeRoute}`,
-      {
-        subscription,
-        userId: userId,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    if (subscription) {
+      await axios.post(
+        `${pushNotificationSubscribeRoute}`,
+        {
+          subscription,
+          userId: userId,
         },
-      }
-    );
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
   } catch (err) {
-    console.log("Error: ", err);
+    // console.log("Error: ", err);
+    // throw "Push Notification Registration Error";
+    return;
   }
 };
 

@@ -17,7 +17,7 @@ import PulseAnimationLoader from "../common/PulseAnimationLoader";
 import { toastOptions } from "../../utils/constants";
 import { useSocket } from "../../utils/SocketContext";
 
-const PostComponent = ({ post }) => {
+const PostComponent = React.memo(({ post }) => {
   const navigate = useNavigate();
   const socket = useSocket();
   const [showModal, setShowModal] = useState(false);
@@ -35,7 +35,7 @@ const PostComponent = ({ post }) => {
 
   const [localPost, setLocalPost] = useState(post);
   const [likeCount, setLikeCount] = useState(localPost?.likes?.length);
-  const [isLiked, setIsLiked] = useState(localPost?.likes?.includes(user._id));
+  const [isLiked, setIsLiked] = useState(localPost?.likes?.includes(user?._id));
   const [viewCount, setViewCount] = useState(localPost?.views.length || 0);
   const [showMenu, setShowMenu] = useState(false);
   const deleteModalRef = useRef();
@@ -293,6 +293,6 @@ const PostComponent = ({ post }) => {
       )}
     </div>
   );
-};
+});
 
 export default PostComponent;

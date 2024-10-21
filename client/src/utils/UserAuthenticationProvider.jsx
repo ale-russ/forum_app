@@ -3,23 +3,28 @@ import React, { createContext, useState } from "react";
 const UserAuthContext = createContext();
 
 const UserAuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [currentUser, setCurrentUser] = useState(
     localStorage.getItem("currentUser") || null
   );
 
   const setUserAuth = ({ newToken, newUser }) => {
-    if (newToken != null) {
+    if (newToken != null && newUser != null) {
       setToken(newToken);
+      setCurrentUser(newUser);
       localStorage.setItem("token", newToken);
+      localStorage.setItem("currentUser", JSON.stringify(newUser));
     } else {
       localStorage.removeItem("token");
+      localStorage.removeItem("currentUser");
     }
 
-    if (newUser != null) {
-      setCurrentUser(newUser);
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
-    }
+    console.log(`currentUser: ${currentUser}, token: ${token}`);
+
+    // if (newUser != null) {
+    //   setCurrentUser(newUser);
+    //   localStorage.setItem("currentUser", JSON.stringify(newUser));
+    // }
 
     return;
   };

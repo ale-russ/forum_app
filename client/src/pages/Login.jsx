@@ -55,7 +55,7 @@ const Login = () => {
   // };
 
   useEffect(() => {
-    if ((token, currentUser)) {
+    if (token !== null && currentUser !== null) {
       navigate("/home");
     }
   }, [token, currentUser]);

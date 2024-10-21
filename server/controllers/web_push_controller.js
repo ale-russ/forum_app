@@ -37,20 +37,52 @@ router.post("/subscribe", async (req, res) => {
   try {
     // console.log("body: ", req.body);
     const { subscription, userId } = req.body;
-    // console.log("subscription: ", subscription);
-    // console.log("userId: ", userId);
+    console.log("subscription: ", subscription);
+
+    if (!userId) {
+      return res.status(400).json({ msg: "UserId is required" });
+    }
+    console.log("userId: ", userId);
 
     const { endpoint, keys } = subscription;
 
-    await Subscription.findOneAndUpdate(
-      { userId },
-      { endpoint, keys: { p256dh: keys?.p256dh, auth: keys?.auth } },
-      { upsert: true }
-    );
+    if (!keys) {
+      return res.status(400).json({ msg: "Subscription keys are required" });
+    }
+
+    const existingSubscription = await Subscription.findOne({ userId });
+    console.log("existingSubscription: ", existingSubscription);
+
+    if (existingSubscription) {
+      existingSubscription.endpoint = endpoint;
+      existingSubscription.keys = {
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      };
+      await existingSubscription.save();
+      console.log("existingSubscription");
+    } else {
+      const newSubscription = new Subscription({
+        userId,
+        endpoint,
+        keys: {
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+        },
+      });
+      await newSubscription.save();
+      console.log("new subscription: ", newSubscription);
+    }
+
+    // const newSubscription = await Subscription.findOneAndUpdate(
+    //   { userId },
+    //   { endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } },
+    //   { upsert: true }
+    // );
 
     res.status(201).json({ message: "Subscription stored successfully" });
   } catch (err) {
-    // console.log("Subscription Error: ", err);
+    console.log("Subscription Error: ", err);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });

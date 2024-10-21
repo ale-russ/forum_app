@@ -16,7 +16,7 @@ const CenterSide = () => {
       <>
         {threads ? (
           threads?.map((post, index) => (
-            <PostComponent key={index} post={post} />
+            <PostComponent key={post._id} post={post} />
           ))
         ) : (
           <p>No Post Found</p>

@@ -46,7 +46,7 @@ const NavBar = () => {
 
   let isInChatPage =
     newMessages.length > 0 &&
-    newMessages.some((msg) => msg.author === user._id);
+    newMessages.some((msg) => msg.author === user?._id);
 
   const getSearchResults = async () => {
     const searchRes = await handleSearch(searchQuery, token);
@@ -152,7 +152,7 @@ const NavBar = () => {
           <ProfileImage author={user} />
         </div>
 
-        <p className="font-bold text-[16px] text-ellipsis">{user.userName}</p>
+        <p className="font-bold text-[16px] text-ellipsis">{user?.userName}</p>
         <TiArrowSortedDown
           className="relative mx-2 w-4 h-4 cursor-pointer"
           onClick={() => setShowDropdown(!showDropdown)}
