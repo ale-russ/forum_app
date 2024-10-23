@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 const UserAuthContext = createContext();
 
@@ -9,7 +9,7 @@ const UserAuthProvider = ({ children }) => {
   );
 
   const setUserAuth = ({ newToken, newUser }) => {
-    if (newToken != null && newUser != null) {
+    if (newToken != null || newUser != null) {
       setToken(newToken);
       setCurrentUser(newUser);
       localStorage.setItem("token", newToken);
@@ -17,14 +17,9 @@ const UserAuthProvider = ({ children }) => {
     } else {
       localStorage.removeItem("token");
       localStorage.removeItem("currentUser");
+      setCurrentUser(null);
+      setToken(null);
     }
-
-    console.log(`currentUser: ${currentUser}, token: ${token}`);
-
-    // if (newUser != null) {
-    //   setCurrentUser(newUser);
-    //   localStorage.setItem("currentUser", JSON.stringify(newUser));
-    // }
 
     return;
   };

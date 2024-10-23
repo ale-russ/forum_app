@@ -29,7 +29,6 @@ import { subscribeUser } from "./controllers/PushNotificationController";
 
 function App() {
   const { token, currentUser } = useContext(UserAuthContext);
-  console.log(`token: ${token}, currentUser: ${currentUser}`);
 
   // const curUser = JSON.parse(currentUser);
   const curUser = currentUser;
@@ -37,10 +36,9 @@ function App() {
   useEffect(() => {
     const askNotificationPermission = async () => {
       const permission = await Notification.requestPermission();
-      console.log("permission: ", permission);
+
       if (permission === "granted") {
         if (!curUser) {
-          // console.log("User not logged in");
           return;
         }
         subscribeUser(curUser?._id);

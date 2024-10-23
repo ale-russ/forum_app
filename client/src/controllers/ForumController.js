@@ -84,7 +84,6 @@ export const handleSearch = async (searchQuery, token) => {
 };
 
 export const deletePost = async (id, token) => {
-  console.log("id: ", id, " token: ", token);
   try {
     await axios.delete(
       `${deletePostRoute}/${id}`,
