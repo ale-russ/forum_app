@@ -24,6 +24,10 @@ const NavBar = () => {
     newMessages.length > 0 &&
     newMessages.some((msg) => msg.author === user?._id);
 
+  const handleCloseDropdownMenu = () => {
+    setShowDropdown(false);
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
