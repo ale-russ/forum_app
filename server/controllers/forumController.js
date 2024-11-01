@@ -266,4 +266,15 @@ router.post("/post/follow/:userId", verifyToken, async (req, res) => {
   }
 });
 
+// const saveComment = async (commentText, postId, authorId) => {
+//   const mentionPattern = /@(\w+)/g;
+//   const mentions = [...commentText.matchAll(mentionPattern)].map(
+//     (match) => match[1]
+//   );
+
+//   const userMentioned = await User.find({ userName: { $in: mentions } });
+
+//   //save comment to the database
+// };
+
 module.exports = router;

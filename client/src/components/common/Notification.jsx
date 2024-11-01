@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TbBellFilled } from "react-icons/tb";
 
 import { useMessage } from "../../utils/MessageContextProvider";
+import useCloseModal from "../../hooks/useCloseModal.js";
 
 const Notification = () => {
   const [showNotification, setShowNotification] = useState(false);
@@ -12,6 +13,9 @@ const Notification = () => {
     navigateToChat,
     setNotifications,
   } = useMessage();
+
+  const notificationModalRef = useRef();
+  useCloseModal(notificationModalRef, () => setShowNotification(false));
 
   useEffect(() => {
     if (showNotification) {
@@ -33,6 +37,7 @@ const Notification = () => {
       </div>
       {showNotification ? (
         <div
+          ref={notificationModalRef}
           className={`flex flex-col items-center justify-start fixed right-4 top-16 z-40 w-72 min-h-16 max-h-72 light-navbar rounded shadow-xl border border-gray-300 overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar ${
             showNotification
               ? "opacity-100 animate-slide-in-down"

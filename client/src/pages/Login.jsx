@@ -89,7 +89,7 @@ const Login = () => {
   };
 
   return (
-    <main className="flex flex-col items-center py-16 px-4 m-auto h-full">
+    <main className="flex flex-col items-center py-16 px-4 m-auto">
       {loading ? (
         <Loader />
       ) : (

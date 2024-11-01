@@ -5,6 +5,7 @@ const Message = require("../models/message_model");
 const Room = require("../models/room_model");
 const Comment = require("../models/comments_model");
 const Post = require("../models/post_model");
+const { processMentions } = require("../middleware/utils");
 
 const rooms = {};
 const users = {};
@@ -22,6 +23,47 @@ const createGeneralRoom = async () => {
   } catch (err) {
     console.error("Error creating/finding General room:", err);
   }
+};
+
+const saveComment = async (postId, author, content) => {
+  console.log(`postId: ${postId}, author: ${author}, content: ${content}`);
+  try {
+    const comment = new Comment({ post: postId, author, content });
+    await comment.save();
+
+    console.log(`Comment: ${comment}`);
+
+    //populate author details
+    const populatedComment = await comment.populate("author", "userName");
+
+    console.log(`populatedComment: ${populatedComment}`);
+
+    //update post with new comment
+    await Post.findByIdAndUpdate(
+      postId,
+      { $push: { comments: comment._id } },
+      { new: true }
+    );
+
+    const updatedPost = await Post.findById(postId)
+      .populate("comments")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "userName" },
+      });
+    console.log("updatedPost: ", updatedPost);
+    return { updatedPost, populatedComment };
+  } catch (err) {
+    throw new Error("Failed to save comment");
+  }
+};
+
+const notifyMentionedUsers = (mentionedUsers, comment, io) => {
+  mentionedUsers.forEach((user) => {
+    io.to(user._id).emit("mentioned", {
+      message: `You were mentioned in a comment by ${comment.user.userName}`,
+    });
+  });
 };
 
 const socketControllers = (io) => {
@@ -340,23 +382,38 @@ const socketControllers = (io) => {
 
     socket.on("new comment", async ({ postId, author, content }) => {
       try {
-        const comment = new Comment({ post: postId, author, content });
-        await comment.save();
-
-        const populatedComment = await comment.populate("author", "userName");
-
-        await Post.findByIdAndUpdate(
+        const { updatedPost, populatedComment } = await saveComment(
           postId,
-          { $push: { comments: comment._id } },
-          { new: true }
+          author,
+          content
         );
 
-        const updatedPost = await Post.findById(postId)
-          .populate("comments")
-          .populate({
-            path: "comments",
-            populate: { path: "author", select: "userName" },
-          });
+        console.log("UPDATED POST: ", updatedPost);
+
+        //process mentions in the comment
+        const mentionedUsers = await processMentions(content);
+
+        //notify mentioned users
+        if (mentionedUsers.length > 0) {
+          notifyMentionedUsers(mentionedUsers, populatedComment);
+        }
+        // const comment = new Comment({ post: postId, author, content });
+        // await comment.save();
+
+        // const populatedComment = await comment.populate("author", "userName");
+
+        // await Post.findByIdAndUpdate(
+        //   postId,
+        //   { $push: { comments: comment._id } },
+        //   { new: true }
+        // );
+
+        // const updatedPost = await Post.findById(postId)
+        //   .populate("comments")
+        //   .populate({
+        //     path: "comments",
+        //     populate: { path: "author", select: "userName" },
+        //   });
 
         io.to(postId).emit("new comment", { updatedPost });
       } catch (err) {

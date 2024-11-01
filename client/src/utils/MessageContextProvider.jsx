@@ -43,7 +43,7 @@ const MessageContextProvider = ({ children }) => {
 
       setNewMessages((prev) => [...prev, newMsg]);
       setHasUnreadMessages(true);
-      console.log("New message: ", newMessages);
+      // console.log("New message: ", newMessages);
     } else {
       setNewMessages((prev) => [...prev, message]);
       setHasUnreadMessages(true);
@@ -72,6 +72,7 @@ const MessageContextProvider = ({ children }) => {
         setChatRooms(value?.data);
         setIsRoomFetched(true);
       });
+      console.log(`rooms fetched: ${isRoomFetched}`);
       return chatRooms;
     } finally {
       setRoomsLoading(false);
@@ -79,15 +80,20 @@ const MessageContextProvider = ({ children }) => {
   });
 
   const handleGeneralRoomUser = () => {
+    // console.log("in handle general room user");
+    // console.log(`chatRooms: ${chatRooms}`);
     if (chatRooms && chatRooms?.[0]) {
       const isUserInGeneralRoom = chatRooms[0]?.users?.some(
         (usr) => usr?._id === user?._id
       );
+      // console.log(`isUserInGeneralRoom: ${isUserInGeneralRoom}`);
       if (!isUserInGeneralRoom) {
+        // console.log("joining general room");
         socket?.emit("join chat room", {
           roomId: chatRooms[0]?._id,
           userId: user?._id,
         });
+        // console.log(` after: ${isUserInGeneralRoom}`);
       }
     }
   };
@@ -97,14 +103,13 @@ const MessageContextProvider = ({ children }) => {
       const response = await fetchAllUsers(token);
       setUserList(response);
     } catch (err) {
-      // console.log("Error: ", err);
       toast.error("Failed to fetch users", toastOptions);
     }
   };
 
   useEffect(() => {
     const handleError = (errorMessage) => {
-      console.error("Socket error:", errorMessage);
+      // console.error("Socket error:", errorMessage);
     };
     if (socket) {
       const handlePrivateMessage = ({ message }) => {
@@ -126,14 +131,18 @@ const MessageContextProvider = ({ children }) => {
   }, [socket, handleNewMessage]);
 
   useEffect(() => {
-    handleFetchRooms();
-  }, []);
-
-  useEffect(() => {
-    if (!isRoomFetched) {
+    // if (!isRoomFetched) {
+    // }
+    // handleGeneralRoomUser();
+    if (isRoomFetched && chatRooms?.length && user) {
       handleGeneralRoomUser();
     }
-  }, [isRoomFetched]);
+    // console.log(`isRoomFetched: ${isRoomFetched}`);
+  }, [isRoomFetched, chatRooms, user]);
+
+  useEffect(() => {
+    handleFetchRooms();
+  }, []);
 
   useEffect(() => {
     // console.log("new notification: ", newMessages);

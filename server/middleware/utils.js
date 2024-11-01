@@ -5,6 +5,8 @@ const { Readable } = require("stream");
 const dotenv = require("dotenv");
 const { storage } = require("../constants/appwrite");
 
+const User = require("../models/user_models");
+
 dotenv.config();
 
 const uploadFile = multer({ storage: multer.memoryStorage() });
@@ -28,4 +30,17 @@ async function uploadImage(fileBuffer, fileName) {
   }
 }
 
-module.exports = { uploadFile, uploadImage, storage };
+const processMentions = async (content) => {
+  const mentionPattern = /@(\w+)/g;
+  const mentionedUserNames = content.math(mentionPattern);
+
+  if (!mentionedUserNames) return [];
+
+  const mentionedUsers = await User.find({
+    userName: { $in: mentionedUserNames.map((name) => name.slice(1)) },
+  });
+
+  return mentionedUsers;
+};
+
+module.exports = { uploadFile, uploadImage, storage, processMentions };

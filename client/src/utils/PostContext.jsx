@@ -116,7 +116,6 @@ export const ForumProvider = ({ children }) => {
       const response = await fetchPosts(token);
 
       if (response && response.data) {
-        // setThreads(response.data);
         sortNewPosts(response.data);
       } else {
         return "No Data found";
@@ -127,7 +126,7 @@ export const ForumProvider = ({ children }) => {
     } finally {
       setPostLoading(false);
     }
-  });
+  }, []);
 
   const handleCreatePost = async () => {
     setPostLoading(true);

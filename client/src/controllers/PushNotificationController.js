@@ -46,7 +46,7 @@ export const privateMessageNotification = async (
   body
 ) => {
   try {
-    const response = await axios.post(
+    await axios.post(
       `${sendPrivateMessagePushNotificationRoute}`,
       {
         userId,
@@ -59,8 +59,6 @@ export const privateMessageNotification = async (
         },
       }
     );
-
-    console.log("response: ", response);
   } catch (err) {
     console.log("Error sending notification: ", err);
   }

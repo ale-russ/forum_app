@@ -7,10 +7,12 @@ import { toastOptions } from "../../utils/constants";
 import Loader from "./../common/Loader";
 import ModalWrapper from "../common/ModalWrapper";
 import { useForum } from "../../utils/PostContext";
+import { useMessage } from "../../utils/MessageContextProvider";
 const socket = io(host);
 
 const JoinRoom = ({ setJoinModalOpen }) => {
-  const { chatRooms, handleFetchRooms } = useForum();
+  const { chatRooms } = useForum();
+  const { handleFetchRooms } = useMessage();
   const [selectedRoom, setSelectedRoom] = useState("");
   const [loading, setLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("currentUser"));
