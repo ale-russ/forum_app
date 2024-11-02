@@ -95,7 +95,7 @@ const PostPage = () => {
   return (
     <HomeWrapper
       children={
-        <div className="flex py-2 h-full w-full">
+        <div className="flex py-2 h-full w-full ">
           <div className="light-navbar flex flex-col items-center outline-none focus:outline-none light shadow-2xl w-full lg:w-[80%] xl:w-[50%] max-h-[70%] m-x-auto rounded-3xl overflow-x-hidden overflow-y-auto scrollbar custom-scrollbar px-4 m-auto">
             <div className="flex items-center justify-center w-full h-10 font-bold uppercase">
               {localPost?.title}

@@ -51,7 +51,11 @@ function App() {
   }, []);
 
   return (
-    <div className="light w-full h-full overflow-x-hidden scrollbar custom-scrollbar">
+    <div
+      className="light w-full 
+    // overflow-x-hidden scrollbar custom-scrollbar
+    "
+    >
       <BrowserRouter>
         <Routes>
           <Route element={<AuthWrapper />}>

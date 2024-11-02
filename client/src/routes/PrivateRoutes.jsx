@@ -19,12 +19,12 @@ const PrivateRoutes = ({ allowedRoutes }) => {
       <ForumProvider>
         <MessageContextProvider>
           <Navbar />
-          <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full">
+          <div className="flex flex-col sm:flex-row lg:flex-row md:flex-row xl:flex-row px-4 w-full overflow-x-hidden scrollbar custom-scrollbar mt-16">
             <LeftSideBar />
             <Outlet replace />
             {/* <Chat /> */}
           </div>
-          <Footer />
+          {/* <Footer /> */}
         </MessageContextProvider>
       </ForumProvider>
     </SocketProvider>

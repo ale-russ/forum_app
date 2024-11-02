@@ -45,7 +45,7 @@ const NavBar = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-full shadow-lg sticky top-0 right-0 left-0 z-50">
+    <div className="flex items-center justify-between px-1 md:px-4 light-navbar h-16 w-full shadow-lg fixed top-0 right-0 left-0 z-50">
       <HeaderLogo />
 
       {/* <IconsTile /> */}

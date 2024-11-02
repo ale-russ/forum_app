@@ -5,7 +5,7 @@ import Footer from "../components/common/Footer";
 
 function AuthWrapper() {
   return (
-    <div className="h-full w-full light-search">
+    <div className="w-full light-search">
       <>
         <Outlet />
         <Footer />

@@ -26,7 +26,7 @@ const CreatePost = () => {
   useCloseModal(modalRef, () => setShowModal(false));
 
   return (
-    <div className="light-navbar flex items-start md:items-center lg:items-center xl:items-center rounded-lg px-4 w-full py-4 drop-shadow-lg z-40">
+    <div className="light-navbar flex items-start rounded-lg px-4 w-full py-4 drop-shadow-lg z-40">
       <ProfileImage author={user} />
       <div className="flex items-center gap-x-4  w-[90%]">
         <button

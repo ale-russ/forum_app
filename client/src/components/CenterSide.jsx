@@ -4,12 +4,13 @@ import SmallBaches from "./SmallBaches";
 
 import { useForum } from "../utils/PostContext";
 import PostComponent from "./post/PostComponent";
+import Footer from "./common/Footer";
 
 const CenterSide = () => {
   const { threads } = useForum();
 
   return (
-    <form className="w-full h-full flex flex-col items-start gap-4 space-x-1 m-3 mb-6 rounded-lg  py-2 pr-4">
+    <form className="w-full h-full flex flex-col items-start gap-4 space-x-1 mx-3 mb-6 rounded-lg  py-2 pr-4">
       <SmallBaches />
       <CreatePost />
 
@@ -22,6 +23,7 @@ const CenterSide = () => {
           <p>No Post Found</p>
         )}
       </>
+      <Footer />
     </form>
   );
 };
