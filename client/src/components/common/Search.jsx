@@ -69,7 +69,7 @@ const DisplaySearchResults = ({ setShowSearchModal, searchResults }) => {
           searchResults?.map((post) => (
             <div
               key={post._id}
-              className="font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar overflow-x-hidden cursor-pointer truncate text-clip whitespace-nowrap"
+              className="font-bold p-3 rounded-lg shadow-lg border border-gray-300 border-opacity-30 my-3 mx-2 light-navbar overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer"
               onClick={() => navigate(`/post/${post._id}`, { state: { post } })}
             >
               {post?.title} : {post?.content}
